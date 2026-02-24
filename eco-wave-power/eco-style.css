@@ -2,75 +2,76 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: "Segoe UI", sans-serif;
+    font-family: "Segoe UI", "Noto Sans TC", sans-serif;
 }
 
 body {
-    background: linear-gradient(180deg, #06283D, #0B3C5D);
-    color: #ffffff;
+    background-color: #0A192F;
+    color: #E6F1FF;
     line-height: 1.8;
 }
 
 /* Header */
 header {
     text-align: center;
-    padding: 100px 20px;
-    background: linear-gradient(135deg, #0B3C5D, #1363DF);
+    padding: 120px 20px;
+    background: linear-gradient(135deg, #0A192F, #112240);
 }
 
 header h1 {
-    font-size: 3rem;
-    color: #F4D35E;
+    font-size: 3.2rem;
+    color: #F2C14E;
+    letter-spacing: 1px;
 }
 
 header p {
-    margin-top: 10px;
-    opacity: 0.9;
+    margin-top: 15px;
+    opacity: 0.8;
+    font-size: 1.1rem;
 }
 
 /* Navigation */
 nav {
     display: flex;
     justify-content: center;
-    gap: 30px;
+    gap: 40px;
     padding: 18px;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(8px);
+    background: #112240;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
     position: sticky;
     top: 0;
 }
 
 nav a {
-    color: #F4D35E;
+    color: #E6F1FF;
     text-decoration: none;
-    font-weight: bold;
+    font-weight: 500;
     transition: 0.3s;
 }
 
 nav a:hover {
-    color: #EE964B;
+    color: #F2C14E;
 }
 
 /* Sections */
 section {
-    padding: 90px 20px;
-    max-width: 950px;
+    padding: 100px 20px;
+    max-width: 900px;
     margin: auto;
 }
 
 section h2 {
-    margin-bottom: 25px;
-    font-size: 1.9rem;
-    border-left: 6px solid #F4D35E;
-    padding-left: 12px;
+    margin-bottom: 30px;
+    font-size: 2rem;
+    color: #F2C14E;
 }
 
-/* Glass Card Effect */
+/* Paragraph Card */
 section p {
-    background: rgba(255,255,255,0.05);
-    padding: 20px;
+    background: #112240;
+    padding: 25px;
     border-radius: 12px;
-    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.05);
 }
 
 /* Accordion */
@@ -79,29 +80,29 @@ section p {
 }
 
 .accordion {
-    background-color: #F4D35E;
-    color: #06283D;
+    background: #112240;
+    color: #E6F1FF;
     cursor: pointer;
-    padding: 16px;
+    padding: 18px;
     width: 100%;
-    border: none;
+    border: 1px solid rgba(255,255,255,0.05);
     text-align: left;
     font-size: 1rem;
-    border-radius: 8px;
-    font-weight: bold;
+    border-radius: 10px;
     transition: 0.3s;
 }
 
 .accordion:hover {
-    background-color: #EE964B;
+    border-color: #F2C14E;
+    color: #F2C14E;
 }
 
 .panel {
     display: none;
-    padding: 18px;
-    background: rgba(255,255,255,0.05);
-    border-radius: 8px;
-    margin-top: 5px;
+    padding: 20px;
+    background: #0F1E36;
+    border-radius: 10px;
+    margin-top: 8px;
 }
 
 /* Media */
@@ -118,8 +119,8 @@ audio {
 /* Footer */
 footer {
     text-align: center;
-    padding: 50px;
-    background: #041C32;
-    margin-top: 80px;
-    color: #F4D35E;
+    padding: 60px;
+    background: #081423;
+    margin-top: 100px;
+    color: #F2C14E;
 }
