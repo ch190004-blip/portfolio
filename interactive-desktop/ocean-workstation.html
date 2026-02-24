@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ocean Workstation</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Segoe UI",sans-serif;
+}
+
+body{
+    height:100vh;
+    overflow:hidden;
+    background:linear-gradient(180deg,#0A192F,#112240);
+    color:#E6F1FF;
+}
+
+/* ===== 大按鈕區 ===== */
+
+.panel{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    display:grid;
+    grid-template-columns:repeat(2,220px);
+    gap:40px;
+}
+
+.big-btn{
+    padding:40px;
+    text-align:center;
+    background:#112240;
+    border-radius:20px;
+    font-size:1.2rem;
+    cursor:pointer;
+    transition:0.3s;
+    border:1px solid rgba(255,255,255,0.08);
+}
+
+.big-btn:hover{
+    background:#1B2A49;
+    border-color:#64FFDA;
+    transform:scale(1.05);
+}
+
+/* ===== 時鐘 ===== */
+
+.clock{
+    position:absolute;
+    top:40px;
+    width:100%;
+    text-align:center;
+    font-size:3rem;
+    color:#F2C14E;
+    letter-spacing:3px;
+}
+
+/* ===== 海洋魚 ===== */
+
+.fish{
+    position:absolute;
+    font-size:28px;
+    transition:2s linear;
+    cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="clock" id="clock"></div>
+
+<div class="panel">
+    <div class="big-btn" onclick="openFolder('teaching')">
+        📂 114教學組
+    </div>
+
+    <div class="big-btn" onclick="openFolder('keelung')">
+        📂 基隆聖心
+    </div>
+
+    <div class="big-btn" onclick="openAI('chatgpt')">
+        🤖 ChatGPT
+    </div>
+
+    <div class="big-btn" onclick="openAI('notebook')">
+        📓 NotebookLM
+    </div>
+</div>
+
+<script>
+
+/* ===== 時鐘 ===== */
+function updateClock(){
+    const now=new Date();
+    document.getElementById("clock").innerText=
+        now.toLocaleTimeString();
+}
+setInterval(updateClock,1000);
+updateClock();
+
+/* ===== 本機資料夾 ===== */
+
+const folders={
+    teaching:"G:\\我的雲端硬碟\\114教學組",
+    keelung:"H:\\我的雲端硬碟\\2026年9月16日2TB\\12.基隆聖心"
+};
+
+function openFolder(key){
+    if(window.external){
+        window.external.invoke(
+            "cmd:explorer.exe "+folders[key]
+        );
+    }else{
+        alert("請在 Lively Wallpaper 中執行");
+    }
+}
+
+/* ===== AI 應用 ===== */
+
+const aiApps={
+    chatgpt:"https://chat.openai.com/",
+    notebook:"https://notebooklm.google.com/"
+};
+
+function openAI(app){
+    window.open(aiApps[app]);
+}
+
+/* ===== 海洋魚動畫 ===== */
+
+function createFish(){
+    const fish=document.createElement("div");
+    fish.innerText="🐟";
+    fish.classList.add("fish");
+
+    moveFish(fish);
+
+    fish.onclick=()=>{
+        moveFish(fish,true);
+    };
+
+    document.body.appendChild(fish);
+
+    setInterval(()=>{
+        moveFish(fish);
+    },5000);
+}
+
+function moveFish(fish,fast=false){
+    fish.style.left=Math.random()*window.innerWidth+"px";
+    fish.style.top=Math.random()*window.innerHeight+"px";
+    fish.style.transition= fast ? "0.5s" : "2s";
+}
+
+for(let i=0;i<6;i++){
+    createFish();
+}
+
+</script>
+
+</body>
+</html>
