@@ -30,21 +30,51 @@ class Fish {
         if(this.y < 0 || this.y > canvas.height) this.vy *= -1;
     }
 
-    draw(){
-        ctx.save();
-        ctx.translate(this.x,this.y);
+  draw(){
+    ctx.save();
+    ctx.translate(this.x, this.y);
 
-        if(this.vx < 0){
-            ctx.scale(-1,1);
-        }
-
-        ctx.fillStyle = "orange";
-        ctx.beginPath();
-        ctx.ellipse(0,0,this.size,this.size/2,0,0,Math.PI*2);
-        ctx.fill();
-
-        ctx.restore();
+    // 根據方向翻轉
+    if(this.vx < 0){
+        ctx.scale(-1,1);
     }
+
+    // 身體漸層
+    const gradient = ctx.createLinearGradient(-this.size,0,this.size,0);
+    gradient.addColorStop(0,"#ff9966");
+    gradient.addColorStop(1,"#ff3300");
+
+    ctx.fillStyle = gradient;
+
+    // 魚身
+    ctx.beginPath();
+    ctx.moveTo(-this.size,0);
+    ctx.quadraticCurveTo(0,-this.size/1.5,this.size,0);
+    ctx.quadraticCurveTo(0,this.size/1.5,-this.size,0);
+    ctx.fill();
+
+    // 尾巴
+    ctx.beginPath();
+    ctx.moveTo(-this.size,0);
+    ctx.lineTo(-this.size-15,-10);
+    ctx.lineTo(-this.size-15,10);
+    ctx.closePath();
+    ctx.fillStyle = "#ff6633";
+    ctx.fill();
+
+    // 眼睛
+    ctx.fillStyle = "white";
+    ctx.beginPath();
+    ctx.arc(this.size/3,-3,4,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = "black";
+    ctx.beginPath();
+    ctx.arc(this.size/3,-3,2,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.restore();
+}
 }
 
 
