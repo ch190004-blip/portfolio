@@ -3,75 +3,57 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ocean Workstation v5</title>
+<title>Ocean Time Reactive Art</title>
 
 <style>
 *{
     margin:0;
     padding:0;
     box-sizing:border-box;
-    font-family:"Segoe UI",sans-serif;
 }
 
 body{
     height:100vh;
     overflow:hidden;
-    color:#E6F1FF;
-    background:
-    radial-gradient(circle at 30% 30%, rgba(0,180,255,0.15), transparent 40%),
-    radial-gradient(circle at 70% 70%, rgba(0,120,255,0.12), transparent 50%),
-    linear-gradient(180deg,#071326,#0A192F,#112240);
+    font-family:"Segoe UI",sans-serif;
+    transition: background 2s ease;
+    background-size:cover;
+    background-position:center;
 }
 
-/* ===== 時鐘 ===== */
+/* 漸層遮罩融合 */
+.overlay{
+    position:absolute;
+    width:100%;
+    height:100%;
+    background:linear-gradient(
+        180deg,
+        rgba(0,0,0,0.3),
+        rgba(0,0,0,0.6)
+    );
+    pointer-events:none;
+    transition: background 2s ease;
+}
 
+/* 時間顯示 */
 .clock{
     position:absolute;
-    top:40px;
+    bottom:60px;
     width:100%;
     text-align:center;
-    font-size:3rem;
-    color:#F2C14E;
-    letter-spacing:3px;
+    font-size:4rem;
+    letter-spacing:4px;
+    font-weight:200;
+    color:white;
+    text-shadow:0 0 40px rgba(0,150,255,0.8);
 }
 
-/* ===== 中央按鈕區 ===== */
-
-.panel{
-    position:absolute;
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
-    display:grid;
-    grid-template-columns:repeat(2,260px);
-    gap:50px;
-}
-
-.big-btn{
-    padding:60px;
-    text-align:center;
-    background:rgba(255,255,255,0.05);
-    backdrop-filter:blur(15px);
-    border-radius:25px;
-    font-size:1.3rem;
-    cursor:pointer;
-    transition:0.4s;
-    border:1px solid rgba(100,255,218,0.3);
-    box-shadow:0 0 30px rgba(0,150,255,0.15);
-}
-
-.big-btn:hover{
-    background:rgba(100,255,218,0.08);
-    border-color:#64FFDA;
-    transform:scale(1.08);
-    box-shadow:0 0 40px rgba(100,255,218,0.4);
-}
-
-/* ===== 魚 ===== */
-
+/* 魚 */
 .fish{
     position:absolute;
-    transition:8s ease-in-out;
+    width:90px;
+    transition:10s linear;
+    opacity:0.9;
     cursor:pointer;
 }
 </style>
@@ -79,96 +61,93 @@ body{
 
 <body>
 
+<div class="overlay" id="overlay"></div>
 <div class="clock" id="clock"></div>
-
-<div class="panel">
-    <div class="big-btn" onclick="openFolder('teaching')">
-        📂 114教學組
-    </div>
-
-    <div class="big-btn" onclick="openFolder('keelung')">
-        📂 基隆聖心
-    </div>
-
-    <div class="big-btn" onclick="openAI('chatgpt')">
-        🤖 ChatGPT
-    </div>
-
-    <div class="big-btn" onclick="openAI('notebook')">
-        📓 NotebookLM
-    </div>
-</div>
 
 <script>
 
 /* ===== 時鐘 ===== */
 function updateClock(){
-    const now=new Date();
-    document.getElementById("clock").innerText=
-        now.toLocaleTimeString();
+    const now = new Date();
+    const options = { hour: '2-digit', minute: '2-digit' };
+    document.getElementById("clock").innerText =
+        now.toLocaleTimeString('zh-TW', options);
 }
 setInterval(updateClock,1000);
 updateClock();
 
-/* ===== 本機資料夾 ===== */
+/* ===== 時間背景切換 ===== */
 
-const folders={
-    teaching:"G:\\我的雲端硬碟\\114教學組",
-    keelung:"H:\\我的雲端硬碟\\2026年9月16日2TB\\12.基隆聖心"
-};
+function updateBackground(){
 
-function openFolder(key){
-    if(window.lively){
-        window.lively.run(folders[key]);
-    }else{
-        alert("請在 Lively Wallpaper 中執行");
+    const hour = new Date().getHours();
+    const body = document.body;
+    const overlay = document.getElementById("overlay");
+
+    if(hour >= 5 && hour < 11){
+        // 🌅 早晨
+        body.style.backgroundImage =
+        "url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e')";
+        overlay.style.background =
+        "linear-gradient(180deg, rgba(255,180,80,0.3), rgba(0,0,0,0.5))";
+    }
+    else if(hour >= 11 && hour < 17){
+        // 🌊 日間
+        body.style.backgroundImage =
+        "url('https://images.unsplash.com/photo-1500375592092-40eb2168fd21')";
+        overlay.style.background =
+        "linear-gradient(180deg, rgba(0,150,255,0.2), rgba(0,0,0,0.5))";
+    }
+    else if(hour >= 17 && hour < 19){
+        // 🌇 黃昏
+        body.style.backgroundImage =
+        "url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee')";
+        overlay.style.background =
+        "linear-gradient(180deg, rgba(255,100,50,0.4), rgba(0,0,0,0.6))";
+    }
+    else{
+        // 🌌 夜晚
+        body.style.backgroundImage =
+        "url('https://images.unsplash.com/photo-1470770841072-f978cf4d019e')";
+        overlay.style.background =
+        "linear-gradient(180deg, rgba(0,0,50,0.6), rgba(0,0,0,0.8))";
     }
 }
 
-/* ===== AI 應用 ===== */
+updateBackground();
+setInterval(updateBackground,60000);
 
-const aiApps={
-    chatgpt:"https://chat.openai.com/",
-    notebook:"https://notebooklm.google.com/"
-};
-
-function openAI(app){
-    window.open(aiApps[app]);
-}
-
-/* ===== 高質感魚動畫 ===== */
+/* ===== 魚動畫 ===== */
 
 function createFish(){
-    const fish=document.createElement("div");
-    fish.innerText="🐠";
+    const fish = document.createElement("img");
+    fish.src =
+    "https://upload.wikimedia.org/wikipedia/commons/3/3b/Fish_icon.svg";
     fish.classList.add("fish");
 
-    fish.style.fontSize = (40 + Math.random()*30) + "px";
-    fish.style.opacity = 0.85;
-
     document.body.appendChild(fish);
-
     swim(fish);
 
-    fish.onclick = () => {
-        swim(fish, true);
-    };
+    fish.addEventListener("click",()=>{
+        swim(fish,true);
+    });
 }
 
 function swim(fish, fast=false){
     const x = Math.random()*window.innerWidth;
     const y = Math.random()*window.innerHeight;
 
-    fish.style.transition = fast ? "1s ease-out" : "8s ease-in-out";
-    fish.style.left = x + "px";
-    fish.style.top = y + "px";
+    fish.style.left = x+"px";
+    fish.style.top = y+"px";
+    fish.style.transition = fast ? "1.5s ease-out" : "12s linear";
 
-    fish.style.transform = x > window.innerWidth/2
+    fish.style.transform =
+        x > window.innerWidth/2
         ? "scaleX(-1)"
         : "scaleX(1)";
 }
 
-for(let i=0;i<4;i++){
+for(let i=0;i<3;i++){
     createFish();
 }
 
