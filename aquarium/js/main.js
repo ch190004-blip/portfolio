@@ -77,10 +77,30 @@ class Fish {
 }
 }
 
+class Food {
+    constructor(x, y){
+        this.x = x;
+        this.y = y;
+        this.size = 5;
+        this.speed = 1;
+    }
+
+    update(){
+        this.y += this.speed; // 向下掉
+    }
+
+    draw(){
+        ctx.fillStyle = "#5c4033";
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
+        ctx.fill();
+    }
+}
 
 /* =======================
    初始化魚群
 ======================= */
+let foodList = [];
 
 let fishes = [];
 
@@ -95,7 +115,11 @@ for(let i=0;i<10;i++){
 
 function animate(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
-
+foodList.forEach(food=>{
+    food.update();
+    food.draw();
+});
+    
     fishes.forEach(f=>{
         f.update();
         f.draw();
@@ -105,3 +129,13 @@ function animate(){
 }
 
 animate();
+canvas.addEventListener("click", (e)=>{
+    for(let i=0; i<6; i++){
+        foodList.push(
+            new Food(
+                e.clientX + (Math.random()*20-10),
+                e.clientY + (Math.random()*20-10)
+            )
+        );
+    }
+});
