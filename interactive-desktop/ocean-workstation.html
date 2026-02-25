@@ -4,299 +4,178 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ocean Time Reactive Art</title>
-<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;500;700&display=swap" rel="stylesheet">
 
 <style>
-    :root {
-        --sky-top: #0f2027;
-        --sky-bottom: #203a43;
-        --sea-color: #2c5364;
-    }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
+body {
+    height: 100vh;
+    overflow: hidden;
+    font-family: "Segoe UI", sans-serif;
+    /* 加入一點放大，為了讓背景有空間可以移動 */
+    background-size: 110% 110%; 
+    background-position: center;
+    background-repeat: no-repeat;
+    /* 讓照片切換時有平滑的淡入淡出感 */
+    transition: background-image 3s ease-in-out; 
+    /* 海洋緩慢漂移的動態效果 */
+    animation: ocean-drift 30s ease-in-out infinite alternate; 
+}
 
-    body {
-        height: 100vh;
-        overflow: hidden;
-        font-family: "Quicksand", "Segoe UI", sans-serif;
-        background: linear-gradient(180deg, var(--sky-top), var(--sky-bottom));
-        transition: background 3s ease;
-    }
+/* 背景漂移動畫，營造真實海洋流動感 */
+@keyframes ocean-drift {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+}
 
-    /* 動態海浪 */
-    .ocean {
-        height: 35%;
-        width: 100%;
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        background: var(--sea-color);
-        transition: background 3s ease;
-        z-index: 1;
-    }
+/* 漸層遮罩融合 - 讓天色變化更自然 */
+.overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    /* 遮罩顏色變化時的平滑過渡 */
+    transition: background 3s ease-in-out; 
+}
 
-    .wave {
-        background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.2" d="M0,160L48,170.7C96,181,192,203,288,197.3C384,192,480,160,576,165.3C672,171,768,213,864,218.7C960,224,1056,192,1152,170.7C1248,149,1344,139,1392,133.3L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
-        background-size: 1000px 100%;
-        position: absolute;
-        top: -100px;
-        width: 200%;
-        height: 100px;
-        animation: wave-animation 15s linear infinite;
-    }
+/* 時間顯示優化 */
+.clock {
+    position: absolute;
+    bottom: 80px;
+    width: 100%;
+    text-align: center;
+    font-size: 4.5rem;
+    letter-spacing: 6px;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.95);
+    /* 加上兩層陰影讓文字在亮色背景也能看清楚 */
+    text-shadow: 0 4px 20px rgba(0,0,0,0.6), 0 0 40px rgba(0,150,255,0.4);
+    z-index: 10;
+}
 
-    .wave:nth-of-type(2) {
-        top: -90px;
-        animation: wave-animation 20s linear infinite reverse;
-        opacity: 0.5;
-    }
+/* 小月曆 */
+.mini-calendar {
+    position: absolute;
+    bottom: 30px;
+    width: 100%;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 400;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: 0 2px 10px rgba(0,0,0,0.6);
+    z-index: 10;
+}
 
-    @keyframes wave-animation {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(-50%); }
-    }
-
-    /* 時間與日期面板 (毛玻璃效果) */
-    .time-widget {
-        position: absolute;
-        top: 10%;
-        left: 5%;
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        padding: 30px 40px;
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: white;
-        text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        z-index: 10;
-    }
-
-    .clock {
-        font-size: 5rem;
-        font-weight: 700;
-        letter-spacing: 2px;
-        line-height: 1;
-    }
-
-    .date {
-        font-size: 1.5rem;
-        font-weight: 300;
-        margin-top: 10px;
-    }
-
-    /* 月曆面板 */
-    .calendar-widget {
-        position: absolute;
-        bottom: 5%;
-        right: 5%;
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        padding: 20px;
-        border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: white;
-        z-index: 10;
-    }
-
-    .calendar-header {
-        text-align: center;
-        font-size: 1.2rem;
-        font-weight: 700;
-        margin-bottom: 10px;
-    }
-
-    .calendar-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 5px;
-        text-align: center;
-    }
-
-    .day-name {
-        font-weight: 700;
-        font-size: 0.9rem;
-        color: rgba(255, 255, 255, 0.7);
-    }
-
-    .day {
-        width: 30px;
-        height: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.9rem;
-        border-radius: 50%;
-    }
-
-    .day.today {
-        background: rgba(255, 255, 255, 0.8);
-        color: #333;
-        font-weight: bold;
-    }
-
-    /* 魚 */
-    .fish {
-        position: absolute;
-        width: 120px; /* 調整為適合寫實圖片的大小 */
-        transition: 10s linear;
-        opacity: 0.85;
-        cursor: pointer;
-        z-index: 5;
-        filter: drop-shadow(0px 10px 5px rgba(0,0,0,0.3));
-    }
+/* 寫實魚 */
+.fish {
+    position: absolute;
+    width: 100px; /* 調整為適合寫實比例 */
+    transition: 12s linear;
+    opacity: 0.85;
+    cursor: pointer;
+    z-index: 5;
+    /* 加一點陰影讓魚更有立體感 */
+    filter: drop-shadow(0px 8px 6px rgba(0,0,0,0.4)); 
+}
 </style>
 </head>
+
 <body>
 
-<div class="time-widget">
-    <div class="clock" id="clock"></div>
-    <div class="date" id="date"></div>
-</div>
-
-<div class="calendar-widget">
-    <div class="calendar-header" id="cal-month-year"></div>
-    <div class="calendar-grid" id="cal-grid">
-        <div class="day-name">日</div><div class="day-name">一</div><div class="day-name">二</div>
-        <div class="day-name">三</div><div class="day-name">四</div><div class="day-name">五</div><div class="day-name">六</div>
-        </div>
-</div>
-
-<div class="ocean" id="ocean">
-    <div class="wave"></div>
-    <div class="wave"></div>
-</div>
+<div class="overlay" id="overlay"></div>
+<div class="clock" id="clock"></div>
+<div class="mini-calendar" id="calendar"></div>
 
 <script>
-/* ===== 時間與日期顯示 ===== */
-function updateClock(){
+
+/* ===== 時鐘與小月曆 ===== */
+function updateTimeAndDate(){
     const now = new Date();
     
-    // 更新時間
+    // 時間
     const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: false };
     document.getElementById("clock").innerText = now.toLocaleTimeString('zh-TW', timeOptions);
-    
-    // 更新日期
+
+    // 小月曆 (格式：2024年X月X日 星期X)
     const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
-    document.getElementById("date").innerText = now.toLocaleDateString('zh-TW', dateOptions);
+    document.getElementById("calendar").innerText = now.toLocaleDateString('zh-TW', dateOptions);
 }
-setInterval(updateClock, 1000);
-updateClock();
+setInterval(updateTimeAndDate, 1000);
+updateTimeAndDate();
 
-/* ===== 月曆生成 ===== */
-function generateCalendar() {
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-    const today = now.getDate();
 
-    // 設定月曆標題
-    document.getElementById("cal-month-year").innerText = `${currentYear}年 ${currentMonth + 1}月`;
-
-    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-    
-    const calGrid = document.getElementById("cal-grid");
-    
-    // 保留星期標題，清除之前的日期
-    calGrid.innerHTML = `
-        <div class="day-name">日</div><div class="day-name">一</div><div class="day-name">二</div>
-        <div class="day-name">三</div><div class="day-name">四</div><div class="day-name">五</div><div class="day-name">六</div>
-    `;
-
-    // 填充空白天數
-    for (let i = 0; i < firstDay; i++) {
-        calGrid.innerHTML += `<div class="day"></div>`;
-    }
-
-    // 填充實際天數
-    for (let i = 1; i <= daysInMonth; i++) {
-        const isToday = (i === today) ? "today" : "";
-        calGrid.innerHTML += `<div class="day ${isToday}">${i}</div>`;
-    }
-}
-generateCalendar();
-// 每小時檢查一次月曆是否需要更新（跨日時）
-setInterval(generateCalendar, 3600000); 
-
-/* ===== 天色與海色隨時間變化 ===== */
-function updateEnvironment(){
+/* ===== 天色與真實照片切換 ===== */
+function updateBackground(){
     const hour = new Date().getHours();
-    const root = document.documentElement;
+    const body = document.body;
+    const overlay = document.getElementById("overlay");
 
+    // 沿用你原本精選的 Unsplash 照片，加上遮罩顏色來強化時間氛圍
     if(hour >= 5 && hour < 11){
-        // 🌅 早晨：橘粉色天空，深藍海
-        root.style.setProperty('--sky-top', '#ff7e5f');
-        root.style.setProperty('--sky-bottom', '#feb47b');
-        root.style.setProperty('--sea-color', '#1a4a76');
+        // 🌅 早晨
+        body.style.backgroundImage = "url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e')";
+        overlay.style.background = "linear-gradient(180deg, rgba(255,150,80,0.2), rgba(0,20,50,0.4))";
     }
     else if(hour >= 11 && hour < 17){
-        // 🌊 日間：晴朗藍天，淺藍海
-        root.style.setProperty('--sky-top', '#4facfe');
-        root.style.setProperty('--sky-bottom', '#00f2fe');
-        root.style.setProperty('--sea-color', '#015871');
+        // 🌊 日間
+        body.style.backgroundImage = "url('https://images.unsplash.com/photo-1500375592092-40eb2168fd21')";
+        overlay.style.background = "linear-gradient(180deg, rgba(0,100,200,0.1), rgba(0,20,50,0.3))";
     }
     else if(hour >= 17 && hour < 19){
-        // 🌇 黃昏：紫橘色天空，暗色海
-        root.style.setProperty('--sky-top', '#ff9a44');
-        root.style.setProperty('--sky-bottom', '#fc6076');
-        root.style.setProperty('--sea-color', '#2c3e50');
+        // 🌇 黃昏
+        body.style.backgroundImage = "url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee')";
+        overlay.style.background = "linear-gradient(180deg, rgba(200,80,50,0.3), rgba(0,10,30,0.6))";
     }
     else{
-        // 🌌 夜晚：深藍黑天空，深邃海
-        root.style.setProperty('--sky-top', '#0f2027');
-        root.style.setProperty('--sky-bottom', '#203a43');
-        root.style.setProperty('--sea-color', '#0b101e');
+        // 🌌 夜晚
+        body.style.backgroundImage = "url('https://images.unsplash.com/photo-1470770841072-f978cf4d019e')";
+        overlay.style.background = "linear-gradient(180deg, rgba(0,0,20,0.5), rgba(0,0,10,0.8))";
     }
 }
-updateEnvironment();
-setInterval(updateEnvironment, 60000);
+updateBackground();
+setInterval(updateBackground, 60000);
 
-/* ===== 魚群動畫 ===== */
+
+/* ===== 寫實魚動畫 ===== */
 function createFish(){
     const fish = document.createElement("img");
     
-    // 這裡使用了一個穩定的維基共享資源寫實魚類透明 PNG
-    // 最佳做法是將圖片下載並放在同一個 GitHub 資料夾，改為 src = "./fish.png"
+    // 【圖片防失效終極解法】
+    // 目前我先放了一隻維基百科上的寫實熱帶魚。
+    // 強烈建議：去網路抓一張去背的魚(png檔)，存在跟 index.html 同一個資料夾，然後把下面這行改成 fish.src = "./fish.png";
     fish.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Snapper.png/320px-Snapper.png";
     fish.classList.add("fish");
-    
-    // 確保魚只在下半部的海域（ocean div內）生成
-    document.getElementById("ocean").appendChild(fish);
+
+    document.body.appendChild(fish);
     swim(fish);
 
-    // 點擊加速游走
     fish.addEventListener("click", () => {
         swim(fish, true);
     });
 }
 
 function swim(fish, fast=false){
-    const ocean = document.getElementById("ocean");
-    const oceanHeight = ocean.offsetHeight;
-    const oceanWidth = ocean.offsetWidth;
-
-    const x = Math.random() * oceanWidth;
-    // 讓魚在海浪下方一點游動
-    const y = (Math.random() * (oceanHeight - 80)) + 40; 
+    const x = Math.random() * window.innerWidth;
+    // 讓魚盡量在畫面的中下半部游動（比較像在水裡）
+    const y = (Math.random() * (window.innerHeight * 0.6)) + (window.innerHeight * 0.3);
 
     fish.style.left = x + "px";
     fish.style.top = y + "px";
     fish.style.transition = fast ? "1.5s ease-out" : "15s linear";
 
-    // 控制魚頭方向 (如果游向左邊，圖片水平翻轉)
-    fish.style.transform = x > (oceanWidth / 2) ? "scaleX(-1)" : "scaleX(1)";
+    fish.style.transform = x > window.innerWidth / 2 ? "scaleX(-1)" : "scaleX(1)";
 }
 
-// 產生 4 條魚
-for(let i=0; i<4; i++){
-    setTimeout(createFish, i * 1500); // 讓魚錯開時間出現
+// 產生 3 條魚
+for(let i=0; i<3; i++){
+    setTimeout(createFish, i * 2000); // 讓魚錯開出現
 }
+
 </script>
 
 </body>
