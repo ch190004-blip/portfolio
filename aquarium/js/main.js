@@ -60,6 +60,7 @@ function getCurrentPeriod(){
 }
 
 function getNextMyClass(){
+
     const now = new Date();
     const weekday = now.getDay();
     if(weekday < 1 || weekday > 5) return null;
@@ -67,17 +68,24 @@ function getNextMyClass(){
     const todayList = myClasses[weekday] || [];
     const minutes = getNowMinutes();
 
-    for(let i=0;i<schedule.length;i++){
-        const periodIndex = i + 1;
-        if(todayList.includes(periodIndex)){
-            if(minutes < schedule[i].start){
-                return { ...schedule[i], index:periodIndex };
-            }
+    let candidates = [];
+
+    for(let i=0;i<todayList.length;i++){
+        const periodIndex = todayList[i] - 1;
+        const period = schedule[periodIndex];
+
+        if(minutes < period.start){
+            candidates.push(period);
         }
     }
-    return null;
-}
 
+    if(candidates.length === 0) return null;
+
+    // 取開始時間最近的一堂
+    candidates.sort((a,b)=>a.start-b.start);
+
+    return candidates[0];
+}
 /* =========================
    Fish
 ========================= */
