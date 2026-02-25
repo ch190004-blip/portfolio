@@ -22,14 +22,42 @@ class Fish {
         this.size = 20;
     }
 
-    update(){
-        this.x += this.vx;
-        this.y += this.vy;
+   update(){
 
-        if(this.x < 0 || this.x > canvas.width) this.vx *= -1;
-        if(this.y < 0 || this.y > canvas.height) this.vy *= -1;
+    if(foodList.length > 0){
+
+        // 找最近的食物
+        let nearest = foodList[0];
+        let minDist = Math.hypot(this.x - nearest.x, this.y - nearest.y);
+
+        for(let i=1; i<foodList.length; i++){
+            let d = Math.hypot(this.x - foodList[i].x, this.y - foodList[i].y);
+            if(d < minDist){
+                nearest = foodList[i];
+                minDist = d;
+            }
+        }
+
+        // 如果很近就吃掉
+        if(minDist < 10){
+            foodList.splice(foodList.indexOf(nearest), 1);
+        } else {
+            // 朝食物移動
+            let dx = nearest.x - this.x;
+            let dy = nearest.y - this.y;
+            let dist = Math.hypot(dx, dy);
+
+            this.vx = dx / dist * 2;
+            this.vy = dy / dist * 2;
+        }
     }
 
+    this.x += this.vx;
+    this.y += this.vy;
+
+    if(this.x < 0 || this.x > canvas.width) this.vx *= -1;
+    if(this.y < 0 || this.y > canvas.height) this.vy *= -1;
+}
   draw(){
     ctx.save();
     ctx.translate(this.x, this.y);
