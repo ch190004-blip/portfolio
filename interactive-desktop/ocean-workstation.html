@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ocean Workstation</title>
+<title>Ocean Workstation v5</title>
 
 <style>
 *{
@@ -16,37 +16,11 @@
 body{
     height:100vh;
     overflow:hidden;
-    background:linear-gradient(180deg,#0A192F,#112240);
     color:#E6F1FF;
-}
-
-/* ===== 大按鈕區 ===== */
-
-.panel{
-    position:absolute;
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
-    display:grid;
-    grid-template-columns:repeat(2,220px);
-    gap:40px;
-}
-
-.big-btn{
-    padding:40px;
-    text-align:center;
-    background:#112240;
-    border-radius:20px;
-    font-size:1.2rem;
-    cursor:pointer;
-    transition:0.3s;
-    border:1px solid rgba(255,255,255,0.08);
-}
-
-.big-btn:hover{
-    background:#1B2A49;
-    border-color:#64FFDA;
-    transform:scale(1.05);
+    background:
+    radial-gradient(circle at 30% 30%, rgba(0,180,255,0.15), transparent 40%),
+    radial-gradient(circle at 70% 70%, rgba(0,120,255,0.12), transparent 50%),
+    linear-gradient(180deg,#071326,#0A192F,#112240);
 }
 
 /* ===== 時鐘 ===== */
@@ -61,15 +35,45 @@ body{
     letter-spacing:3px;
 }
 
-/* ===== 海洋魚 ===== */
+/* ===== 中央按鈕區 ===== */
+
+.panel{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    display:grid;
+    grid-template-columns:repeat(2,260px);
+    gap:50px;
+}
+
+.big-btn{
+    padding:60px;
+    text-align:center;
+    background:rgba(255,255,255,0.05);
+    backdrop-filter:blur(15px);
+    border-radius:25px;
+    font-size:1.3rem;
+    cursor:pointer;
+    transition:0.4s;
+    border:1px solid rgba(100,255,218,0.3);
+    box-shadow:0 0 30px rgba(0,150,255,0.15);
+}
+
+.big-btn:hover{
+    background:rgba(100,255,218,0.08);
+    border-color:#64FFDA;
+    transform:scale(1.08);
+    box-shadow:0 0 40px rgba(100,255,218,0.4);
+}
+
+/* ===== 魚 ===== */
 
 .fish{
     position:absolute;
-    font-size:28px;
-    transition:2s linear;
+    transition:8s ease-in-out;
     cursor:pointer;
 }
-
 </style>
 </head>
 
@@ -114,10 +118,8 @@ const folders={
 };
 
 function openFolder(key){
-    if(window.external){
-        window.external.invoke(
-            "cmd:explorer.exe "+folders[key]
-        );
+    if(window.lively){
+        window.lively.run(folders[key]);
     }else{
         alert("請在 Lively Wallpaper 中執行");
     }
@@ -134,33 +136,39 @@ function openAI(app){
     window.open(aiApps[app]);
 }
 
-/* ===== 海洋魚動畫 ===== */
+/* ===== 高質感魚動畫 ===== */
 
 function createFish(){
     const fish=document.createElement("div");
-    fish.innerText="🐟";
+    fish.innerText="🐠";
     fish.classList.add("fish");
 
-    moveFish(fish);
-
-    fish.onclick=()=>{
-        moveFish(fish,true);
-    };
+    fish.style.fontSize = (40 + Math.random()*30) + "px";
+    fish.style.opacity = 0.85;
 
     document.body.appendChild(fish);
 
-    setInterval(()=>{
-        moveFish(fish);
-    },5000);
+    swim(fish);
+
+    fish.onclick = () => {
+        swim(fish, true);
+    };
 }
 
-function moveFish(fish,fast=false){
-    fish.style.left=Math.random()*window.innerWidth+"px";
-    fish.style.top=Math.random()*window.innerHeight+"px";
-    fish.style.transition= fast ? "0.5s" : "2s";
+function swim(fish, fast=false){
+    const x = Math.random()*window.innerWidth;
+    const y = Math.random()*window.innerHeight;
+
+    fish.style.transition = fast ? "1s ease-out" : "8s ease-in-out";
+    fish.style.left = x + "px";
+    fish.style.top = y + "px";
+
+    fish.style.transform = x > window.innerWidth/2
+        ? "scaleX(-1)"
+        : "scaleX(1)";
 }
 
-for(let i=0;i<6;i++){
+for(let i=0;i<4;i++){
     createFish();
 }
 
