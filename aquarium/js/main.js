@@ -1,4 +1,3 @@
-// ===== 基本設定 =====
 const canvas = document.getElementById("aquarium");
 const ctx = canvas.getContext("2d");
 
@@ -9,13 +8,20 @@ function resize(){
 resize();
 window.addEventListener("resize", resize);
 
+/* =========================
+   滑鼠
+========================= */
+
 let mouse = {x:null,y:null};
 canvas.addEventListener("mousemove",e=>{
     mouse.x=e.clientX;
     mouse.y=e.clientY;
 });
 
-// ===== 課表 =====
+/* =========================
+   課表設定
+========================= */
+
 const schedule = [
     { name:"早自習", start:450, end:480 },
     { name:"第一節", start:490, end:540 },
@@ -27,7 +33,7 @@ const schedule = [
     { name:"第六節", start:825, end:885 },
     { name:"第七節", start:890, end:940 },
     { name:"第八節", start:950, end:1000 },
-    { name:"第九節", start:1005, end:1050 },
+    { name:"第九節", start:1005, end:1050 }
 ];
 
 const myClasses = {
@@ -38,7 +44,47 @@ const myClasses = {
     5:[8]
 };
 
-// ===== 魚 =====
+/* =========================
+   取得現在節次
+========================= */
+
+function getCurrentPeriod(){
+    const now = new Date();
+    const minutes = now.getHours()*60 + now.getMinutes();
+
+    for(let i=0;i<schedule.length;i++){
+        if(minutes >= schedule[i].start && minutes <= schedule[i].end){
+            return { ...schedule[i], index:i+1 };
+        }
+    }
+    return null;
+}
+
+/* =========================
+   取得今天下一堂你有課
+========================= */
+
+function getNextMyClass(){
+    const now = new Date();
+    const minutes = now.getHours()*60 + now.getMinutes();
+    const weekday = now.getDay();
+
+    if(weekday < 1 || weekday > 5) return null;
+
+    const todayList = myClasses[weekday] || [];
+
+    for(let i=0;i<schedule.length;i++){
+        if(todayList.includes(i+1) && minutes < schedule[i].start){
+            return { ...schedule[i], index:i+1 };
+        }
+    }
+    return null;
+}
+
+/* =========================
+   Fish
+========================= */
+
 class Fish{
     constructor(){
         this.x=Math.random()*canvas.width;
@@ -50,11 +96,26 @@ class Fish{
 
     update(){
 
+        // 食物優先
+        if(foodList.length>0){
+            let target=foodList[0];
+            let dx=target.x-this.x;
+            let dy=target.y-this.y;
+            let d=Math.hypot(dx,dy);
+
+            if(d<10){
+                foodList.shift();
+            }else{
+                this.vx=dx/d*2;
+                this.vy=dy/d*2;
+            }
+        }
         // 滑鼠吸引
-        if(mouse.x){
+        else if(mouse.x){
             let dx=mouse.x-this.x;
             let dy=mouse.y-this.y;
             let d=Math.hypot(dx,dy);
+
             if(d<200){
                 this.vx+=dx/d*0.05;
                 this.vy+=dy/d*0.05;
@@ -67,7 +128,7 @@ class Fish{
         this.vx*=0.99;
         this.vy*=0.99;
 
-        // 修正邊界（考慮 size）
+        // 正確邊界
         if(this.x < this.size){
             this.x=this.size;
             this.vx*=-1;
@@ -102,29 +163,34 @@ class Fish{
         ctx.quadraticCurveTo(0,this.size/1.5,-this.size,0);
         ctx.fill();
 
-        ctx.beginPath();
-        ctx.moveTo(-this.size,0);
-        ctx.lineTo(-this.size-15,-10);
-        ctx.lineTo(-this.size-15,10);
-        ctx.closePath();
-        ctx.fillStyle="#ff6633";
-        ctx.fill();
-
-        ctx.fillStyle="white";
-        ctx.beginPath();
-        ctx.arc(this.size/3,-3,4,0,Math.PI*2);
-        ctx.fill();
-
-        ctx.fillStyle="black";
-        ctx.beginPath();
-        ctx.arc(this.size/3,-3,2,0,Math.PI*2);
-        ctx.fill();
-
         ctx.restore();
     }
 }
 
-// ===== 氣泡 =====
+/* =========================
+   Food
+========================= */
+
+class Food{
+    constructor(x,y){
+        this.x=x;
+        this.y=y;
+        this.size=5;
+        this.speed=1;
+    }
+    update(){ this.y+=this.speed; }
+    draw(){
+        ctx.fillStyle="#5c4033";
+        ctx.beginPath();
+        ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+        ctx.fill();
+    }
+}
+
+/* =========================
+   Bubble
+========================= */
+
 class Bubble{
     constructor(){
         this.x=Math.random()*canvas.width;
@@ -151,51 +217,58 @@ class Bubble{
     }
 }
 
-// ===== 下一堂你有課 =====
-function getNextMyClass(){
-    const now=new Date();
-    const minutes=now.getHours()*60+now.getMinutes();
-    const weekday=now.getDay();
+/* =========================
+   水面光影
+========================= */
 
-    const todayClasses=myClasses[weekday]||[];
+let waveTime=0;
 
-    for(let i=0;i<schedule.length;i++){
-        if(todayClasses.includes(i+1) && minutes < schedule[i].start){
-            return schedule[i];
-        }
+function drawLight(){
+    const hour=new Date().getHours();
+    const progress=hour/24;
+    const lightX=canvas.width*progress;
+
+    const g=ctx.createRadialGradient(lightX,0,50,lightX,200,600);
+    g.addColorStop(0,"rgba(255,255,200,0.4)");
+    g.addColorStop(1,"rgba(255,255,200,0)");
+
+    ctx.fillStyle=g;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    waveTime+=0.02;
+    ctx.globalAlpha=0.08;
+    ctx.fillStyle="white";
+
+    for(let i=0;i<canvas.width;i+=40){
+        const y=30+Math.sin(i*0.01+waveTime)*10;
+        ctx.fillRect(i,y,30,3);
     }
-    return null;
+    ctx.globalAlpha=1;
 }
 
-// ===== 面板 =====
+/* =========================
+   面板
+========================= */
+
 function drawPanel(){
     const now=new Date();
     const minutes=now.getHours()*60+now.getMinutes();
+    const current=getCurrentPeriod();
+    const nextMy=getNextMyClass();
 
-    const x=canvas.width-350;
+    const x=canvas.width-360;
     const y=20;
 
     ctx.fillStyle="rgba(0,0,0,0.6)";
-    ctx.fillRect(x,y,330,160);
+    ctx.fillRect(x,y,340,170);
 
     ctx.fillStyle="white";
     ctx.font="20px Arial";
     ctx.fillText(now.toLocaleTimeString(),x+20,y+30);
 
-    // 現在節次
-    let currentText="下課時間";
-    for(let i=0;i<schedule.length;i++){
-        if(minutes>=schedule[i].start && minutes<=schedule[i].end){
-            currentText=schedule[i].name;
-        }
-    }
-
     ctx.font="22px Arial";
     ctx.fillStyle="#ffd700";
-    ctx.fillText("現在："+currentText,x+20,y+60);
-
-    // 下一堂你有課
-    const nextMy=getNextMyClass();
+    ctx.fillText("現在："+(current?current.name:"下課時間"),x+20,y+65);
 
     if(nextMy){
         const diff=nextMy.start-minutes;
@@ -203,29 +276,49 @@ function drawPanel(){
 
         ctx.font="18px Arial";
         ctx.fillStyle="#ff8080";
-        ctx.fillText("你下一堂："+nextMy.name,x+20,y+95);
+        ctx.fillText("你下一堂："+nextMy.name,x+20,y+105);
 
         ctx.fillStyle="white";
-        ctx.fillText("還有 "+diff+" 分 "+sec+" 秒",x+20,y+120);
+        ctx.fillText("還有 "+diff+" 分 "+sec+" 秒",x+20,y+135);
     }else{
         ctx.fillStyle="#aaa";
-        ctx.fillText("今天沒有其他課了 🎉",x+20,y+100);
+        ctx.fillText("今天沒有其他課了 🎉",x+20,y+110);
     }
 }
 
-// ===== 初始化 =====
-let fishes=[],bubbles=[];
+/* =========================
+   初始化
+========================= */
+
+let fishes=[],bubbles=[],foodList=[];
 for(let i=0;i<15;i++)fishes.push(new Fish());
 for(let i=0;i<30;i++)bubbles.push(new Bubble());
 
-// ===== 動畫 =====
+canvas.addEventListener("click",e=>{
+    for(let i=0;i<6;i++){
+        foodList.push(new Food(
+            e.clientX+(Math.random()*20-10),
+            e.clientY+(Math.random()*20-10)
+        ));
+    }
+});
+
+/* =========================
+   動畫
+========================= */
+
 function animate(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
+    drawLight();
+
     bubbles.forEach(b=>{b.update();b.draw();});
+    foodList.forEach(f=>{f.update();f.draw();});
     fishes.forEach(f=>{f.update();f.draw();});
+
     drawPanel();
 
     requestAnimationFrame(animate);
 }
+
 animate();
