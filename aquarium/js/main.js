@@ -1,3 +1,50 @@
+/* =========================
+   課表面板
+========================= */
+
+function drawSchedulePanel(){
+
+    const now = new Date();
+    const weekday = now.getDay();
+    const minutes = getNowMinutes();
+    const current = getCurrentPeriod();
+    const next = getNextMyClass();
+
+    const x = canvas.width - 380;
+    const y = 20;
+
+    ctx.fillStyle = "rgba(0,0,0,0.6)";
+    ctx.fillRect(x,y,360,180);
+
+    ctx.fillStyle="white";
+    ctx.font="20px Arial";
+    ctx.fillText(now.toLocaleTimeString(),x+20,y+30);
+
+    ctx.font="18px Arial";
+    ctx.fillText("星期："+["日","一","二","三","四","五","六"][weekday],x+20,y+55);
+
+    ctx.font="20px Arial";
+    ctx.fillStyle="#ffd700";
+    ctx.fillText("現在："+(current?current.name:"下課時間"),x+20,y+85);
+
+    if(next){
+        const diffMin = next.start - minutes;
+        const diffSec = 60 - now.getSeconds();
+
+        ctx.fillStyle="#ff8080";
+        ctx.fillText("你下一堂："+next.name,x+20,y+120);
+
+        ctx.fillStyle="white";
+        ctx.fillText("倒數 "+diffMin+" 分 "+diffSec+" 秒",x+20,y+150);
+    }else{
+        ctx.fillStyle="#aaa";
+        ctx.fillText("今天沒有其他課了 🎉",x+20,y+130);
+    }
+}
+
+
+
+
 const canvas = document.getElementById("aquarium");
 const ctx = canvas.getContext("2d");
 
@@ -17,6 +64,66 @@ canvas.addEventListener("mousemove",e=>{
     mouse.x=e.clientX;
     mouse.y=e.clientY;
 });
+
+
+/* =========================
+   課表系統（獨立）
+========================= */
+
+const schedule = [
+    { name:"早自習", start:450, end:480 },
+    { name:"第一節", start:490, end:540 },
+    { name:"第二節", start:550, end:600 },
+    { name:"第三節", start:610, end:660 },
+    { name:"第四節", start:665, end:715 },
+    { name:"午休", start:715, end:775 },
+    { name:"第五節", start:775, end:825 },
+    { name:"第六節", start:825, end:885 },
+    { name:"第七節", start:890, end:940 },
+    { name:"第八節", start:950, end:1000 },
+    { name:"第九節", start:1005, end:1050 }
+];
+
+const myClasses = {
+    1:[2,5,6,8,9],
+    2:[2,5,6],
+    3:[2,3,4,5,6,9],
+    4:[3,5,6,9],
+    5:[8]
+};
+
+function getNowMinutes(){
+    const now = new Date();
+    return now.getHours()*60 + now.getMinutes();
+}
+
+function getCurrentPeriod(){
+    const minutes = getNowMinutes();
+    for(let i=0;i<schedule.length;i++){
+        if(minutes >= schedule[i].start && minutes <= schedule[i].end){
+            return { ...schedule[i], index:i+1 };
+        }
+    }
+    return null;
+}
+
+function getNextMyClass(){
+    const now = new Date();
+    const weekday = now.getDay();
+    if(weekday < 1 || weekday > 5) return null;
+
+    const todayList = myClasses[weekday] || [];
+    const minutes = getNowMinutes();
+
+    for(let i=0;i<schedule.length;i++){
+        if(todayList.includes(i+1) && minutes < schedule[i].start){
+            return { ...schedule[i], index:i+1 };
+        }
+    }
+    return null;
+}
+
+
 
 /* =========================
    Fish
@@ -223,7 +330,7 @@ function animate(){
     bubbles.forEach(b=>{b.update();b.draw();});
     foodList.forEach(f=>{f.update();f.draw();});
     fishes.forEach(f=>{f.update();f.draw();});
-
+    drawSchedulePanel();
     requestAnimationFrame(animate);
 }
 
