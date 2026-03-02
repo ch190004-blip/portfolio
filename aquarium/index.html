@@ -1,15 +1,49 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
+<!doctype html>
+<html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <title>Happy Aquarium</title>
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Aquarium Lite</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
+  <div id="bg"></div>
+  <div id="overlay"></div>
 
-    <div class="background"></div>
-    <canvas id="aquarium"></canvas>
+ <header id="hud">
+    <div class="hud-left">
+      <div class="hud-header">
+        <div id="clock" class="clock"></div>
+        <button id="toggleExamBtn" class="exam-btn">切換考程</button>
+      </div>
+      <div id="period" class="period"></div>
+      <div id="nextClass" class="next"></div>
+    </div>
+    
+    <div class="hud-right" id="eventPanel">
+      <div id="dailyMessage" class="daily-msg"></div>
+      <div id="eventList" class="event-list"></div>
+    </div>
+  </header>
 
-    <script src="js/main.js"></script>
+  <main id="tank" aria-label="aquarium">
+    <div class="turtle-container">
+      <svg class="turtle-svg" viewBox="0 0 140 60" width="140" height="60">
+        <ellipse cx="35" cy="48" rx="10" ry="6" fill="#4a6b3a" />
+        <ellipse cx="105" cy="48" rx="10" ry="6" fill="#4a6b3a" />
+        <polygon points="15,40 0,45 15,50" fill="#6b8e23"/>
+        <path d="M 20 45 Q 70 10 120 45 L 120 50 L 20 50 Z" fill="#6b8e23" stroke="#4a6b3a" stroke-width="3"/>
+        <circle cx="50" cy="35" r="8" fill="#4a6b3a" opacity="0.3"/>
+        <circle cx="75" cy="30" r="10" fill="#4a6b3a" opacity="0.3"/>
+        <circle cx="100" cy="38" r="6" fill="#4a6b3a" opacity="0.3"/>
+        <ellipse cx="125" cy="40" rx="14" ry="10" fill="#8fbc8f" />
+        <circle cx="132" cy="38" r="1.5" fill="#000"/>
+        <ellipse cx="45" cy="52" rx="12" ry="7" fill="#8fbc8f" />
+        <ellipse cx="115" cy="52" rx="12" ry="7" fill="#8fbc8f" />
+      </svg>
+    </div>
+  </main>
+
+  <script src="js/main.js"></script>
 </body>
 </html>
