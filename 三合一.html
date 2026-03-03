@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Wave Energy Dashboard - Aesthetic Perfect Layout</title>
+  <style>
+    /* =========================
+       全域設定與背景
+    ========================= */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; background: #211d24; }
+
+    #bg { position: fixed; inset: 0; background: url("sea.jpg") center/cover no-repeat; z-index: 0; }
+    /* 微調覆蓋層的顏色，帶一點點夕陽的紫粉色調 */
+    #overlay { position: fixed; inset: 0; background: linear-gradient(180deg, rgba(50, 40, 60, 0.05), rgba(30, 25, 45, 0.25)); pointer-events: none; z-index: 1; }
+    #tank { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
+
+    /* =========================
+       HUD 面板 (精緻低調茶色玻璃)
+    ========================= */
+    #hud { position: fixed; top: 20px; left: 20px; z-index: 20; pointer-events: none; }
+    .hud-panel {
+      pointer-events: auto; background: rgba(55, 45, 55, 0.35); border: 1px solid rgba(255,230,220,0.1);
+      border-radius: 10px; padding: 15px 20px; color: #EAE5E3; backdrop-filter: blur(6px);
+      box-shadow: 0 4px 15px rgba(30, 20, 40, 0.2); min-width: 240px;
+    }
+    .clock { font-size: 28px; font-weight: 700; letter-spacing: 2px; color: #FDF9F5; text-shadow: 0 2px 4px rgba(40, 25, 45, 0.5); margin-bottom: 12px; font-variant-numeric: tabular-nums; }
+    .daily-msg { font-size: 13px; font-weight: 700; color: #E5B487; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px dashed rgba(255,230,220,0.2); display: flex; align-items: center; gap: 6px;}
+    .event-list { font-size: 12px; line-height: 1.6; color: #D6D0D5;}
+    .event-item { margin-bottom: 6px; display: flex; align-items: flex-start; }
+    .event-date { color: #A1AEC2; margin-right: 10px; font-family: monospace; font-size: 12px; font-weight: bold; white-space: nowrap; }
+
+    /* =========================
+       動態 SVG 管線系統
+    ========================= */
+    #dynamic-pipes { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; filter: drop-shadow(0px 4px 4px rgba(30, 20, 40, 0.25)); }
+
+    /* =========================
+       插樁式浮子陣列 (唯美柔和配色)
+    ========================= */
+    .pile-container { position: absolute; width: 40px; height: 180px; z-index: 5; }
+    .pole { 
+      position: absolute; left: 15px; top: 0; width: 10px; height: 100%; 
+      background: linear-gradient(to right, #6D757C, #4B5259); 
+      border-radius: 5px; box-shadow: inset -2px 0 5px rgba(20, 20, 30, 0.4);
+    }
+    /* 浮子改為柔和的珊瑚粉橘 */
+    .floater { 
+      position: absolute; left: 0; top: 60px; width: 40px; height: 45px; 
+      background: linear-gradient(to bottom, #E89574, #C26C4E);
+      border: 2px solid #75402D; border-radius: 6px; box-shadow: 0 4px 10px rgba(30, 20, 40, 0.4);
+      transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 4;
+    }
+    .piston {
+      position: absolute; left: 16px; top: 30px; width: 8px; height: 30px;
+      background: #D4D8DC; border: 1px solid #7A8188; transition: height 0.25s, transform 0.25s; z-index: 3;
+    }
+    
+    .pipe-anchor-hp { position: absolute; left: 20px; bottom: -10px; width: 1px; height: 1px; }
+    .pipe-anchor-ret { position: absolute; left: 10px; bottom: -10px; width: 1px; height: 1px; }
+
+    #pile1 { left: 60%; top: 48%; transform: scale(0.60); }
+    #pile2 { left: 65%; top: 56%; transform: scale(0.75); }
+    #pile3 { left: 70%; top: 64%; transform: scale(0.90); }
+    #pile4 { left: 75%; top: 72%; transform: scale(1.05); } 
+
+    /* =========================
+       岸上設備總成 (套用組長指定的座標)
+    ========================= */
+    #shoreStation { 
+      position: absolute; left: 68%; top: 42%; z-index: 8; transform: scale(0.60); 
+    }
+
+    .equip-box { position: absolute; z-index: 8; }
+    .equip-label { 
+      position: absolute; font-size: 16px; color: #F5F0F0; font-family: monospace; 
+      text-align: center; width: 140%; left: -20%; bottom: -30px; 
+      text-shadow: 1px 1px 4px rgba(30, 20, 40, 0.9); font-weight: bold; letter-spacing: 1px;
+    }
+
+    /* 1. 蓄壓器 (位置：不動 / 顏色：霧灰紫) */
+    #accumulator { left: 0px; top: 0px; width: 50px; height: 95px; }
+    .acc-body { 
+      width: 100%; height: 100%; background: #686570; border: 3px solid #4B4854; 
+      border-radius: 25px 25px 4px 4px; display: flex; align-items: flex-end; overflow: hidden; 
+      box-shadow: 4px 4px 12px rgba(30, 20, 40, 0.4); 
+    }
+    #pressureGauge { width: 100%; height: 0%; background: linear-gradient(to top, #C7705B, #DCAC76); transition: height 0.3s ease-out; }
+    #anchor-acc-hp { position: absolute; left: 5px; bottom: 0; width: 1px; height: 1px; } 
+    #anchor-acc-motor { position: absolute; right: -5px; top: 65px; width: 1px; height: 1px; }
+
+    /* 2. 液壓馬達 (位置：不動 / 顏色：柔和苔綠) */
+    #motor { left: 250px; top: 100px; width: 60px; height: 60px; }
+    .motor-body { 
+      width: 100%; height: 100%; background: #688B74; border: 3px solid #43614D; 
+      border-radius: 8px; box-shadow: 3px 3px 10px rgba(30, 20, 40, 0.4); display: flex; justify-content: center; align-items: center; 
+    }
+    .motor-rotor { width: 34px; height: 34px; border-radius: 50%; background: #E2E6E2; border: 4px dashed #43614D; transition: transform 1.5s cubic-bezier(0.1, 0.8, 0.2, 1); }
+    #anchor-motor-in { position: absolute; left: -5px; top: 30px; width: 1px; height: 1px; }
+    #anchor-motor-out { position: absolute; right: -5px; top: 30px; width: 1px; height: 1px; }
+    #anchor-motor-ret { position: absolute; left: 30px; bottom: -5px; width: 1px; height: 1px; }
+
+    /* 3. 發電機 (位置：微調往右下 / 顏色：漸層苔綠) */
+    #generator { left: 350px; top: 125px; width: 75px; height: 75px; }
+    .gen-body { 
+      width: 100%; height: 100%; background: radial-gradient(circle, #7CA88D, #557861); 
+      border: 3px solid #43614D; border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+      box-shadow: 3px 3px 10px rgba(30, 20, 40, 0.4); 
+    }
+    .gear { width: 46px; height: 46px; fill: #FDF9F5; transition: transform 1.5s cubic-bezier(0.1, 0.8, 0.2, 1); }
+    .gen-spark { position: absolute; inset: 0; border-radius: 50%; border: 3px solid #F2C785; opacity: 0; box-shadow: 0 0 15px #F2C785, inset 0 0 15px #F2C785; transition: opacity 0.2s; pointer-events: none; }
+    #anchor-gen-in { position: absolute; left: -5px; top: 37px; width: 1px; height: 1px; }
+    #anchor-gen-out { position: absolute; right: -5px; top: 37px; width: 1px; height: 1px; }
+
+    /* 4. 變壓器 (位置：微調往右下 / 顏色：莫蘭迪板岩藍) */
+    #transformer { left: 480px; top: 170px; width: 65px; height: 60px; }
+    .trans-body { 
+      width: 100%; height: 100%; background: linear-gradient(135deg, #658196, #4D657A); 
+      border: 3px solid #324454; border-radius: 6px; display: flex; flex-direction: column; justify-content: space-evenly; align-items: center; 
+      box-shadow: 3px 3px 10px rgba(30, 20, 40, 0.4); transition: box-shadow 0.2s; 
+    }
+    .coil { width: 50px; height: 6px; background: #2B3A47; border-radius: 3px; }
+    #anchor-trans-in { position: absolute; left: -5px; top: 30px; width: 1px; height: 1px; }
+    #anchor-trans-out { position: absolute; right: -5px; top: 30px; width: 1px; height: 1px; }
+
+    /* 5. 電網 (位置：微調往右下 / 顏色：與山嵐同色的低調藍灰) */
+    #gridTower { left: 600px; top: 170px; font-size: 70px; line-height: 1; filter: drop-shadow(0 0 4px rgba(100, 120, 140, 0.4)); transition: filter 0.2s, transform 0.2s, color 0.2s; color: #9EABB8; }
+    #anchor-grid-in { position: absolute; left: 0px; top: 35px; width: 1px; height: 1px; }
+
+    /* 6. 液壓油槽 (位置：移回水泥防波堤上 / 顏色：半透明玻璃感) */
+    #fluidTank { left: 120px; top: 60px; width: 70px; height: 60px; }
+    .tank-body { 
+      width: 100%; height: 100%; background: rgba(180, 190, 200, 0.1); 
+      border: 3px solid #82919E; border-radius: 5px; display: flex; align-items: flex-end; overflow: hidden; 
+      backdrop-filter: blur(3px); box-shadow: inset 0 0 12px rgba(30, 20, 40, 0.3); 
+    }
+    #fluidLevel { width: 100%; height: 20%; background: #687987; transition: height 1.5s ease-in-out; }
+    #anchor-tank-in { position: absolute; left: 62px; top: 60px; width: 1px; height: 1px; }
+    #anchor-tank-out { position: absolute; left: 5px; bottom: -5px; width: 1px; height: 1px; }
+
+    /* =========================
+       動態特效 (波浪、海鷗、海豚)
+    ========================= */
+    .svg-wave { position: absolute; pointer-events: none; z-index: 15; transform: translate(-50%, -50%); }
+    .svg-wave svg { width: 100%; height: 100%; fill: rgba(255, 240, 230, 0.55); stroke: rgba(255, 245, 235, 0.85); stroke-width: 2; animation: waveBob 0.8s infinite alternate ease-in-out; }
+    @keyframes waveBob { 0% { margin-top: 0; } 100% { margin-top: -6px; } }
+
+    .bird { position: absolute; width: 50px; height: 50px; pointer-events: none; z-index: 15; filter: drop-shadow(0px 6px 3px rgba(40, 25, 45, 0.3)); transform: translate(-50%, -50%); }
+    .bird svg { width: 100%; height: 100%; fill: #2C2630; animation: flap 1.8s infinite alternate ease-in-out; opacity: 0.65; }
+    @keyframes flap { 0% { transform: scaleY(1); } 100% { transform: scaleY(0.2); } }
+
+    .dolphin {
+      position: absolute; width: 45px; height: 45px; pointer-events: none; z-index: 3;
+      filter: drop-shadow(0px 5px 5px rgba(30, 20, 40, 0.35));
+      animation: dolphinJump 1.8s linear forwards;
+    }
+    .dolphin svg { width: 100%; height: 100%; fill: #5A6372; }
+    
+    @keyframes dolphinJump {
+      0%   { transform: translate(0px, 0px) rotate(-45deg); opacity: 0; }
+      15%  { transform: translate(45px, -65px) rotate(-25deg); opacity: 1; }
+      30%  { transform: translate(90px, -100px) rotate(-10deg); opacity: 1; }
+      50%  { transform: translate(150px, -115px) rotate(10deg); opacity: 1; }
+      70%  { transform: translate(210px, -100px) rotate(30deg); opacity: 1; }
+      85%  { transform: translate(255px, -65px) rotate(45deg); opacity: 1; }
+      100% { transform: translate(300px, 10px) rotate(60deg); opacity: 0; }
+    }
+
+    .energy-text {
+      position: absolute; color: #E5B487; font-weight: bold; font-family: monospace; font-size: 22px;
+      text-shadow: 1px 1px 4px rgba(30, 20, 40, 0.9); pointer-events: none; z-index: 25; animation: floatUp 1.8s ease-out forwards;
+      transform: translate(-50%, -50%); letter-spacing: 1px;
+    }
+    @keyframes floatUp { 0% { margin-top: 0; scale: 0.8; opacity: 1; } 100% { margin-top: -60px; scale: 1.1; opacity: 0; } }
+  </style>
+</head>
+<body>
+  <div id="bg"></div>
+  <div id="overlay"></div>
+
+  <header id="hud">
+    <div class="hud-panel">
+      <div id="clock" class="clock"></div>
+      <div id="dailyMessage" class="daily-msg"></div>
+      <div id="eventList" class="event-list"></div>
+    </div>
+  </header>
+
+  <main id="tank">
+    <svg id="dynamic-pipes"></svg>
+
+    <div class="pile-container" id="pile1"><div class="pole"></div><div class="piston"></div><div class="floater"></div><div class="pipe-anchor-hp" id="anchor-p1-hp"></div><div class="pipe-anchor-ret" id="anchor-p1-ret"></div></div>
+    <div class="pile-container" id="pile2"><div class="pole"></div><div class="piston"></div><div class="floater"></div><div class="pipe-anchor-hp" id="anchor-p2-hp"></div><div class="pipe-anchor-ret" id="anchor-p2-ret"></div></div>
+    <div class="pile-container" id="pile3"><div class="pole"></div><div class="piston"></div><div class="floater"></div><div class="pipe-anchor-hp" id="anchor-p3-hp"></div><div class="pipe-anchor-ret" id="anchor-p3-ret"></div></div>
+    <div class="pile-container" id="pile4"><div class="pole"></div><div class="piston"></div><div class="floater"></div><div class="pipe-anchor-hp" id="anchor-p4-hp"></div><div class="pipe-anchor-ret" id="anchor-p4-ret"></div></div>
+
+    <div id="shoreStation">
+      <div class="equip-box" id="accumulator">
+        <div class="acc-body"><div id="pressureGauge"></div></div>
+        <div class="equip-label">ACCUMULATOR</div>
+        <div id="anchor-acc-hp"></div><div id="anchor-acc-motor"></div>
+      </div>
+
+      <div class="equip-box" id="motor">
+        <div class="motor-body"><div class="motor-rotor" id="motorRotor"></div></div>
+        <div class="equip-label">MOTOR</div>
+        <div id="anchor-motor-in"></div><div id="anchor-motor-out"></div><div id="anchor-motor-ret"></div>
+      </div>
+
+      <div class="equip-box" id="generator">
+        <div class="gen-body">
+          <div class="gen-spark" id="genSpark"></div>
+          <svg class="gear" id="gear" viewBox="0 0 100 100">
+            <path d="M50 15 L55 5 L65 10 L60 20 A30 30 0 0 1 80 40 L90 35 L95 45 L85 50 A30 30 0 0 1 80 60 L90 65 L85 75 L75 70 A30 30 0 0 1 60 80 L65 90 L55 95 L50 85 A30 30 0 0 1 40 80 L35 90 L25 85 L30 70 A30 30 0 0 1 20 60 L10 65 L5 55 L15 50 A30 30 0 0 1 20 40 L10 35 L15 25 L25 30 A30 30 0 0 1 40 20 L35 10 L45 5 Z" />
+            <circle cx="50" cy="50" r="16" fill="#43614D" stroke="#FDF9F5" stroke-width="5"/>
+          </svg>
+        </div>
+        <div class="equip-label">GENERATOR</div>
+        <div id="anchor-gen-in"></div><div id="anchor-gen-out"></div>
+      </div>
+
+      <div class="equip-box" id="transformer">
+        <div class="trans-body"><div class="coil"></div><div class="coil"></div><div class="coil"></div></div>
+        <div class="equip-label">TRANSFORMER</div>
+        <div id="anchor-trans-in"></div><div id="anchor-trans-out"></div>
+      </div>
+
+      <div class="equip-box" id="gridTower">
+        ⚡<div class="equip-label" style="bottom:-18px;">GRID</div>
+        <div id="anchor-grid-in"></div>
+      </div>
+      
+      <div class="equip-box" id="fluidTank">
+        <div class="tank-body"><div id="fluidLevel"></div></div>
+        <div class="equip-label">FLUID TANK</div>
+        <div id="anchor-tank-in"></div><div id="anchor-tank-out"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.body.style.pointerEvents = "auto";
+    const tank = document.getElementById("tank");
+    const pressureGauge = document.getElementById("pressureGauge");
+    const motorRotor = document.getElementById("motorRotor");
+    const gear = document.getElementById("gear");
+    const genSpark = document.getElementById("genSpark");
+    const transformer = document.getElementById("transformer");
+    const gridTower = document.getElementById("gridTower");
+    const fluidLevel = document.getElementById("fluidLevel");
+    const svgCanvas = document.getElementById("dynamic-pipes");
+
+    let currentPressure = 0;
+    let rotationDeg = 0;
+
+    const Y_HORIZON = 0.40;       
+    const Y_DOLPHIN_END = 0.52;   
+
+    const lanes = [
+      { minY: 0.52, maxY: 0.60, id: "pile1", scale: 0.60 }, 
+      { minY: 0.60, maxY: 0.68, id: "pile2", scale: 0.75 },
+      { minY: 0.68, maxY: 0.76, id: "pile3", scale: 0.90 },
+      { minY: 0.76, maxY: 0.85, id: "pile4", scale: 1.05 }  
+    ];
+    
+    const Y_DEEP_SEA = 0.85;      
+
+    /* =========================
+       嚴格限定版：行事曆
+    ========================= */
+    function updateDashboard() {
+        const d = new Date();
+        document.getElementById("clock").textContent = d.toLocaleTimeString('zh-TW', { hour12: false });
+
+        const dayOfWeek = d.getDay();
+        const dayMsg = [
+            "🌞 星期日：好好休息，準備迎接新的一週！",
+            "💪 星期一：新的一週，來個精神喊話！專案經理加油！",
+            "🏃 星期二：步入正軌，持續前進中！滿電出發！",
+            "✨ 星期三：撐住！這週已經過了一半啦！",
+            "🎯 星期四：再努力一下，週末就在眼前！",
+            "🎉 星期五：辛苦了！本週專案進度順利！",
+            "🏖️ 星期六：美好的週末，好好放鬆一下！"
+        ];
+        document.getElementById("dailyMessage").innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E5B487" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            ${dayMsg[dayOfWeek]}
+        `;
+
+        const myEvents = [
+            { m: 3, d: 1, text: "滿電出發！⚡", dow: "日" },
+            { m: 3, d: 2, text: "公司內部月會 (自我介紹) 👋", dow: "一" },
+            { m: 3, d: 3, text: "策略夥伴會議 🤝", dow: "二" }
+        ];
+
+        const curM = d.getMonth() + 1;
+        const curD = d.getDate();
+        let html = "";
+        
+        myEvents.forEach(ev => {
+            if (ev.m > curM || (ev.m === curM && ev.d >= curD)) {
+                const isToday = (ev.m === curM && ev.d === curD);
+                const style = isToday ? 'style="font-weight:bold; color:#FDF9F5;"' : '';
+                const formatD = ev.d < 10 ? '0' + ev.d : ev.d;
+                const dateStr = `0${ev.m}/${formatD}(${ev.dow})`;
+                html += `<div class="event-item" ${style}><span class="event-date">${dateStr}</span><span>${ev.text}</span></div>`;
+            }
+        });
+
+        if(html === "") html = `<div class="event-item"><span style="color:#A1AEC2;">近期無預定行程，專注於工程推進！</span></div>`;
+        document.getElementById("eventList").innerHTML = html;
+    }
+    setInterval(updateDashboard, 1000);
+    updateDashboard();
+
+    /* =========================
+       精準繪製所有唯美管線 (JS 動態化 SVG)
+    ========================= */
+    function getCenter(id) {
+        const el = document.getElementById(id);
+        if(!el) return {x:0, y:0};
+        const rect = el.getBoundingClientRect();
+        return { x: rect.left + rect.width/2, y: rect.top + rect.height/2 };
+    }
+
+    function drawPipes() {
+      svgCanvas.innerHTML = "";
+
+      const hpPoints = [];
+      const retPoints = [];
+
+      for (let i = 1; i <= 4; i++) {
+        hpPoints.push(getCenter(`anchor-p${i}-hp`));
+        retPoints.push(getCenter(`anchor-p${i}-ret`));
+      }
+
+      hpPoints.sort((a, b) => a.x - b.x);
+      retPoints.sort((a, b) => a.x - b.x);
+
+      const hpPolyline = hpPoints.map(p => `${p.x},${p.y}`).join(" ");
+      const retPolyline = retPoints.map(p => `${p.x},${p.y}`).join(" ");
+
+      let svgHTML = "";
+
+      // 海上高壓線 (夕陽橘金)
+      svgHTML += `
+        <polyline points="${hpPolyline}"
+          fill="none" stroke="#DCA471" stroke-width="5"
+          stroke-linecap="round" stroke-linejoin="round" opacity="0.9" />
+      `;
+
+      // 海上回流線 (暮靄灰藍)
+      svgHTML += `
+        <polyline points="${retPolyline}"
+          fill="none" stroke="#7A7D94" stroke-width="5"
+          stroke-linecap="round" stroke-linejoin="round" opacity="0.9" />
+      `;
+
+    function getClosestPoint(points, target) {
+      let minDist = Infinity;
+      let closest = points[0];
+
+      for (let p of points) {
+        const dx = p.x - target.x;
+        const dy = p.y - target.y;
+        const dist = dx * dx + dy * dy;
+
+        if (dist < minDist) {
+          minDist = dist;
+          closest = p;
+        }
+      }
+      return closest;
+    }
+
+    const accHp = getCenter("anchor-acc-hp");
+    const tankRet = getCenter("anchor-tank-out");
+
+    const hpEnd = getClosestPoint(hpPoints, accHp);
+    const retEnd = getClosestPoint(retPoints, tankRet);
+
+    const dropDistance = 75;
+
+    // 上岸管線 (夕陽橘金)
+    svgHTML += `<line x1="${accHp.x}" y1="${accHp.y}" x2="${accHp.x}" y2="${accHp.y + dropDistance}" stroke="#DCA471" stroke-width="5" stroke-linecap="round"/>`;
+    svgHTML += `<line x1="${accHp.x}" y1="${accHp.y + dropDistance}" x2="${hpEnd.x}" y2="${hpEnd.y}" stroke="#DCA471" stroke-width="5" stroke-linecap="round"/>`;
+
+    // 下海管線 (暮靄灰藍)
+    svgHTML += `<line x1="${tankRet.x}" y1="${tankRet.y}" x2="${tankRet.x}" y2="${tankRet.y + dropDistance}" stroke="#7A7D94" stroke-width="5" stroke-linecap="round"/>`;
+    svgHTML += `<line x1="${tankRet.x}" y1="${tankRet.y + dropDistance}" x2="${retEnd.x}" y2="${retEnd.y}" stroke="#7A7D94" stroke-width="5" stroke-linecap="round"/>`;
+
+    // 岸上互連 (套用唯美色調)
+    const a_acc_m = getCenter("anchor-acc-motor");
+    const a_mot_in = getCenter("anchor-motor-in");
+    svgHTML += `<line x1="${a_acc_m.x}" y1="${a_acc_m.y}" x2="${a_mot_in.x}" y2="${a_mot_in.y}" stroke="#DCA471" stroke-width="4" />`; 
+
+    const a_mot_out = getCenter("anchor-motor-out");
+    const a_gen_in = getCenter("anchor-gen-in");
+    svgHTML += `<line x1="${a_mot_out.x}" y1="${a_mot_out.y}" x2="${a_gen_in.x}" y2="${a_gen_in.y}" stroke="#98A1AA" stroke-width="5" stroke-dasharray="4,2"/>`; 
+
+    const a_gen_out = getCenter("anchor-gen-out");
+    const a_trans_in = getCenter("anchor-trans-in");
+    svgHTML += `<line x1="${a_gen_out.x}" y1="${a_gen_out.y}" x2="${a_trans_in.x}" y2="${a_trans_in.y}" stroke="#658196" stroke-width="4" />`; 
+
+    const a_trans_out = getCenter("anchor-trans-out");
+    const a_grid_in = getCenter("anchor-grid-in");
+    svgHTML += `<line x1="${a_trans_out.x}" y1="${a_trans_out.y}" x2="${a_grid_in.x}" y2="${a_grid_in.y}" stroke="#658196" stroke-width="4" />`; 
+
+    const a_mot_ret = getCenter("anchor-motor-ret");
+    const a_tank_in = getCenter("anchor-tank-in");
+    svgHTML += `<line x1="${a_mot_ret.x}" y1="${a_mot_ret.y}" x2="${a_tank_in.x}" y2="${a_tank_in.y}" stroke="#7A7D94" stroke-width="4" />`; 
+
+    svgCanvas.innerHTML = svgHTML;
+  }
+    
+  window.addEventListener("resize", drawPipes);
+  setTimeout(drawPipes, 100);
+
+    /* =========================
+       分區點擊判定系統
+    ========================= */
+    window.addEventListener("pointerdown", (e) => {
+        if(e.target.closest("#hud")) return;
+
+        const startX = e.clientX;
+        const startY = e.clientY;
+        const yRatio = startY / window.innerHeight;
+
+        if (yRatio < Y_HORIZON) {
+            spawnBird(startX, startY);
+            return;
+        }
+
+        if ((yRatio >= Y_HORIZON && yRatio < Y_DOLPHIN_END) || yRatio > Y_DEEP_SEA) {
+            spawnDolphin(startX, startY);
+            return;
+        }
+
+        let targetLane = null; 
+        for (let lane of lanes) {
+            if (yRatio >= lane.minY && yRatio < lane.maxY) {
+                targetLane = lane;
+                break;
+            }
+        }
+
+        if (!targetLane) return;
+
+        const pileEl = document.getElementById(targetLane.id);
+        const floaterRect = pileEl.querySelector('.floater').getBoundingClientRect();
+        const targetX = floaterRect.left + (floaterRect.width / 2);
+
+        if (startX >= targetX - 20) {
+            spawnDolphin(startX, startY);
+            return;
+        }
+
+        spawnWave(startX, startY, targetX, targetLane.scale, pileEl);
+    });
+
+    /* =========================
+       動畫生成函式
+    ========================= */
+    function spawnBird(x, y) {
+        const bird = document.createElement("div");
+        bird.className = "bird";
+        bird.style.left = x + "px"; bird.style.top = y + "px";
+        bird.innerHTML = `<svg viewBox="0 0 100 50"><path d="M 10 30 Q 25 10 50 30 Q 75 10 90 30 Q 75 25 50 40 Q 25 25 10 30 Z"/></svg>`;
+        tank.appendChild(bird);
+
+        const direction = Math.random() > 0.5 ? 1 : -1; 
+        const flyDistance = direction * (window.innerWidth * 0.4);
+        bird.style.transition = `transform 15s linear, opacity 15s ease-in-out`;
+        
+        requestAnimationFrame(() => {
+            bird.style.transform = `translate(calc(-50% + ${flyDistance}px), calc(-50% - 100px)) scale(1.2)`;
+            bird.style.opacity = "0";
+        });
+        setTimeout(() => bird.remove(), 15000);
+    }
+
+    function spawnDolphin(x, y) {
+        const dolphin = document.createElement("div");
+        dolphin.className = "dolphin";
+        dolphin.style.left = x + "px"; dolphin.style.top = y + "px";
+        dolphin.innerHTML = `<svg viewBox="0 0 100 50">
+            <path d="M 10 40 C 20 20, 60 10, 80 20 C 90 25, 95 35, 95 35 C 95 35, 85 30, 75 30 C 60 30, 40 40, 20 50 C 15 52, 10 40, 10 40 Z"/>
+            <path d="M 40 20 L 35 5 L 50 15 Z"/><path d="M 10 40 L 0 30 L 15 35 Z"/>
+        </svg>`;
+        tank.appendChild(dolphin);
+        setTimeout(() => dolphin.remove(), 1800);
+    }
+
+    function spawnWave(startX, startY, targetX, scale, pileEl) {
+        const waveHeight = 25 * scale;
+        const wave = document.createElement("div");
+        wave.className = "svg-wave";
+        wave.style.width = (80 * scale) + "px"; wave.style.height = waveHeight + "px";
+        wave.style.left = startX + "px"; wave.style.top = startY + "px"; 
+        wave.style.zIndex = pileEl.style.zIndex; 
+        
+        wave.innerHTML = `<svg viewBox="0 0 100 50" preserveAspectRatio="none"><path d="M0 50 Q 25 10, 50 30 T 100 50 Z" /></svg>`;
+        tank.appendChild(wave);
+
+        const distance = targetX - startX; 
+        const duration = (distance / 600) * 1000; 
+
+        wave.style.transition = `transform ${duration}ms linear, opacity ${duration}ms ease-in`;
+        
+        requestAnimationFrame(() => {
+            wave.style.transform = `translate(calc(-50% + ${distance}px), -50%)`;
+            wave.style.opacity = "0.2";
+        });
+
+        setTimeout(() => {
+            wave.remove(); 
+            
+            const floater = pileEl.querySelector('.floater');
+            const piston = pileEl.querySelector('.piston');
+            
+            floater.style.transform = `translateY(-35px)`;
+            piston.style.height = "15px"; 
+            piston.style.transform = "translateY(15px)";
+
+            setTimeout(() => { 
+                floater.style.transform = "translateY(0px)"; 
+                piston.style.height = "30px";
+                piston.style.transform = "translateY(0px)";
+            }, 300);
+
+            currentPressure += 25; 
+            
+            if (currentPressure >= 100) {
+                pressureGauge.style.height = "100%";
+                
+                setTimeout(() => {
+                    currentPressure = 0;
+                    pressureGauge.style.height = "0%";
+                    
+                    rotationDeg += 1080; 
+                    motorRotor.style.transform = `rotate(${rotationDeg}deg)`;
+                    gear.style.transform = `rotate(${rotationDeg}deg)`;
+                    
+                    genSpark.style.opacity = "1";
+                    transformer.style.boxShadow = "0 0 15px #658196";
+                    gridTower.style.filter = "drop-shadow(0 0 15px #F2C785) drop-shadow(0 0 5px #FDF9F5)";
+                    gridTower.style.color = "#F2C785";
+                    gridTower.style.transform = "scale(1.1)";
+                    
+                    const shoreLeft = document.getElementById("shoreStation").getBoundingClientRect().left;
+                    showEnergyText("GRID SYNCED ⚡", shoreLeft + 120, window.innerHeight * 0.35);
+
+                    setTimeout(() => {
+                        fluidLevel.style.height = "90%";
+                        setTimeout(() => { fluidLevel.style.height = "20%"; }, 2000);
+                    }, 500);
+
+                    setTimeout(() => {
+                        genSpark.style.opacity = "0";
+                        transformer.style.boxShadow = "3px 3px 10px rgba(30, 20, 40, 0.4)";
+                        gridTower.style.filter = "drop-shadow(0 0 4px rgba(100, 120, 140, 0.4))";
+                        gridTower.style.color = "#9EABB8";
+                        gridTower.style.transform = "scale(1)";
+                    }, 1200);
+
+                }, 400); 
+
+            } else {
+                pressureGauge.style.height = currentPressure + "%";
+                showEnergyText("+25% Press", targetX, pileEl.getBoundingClientRect().top - 20);
+            }
+        }, duration);
+    }
+
+    function showEnergyText(text, x, y) {
+        const textEl = document.createElement("div");
+        textEl.className = "energy-text";
+        textEl.textContent = text;
+        textEl.style.left = x + "px"; textEl.style.top = y + "px";
+        tank.appendChild(textEl);
+        setTimeout(() => textEl.remove(), 2000);
+    }
+  </script>
+</body>
+</html>
