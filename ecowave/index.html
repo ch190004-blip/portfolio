@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Wave Energy Dashboard - Aesthetic Perfect Layout</title>
+  <title>Wave Energy Dashboard - Precise Aesthetic</title>
   <style>
     /* =========================
        全域設定與背景
@@ -12,7 +12,6 @@
     html, body { width: 100%; height: 100%; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; background: #211d24; }
 
     #bg { position: fixed; inset: 0; background: url("sea.jpg") center/cover no-repeat; z-index: 0; }
-    /* 微調覆蓋層的顏色，帶一點點夕陽的紫粉色調 */
     #overlay { position: fixed; inset: 0; background: linear-gradient(180deg, rgba(50, 40, 60, 0.05), rgba(30, 25, 45, 0.25)); pointer-events: none; z-index: 1; }
     #tank { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
 
@@ -37,15 +36,14 @@
     #dynamic-pipes { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; filter: drop-shadow(0px 4px 4px rgba(30, 20, 40, 0.25)); }
 
     /* =========================
-       插樁式浮子陣列 (唯美柔和配色)
+       插樁式浮子陣列
     ========================= */
-    .pile-container { position: absolute; width: 40px; height: 180px; z-index: 5; }
+    .pile-container { position: absolute; width: 40px; height: 180px; z-index: 5; transform-origin: bottom center; }
     .pole { 
       position: absolute; left: 15px; top: 0; width: 10px; height: 100%; 
       background: linear-gradient(to right, #6D757C, #4B5259); 
       border-radius: 5px; box-shadow: inset -2px 0 5px rgba(20, 20, 30, 0.4);
     }
-    /* 浮子改為柔和的珊瑚粉橘 */
     .floater { 
       position: absolute; left: 0; top: 60px; width: 40px; height: 45px; 
       background: linear-gradient(to bottom, #E89574, #C26C4E);
@@ -60,16 +58,17 @@
     .pipe-anchor-hp { position: absolute; left: 20px; bottom: -10px; width: 1px; height: 1px; }
     .pipe-anchor-ret { position: absolute; left: 10px; bottom: -10px; width: 1px; height: 1px; }
 
-    #pile1 { left: 60%; top: 48%; transform: scale(0.60); }
-    #pile2 { left: 65%; top: 56%; transform: scale(0.75); }
-    #pile3 { left: 70%; top: 64%; transform: scale(0.90); }
-    #pile4 { left: 75%; top: 72%; transform: scale(1.05); } 
+    #pile1 { left: 55%; top: 40%; transform: scale(0.60); }
+    #pile2 { left: 60%; top: 48%; transform: scale(0.75); }
+    #pile3 { left: 65%; top: 56%; transform: scale(0.90); }
+    #pile4 { left: 70%; top: 64%; transform: scale(1.05); } 
 
     /* =========================
-       岸上設備總成 (套用組長指定的座標)
+       岸上設備總成 (依照組長指定註解與參數)
+       *備註: 這裡的設備只要修改 left 和 top，SVG 管線就會自動重新計算連接
     ========================= */
     #shoreStation { 
-      position: absolute; left: 68%; top: 42%; z-index: 8; transform: scale(0.60); 
+      position: absolute; left: 65%; top: 40%; z-index: 8; transform: scale(0.60); transform-origin: left center;
     }
 
     .equip-box { position: absolute; z-index: 8; }
@@ -79,92 +78,74 @@
       text-shadow: 1px 1px 4px rgba(30, 20, 40, 0.9); font-weight: bold; letter-spacing: 1px;
     }
 
-    /* 1. 蓄壓器 (位置：不動 / 顏色：霧灰紫) */
+    /* 1. 蓄壓器 (不動) */
     #accumulator { left: 0px; top: 0px; width: 50px; height: 95px; }
-    .acc-body { 
-      width: 100%; height: 100%; background: #686570; border: 3px solid #4B4854; 
-      border-radius: 25px 25px 4px 4px; display: flex; align-items: flex-end; overflow: hidden; 
-      box-shadow: 4px 4px 12px rgba(30, 20, 40, 0.4); 
-    }
-    #pressureGauge { width: 100%; height: 0%; background: linear-gradient(to top, #C7705B, #DCAC76); transition: height 0.3s ease-out; }
+    .acc-body { width: 100%; height: 100%; background: #5C5A6B; border: 3px solid #8B889E; border-radius: 25px 25px 4px 4px; display: flex; align-items: flex-end; overflow: hidden; box-shadow: 4px 4px 12px rgba(0,0,0,0.5); }
+    #pressureGauge { width: 100%; height: 0%; background: linear-gradient(to top, #E74C3C, #F1C40F); transition: height 0.3s ease-out; }
     #anchor-acc-hp { position: absolute; left: 5px; bottom: 0; width: 1px; height: 1px; } 
     #anchor-acc-motor { position: absolute; right: -5px; top: 65px; width: 1px; height: 1px; }
 
-    /* 2. 液壓馬達 (位置：不動 / 顏色：柔和苔綠) */
+    /* 2. 液壓馬達 (不動) */
     #motor { left: 250px; top: 100px; width: 60px; height: 60px; }
-    .motor-body { 
-      width: 100%; height: 100%; background: #688B74; border: 3px solid #43614D; 
-      border-radius: 8px; box-shadow: 3px 3px 10px rgba(30, 20, 40, 0.4); display: flex; justify-content: center; align-items: center; 
-    }
-    .motor-rotor { width: 34px; height: 34px; border-radius: 50%; background: #E2E6E2; border: 4px dashed #43614D; transition: transform 1.5s cubic-bezier(0.1, 0.8, 0.2, 1); }
+    .motor-body { width: 100%; height: 100%; background: #27AE60; border: 3px solid #196F3D; border-radius: 8px; box-shadow: 3px 3px 10px rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; }
+    .motor-rotor { width: 34px; height: 34px; border-radius: 50%; background: #E8E8E8; border: 4px dashed #145A32; transition: transform 1.5s cubic-bezier(0.1, 0.8, 0.2, 1); }
     #anchor-motor-in { position: absolute; left: -5px; top: 30px; width: 1px; height: 1px; }
     #anchor-motor-out { position: absolute; right: -5px; top: 30px; width: 1px; height: 1px; }
     #anchor-motor-ret { position: absolute; left: 30px; bottom: -5px; width: 1px; height: 1px; }
 
-    /* 3. 發電機 (位置：微調往右下 / 顏色：漸層苔綠) */
+    /* 3. 發電機 (微調往右下) */
     #generator { left: 350px; top: 125px; width: 75px; height: 75px; }
-    .gen-body { 
-      width: 100%; height: 100%; background: radial-gradient(circle, #7CA88D, #557861); 
-      border: 3px solid #43614D; border-radius: 50%; display: flex; justify-content: center; align-items: center; 
-      box-shadow: 3px 3px 10px rgba(30, 20, 40, 0.4); 
-    }
-    .gear { width: 46px; height: 46px; fill: #FDF9F5; transition: transform 1.5s cubic-bezier(0.1, 0.8, 0.2, 1); }
-    .gen-spark { position: absolute; inset: 0; border-radius: 50%; border: 3px solid #F2C785; opacity: 0; box-shadow: 0 0 15px #F2C785, inset 0 0 15px #F2C785; transition: opacity 0.2s; pointer-events: none; }
+    .gen-body { width: 100%; height: 100%; background: radial-gradient(circle, #2ECC71, #1E8449); border: 3px solid #145A32; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 3px 3px 10px rgba(0,0,0,0.5); }
+    .gear { width: 46px; height: 46px; fill: #FFF; transition: transform 1.5s cubic-bezier(0.1, 0.8, 0.2, 1); }
+    .gen-spark { position: absolute; inset: 0; border-radius: 50%; border: 3px solid #F1C40F; opacity: 0; box-shadow: 0 0 15px #F1C40F, inset 0 0 15px #F1C40F; transition: opacity 0.2s; pointer-events: none; }
     #anchor-gen-in { position: absolute; left: -5px; top: 37px; width: 1px; height: 1px; }
     #anchor-gen-out { position: absolute; right: -5px; top: 37px; width: 1px; height: 1px; }
 
-    /* 4. 變壓器 (位置：微調往右下 / 顏色：莫蘭迪板岩藍) */
+    /* 4. 變壓器 (微調往右下) */
     #transformer { left: 480px; top: 170px; width: 65px; height: 60px; }
-    .trans-body { 
-      width: 100%; height: 100%; background: linear-gradient(135deg, #658196, #4D657A); 
-      border: 3px solid #324454; border-radius: 6px; display: flex; flex-direction: column; justify-content: space-evenly; align-items: center; 
-      box-shadow: 3px 3px 10px rgba(30, 20, 40, 0.4); transition: box-shadow 0.2s; 
-    }
-    .coil { width: 50px; height: 6px; background: #2B3A47; border-radius: 3px; }
+    .trans-body { width: 100%; height: 100%; background: linear-gradient(135deg, #3498DB, #2980B9); border: 3px solid #1A5276; border-radius: 6px; display: flex; flex-direction: column; justify-content: space-evenly; align-items: center; box-shadow: 3px 3px 10px rgba(0,0,0,0.5); transition: box-shadow 0.2s; }
+    .coil { width: 50px; height: 6px; background: #154360; border-radius: 3px; }
     #anchor-trans-in { position: absolute; left: -5px; top: 30px; width: 1px; height: 1px; }
     #anchor-trans-out { position: absolute; right: -5px; top: 30px; width: 1px; height: 1px; }
 
-    /* 5. 電網 (位置：微調往右下 / 顏色：與山嵐同色的低調藍灰) */
-    #gridTower { left: 600px; top: 170px; font-size: 70px; line-height: 1; filter: drop-shadow(0 0 4px rgba(100, 120, 140, 0.4)); transition: filter 0.2s, transform 0.2s, color 0.2s; color: #9EABB8; }
+    /* 5. 電網 (微調往右下) */
+    #gridTower { left: 600px; top: 170px; font-size: 70px; line-height: 1; filter: drop-shadow(0 0 3px rgba(52, 152, 219, 0.4)); transition: filter 0.2s, transform 0.2s; color: #BDC3C7; }
     #anchor-grid-in { position: absolute; left: 0px; top: 35px; width: 1px; height: 1px; }
 
-    /* 6. 液壓油槽 (位置：移回水泥防波堤上 / 顏色：半透明玻璃感) */
+    /* 6. 液壓油槽 (移回水泥防波堤上) */
     #fluidTank { left: 120px; top: 60px; width: 70px; height: 60px; }
-    .tank-body { 
-      width: 100%; height: 100%; background: rgba(180, 190, 200, 0.1); 
-      border: 3px solid #82919E; border-radius: 5px; display: flex; align-items: flex-end; overflow: hidden; 
-      backdrop-filter: blur(3px); box-shadow: inset 0 0 12px rgba(30, 20, 40, 0.3); 
-    }
-    #fluidLevel { width: 100%; height: 20%; background: #687987; transition: height 1.5s ease-in-out; }
+    .tank-body { width: 100%; height: 100%; background: rgba(236, 240, 241, 0.2); border: 3px solid #95A5A6; border-radius: 5px; display: flex; align-items: flex-end; overflow: hidden; backdrop-filter: blur(2px); box-shadow: inset 0 0 10px rgba(0,0,0,0.6); }
+    #fluidLevel { width: 100%; height: 20%; background: #7F8C8D; transition: height 1.5s ease-in-out; }
     #anchor-tank-in { position: absolute; left: 62px; top: 60px; width: 1px; height: 1px; }
     #anchor-tank-out { position: absolute; left: 5px; bottom: -5px; width: 1px; height: 1px; }
 
     /* =========================
        動態特效 (波浪、海鷗、海豚)
     ========================= */
-    .svg-wave { position: absolute; pointer-events: none; z-index: 15; transform: translate(-50%, -50%); }
-    .svg-wave svg { width: 100%; height: 100%; fill: rgba(255, 240, 230, 0.55); stroke: rgba(255, 245, 235, 0.85); stroke-width: 2; animation: waveBob 0.8s infinite alternate ease-in-out; }
+    .svg-wave { position: absolute; pointer-events: none; z-index: 15; }
+    .svg-wave svg { width: 100%; height: 100%; fill: rgba(255, 255, 255, 0.85); stroke: rgba(255, 255, 255, 0.95); stroke-width: 2; animation: waveBob 0.8s infinite alternate ease-in-out; }
     @keyframes waveBob { 0% { margin-top: 0; } 100% { margin-top: -6px; } }
 
-    .bird { position: absolute; width: 50px; height: 50px; pointer-events: none; z-index: 15; filter: drop-shadow(0px 6px 3px rgba(40, 25, 45, 0.3)); transform: translate(-50%, -50%); }
-    .bird svg { width: 100%; height: 100%; fill: #2C2630; animation: flap 1.8s infinite alternate ease-in-out; opacity: 0.65; }
+    .bird { position: absolute; width: 50px; height: 50px; pointer-events: none; z-index: 15; filter: drop-shadow(0px 4px 6px rgba(255, 180, 100, 0.4)); transform: translate(-50%, -50%); }
+    .bird svg { width: 100%; height: 100%; fill: #FFF2E6; animation: flap 1.5s infinite alternate ease-in-out; opacity: 0.9; }
     @keyframes flap { 0% { transform: scaleY(1); } 100% { transform: scaleY(0.2); } }
 
+    /* 平滑低空海豚跳躍 */
     .dolphin {
       position: absolute; width: 45px; height: 45px; pointer-events: none; z-index: 3;
-      filter: drop-shadow(0px 5px 5px rgba(30, 20, 40, 0.35));
-      animation: dolphinJump 1.8s linear forwards;
+      filter: drop-shadow(0px 4px 4px rgba(30, 20, 40, 0.35));
+      animation: dolphinJump 1s linear forwards; 
     }
     .dolphin svg { width: 100%; height: 100%; fill: #5A6372; }
     
     @keyframes dolphinJump {
-      0%   { transform: translate(0px, 0px) rotate(-45deg); opacity: 0; }
-      15%  { transform: translate(45px, -65px) rotate(-25deg); opacity: 1; }
-      30%  { transform: translate(90px, -100px) rotate(-10deg); opacity: 1; }
-      50%  { transform: translate(150px, -115px) rotate(10deg); opacity: 1; }
-      70%  { transform: translate(210px, -100px) rotate(30deg); opacity: 1; }
-      85%  { transform: translate(255px, -65px) rotate(45deg); opacity: 1; }
-      100% { transform: translate(300px, 10px) rotate(60deg); opacity: 0; }
+      0%   { transform: translate(-50%, -50%) rotate(-45deg) scale(0.8); opacity: 0; }
+      15%  { transform: translate(calc(-50% + 15px), calc(-50% - 20px)) rotate(-25deg) scale(1); opacity: 1; }
+      30%  { transform: translate(calc(-50% + 30px), calc(-50% - 35px)) rotate(-10deg) scale(1); opacity: 1; }
+      50%  { transform: translate(calc(-50% + 45px), calc(-50% - 40px)) rotate(10deg) scale(1); opacity: 1; }
+      70%  { transform: translate(calc(-50% + 60px), calc(-50% - 35px)) rotate(30deg) scale(1); opacity: 1; }
+      85%  { transform: translate(calc(-50% + 75px), calc(-50% - 20px)) rotate(45deg) scale(1); opacity: 1; }
+      100% { transform: translate(calc(-50% + 90px), calc(-50% + 10px)) rotate(60deg) scale(0.8); opacity: 0; }
     }
 
     .energy-text {
@@ -343,79 +324,69 @@
 
       let svgHTML = "";
 
-      // 海上高壓線 (夕陽橘金)
       svgHTML += `
         <polyline points="${hpPolyline}"
           fill="none" stroke="#DCA471" stroke-width="5"
           stroke-linecap="round" stroke-linejoin="round" opacity="0.9" />
       `;
 
-      // 海上回流線 (暮靄灰藍)
       svgHTML += `
         <polyline points="${retPolyline}"
           fill="none" stroke="#7A7D94" stroke-width="5"
           stroke-linecap="round" stroke-linejoin="round" opacity="0.9" />
       `;
 
-    function getClosestPoint(points, target) {
-      let minDist = Infinity;
-      let closest = points[0];
-
-      for (let p of points) {
-        const dx = p.x - target.x;
-        const dy = p.y - target.y;
-        const dist = dx * dx + dy * dy;
-
-        if (dist < minDist) {
-          minDist = dist;
-          closest = p;
+      function getClosestPoint(points, target) {
+        let minDist = Infinity;
+        let closest = points[0];
+        for (let p of points) {
+          const dx = p.x - target.x;
+          const dy = p.y - target.y;
+          const dist = dx * dx + dy * dy;
+          if (dist < minDist) { minDist = dist; closest = p; }
         }
+        return closest;
       }
-      return closest;
+
+      const accHp = getCenter("anchor-acc-hp");
+      const tankRet = getCenter("anchor-tank-out");
+
+      const hpEnd = getClosestPoint(hpPoints, accHp);
+      const retEnd = getClosestPoint(retPoints, tankRet);
+
+      const dropDistance = 75;
+
+      svgHTML += `<line x1="${accHp.x}" y1="${accHp.y}" x2="${accHp.x}" y2="${accHp.y + dropDistance}" stroke="#DCA471" stroke-width="5" stroke-linecap="round"/>`;
+      svgHTML += `<line x1="${accHp.x}" y1="${accHp.y + dropDistance}" x2="${hpEnd.x}" y2="${hpEnd.y}" stroke="#DCA471" stroke-width="5" stroke-linecap="round"/>`;
+
+      svgHTML += `<line x1="${tankRet.x}" y1="${tankRet.y}" x2="${tankRet.x}" y2="${tankRet.y + dropDistance}" stroke="#7A7D94" stroke-width="5" stroke-linecap="round"/>`;
+      svgHTML += `<line x1="${tankRet.x}" y1="${tankRet.y + dropDistance}" x2="${retEnd.x}" y2="${retEnd.y}" stroke="#7A7D94" stroke-width="5" stroke-linecap="round"/>`;
+
+      const a_acc_m = getCenter("anchor-acc-motor");
+      const a_mot_in = getCenter("anchor-motor-in");
+      svgHTML += `<line x1="${a_acc_m.x}" y1="${a_acc_m.y}" x2="${a_mot_in.x}" y2="${a_mot_in.y}" stroke="#DCA471" stroke-width="4" />`; 
+
+      const a_mot_out = getCenter("anchor-motor-out");
+      const a_gen_in = getCenter("anchor-gen-in");
+      svgHTML += `<line x1="${a_mot_out.x}" y1="${a_mot_out.y}" x2="${a_gen_in.x}" y2="${a_gen_in.y}" stroke="#98A1AA" stroke-width="5" stroke-dasharray="4,2"/>`; 
+
+      const a_gen_out = getCenter("anchor-gen-out");
+      const a_trans_in = getCenter("anchor-trans-in");
+      svgHTML += `<line x1="${a_gen_out.x}" y1="${a_gen_out.y}" x2="${a_trans_in.x}" y2="${a_trans_in.y}" stroke="#658196" stroke-width="4" />`; 
+
+      const a_trans_out = getCenter("anchor-trans-out");
+      const a_grid_in = getCenter("anchor-grid-in");
+      svgHTML += `<line x1="${a_trans_out.x}" y1="${a_trans_out.y}" x2="${a_grid_in.x}" y2="${a_grid_in.y}" stroke="#658196" stroke-width="4" />`; 
+
+      const a_mot_ret = getCenter("anchor-motor-ret");
+      const a_tank_in = getCenter("anchor-tank-in");
+      svgHTML += `<line x1="${a_mot_ret.x}" y1="${a_mot_ret.y}" x2="${a_tank_in.x}" y2="${a_tank_in.y}" stroke="#7A7D94" stroke-width="4" />`; 
+
+      svgCanvas.innerHTML = svgHTML;
     }
-
-    const accHp = getCenter("anchor-acc-hp");
-    const tankRet = getCenter("anchor-tank-out");
-
-    const hpEnd = getClosestPoint(hpPoints, accHp);
-    const retEnd = getClosestPoint(retPoints, tankRet);
-
-    const dropDistance = 75;
-
-    // 上岸管線 (夕陽橘金)
-    svgHTML += `<line x1="${accHp.x}" y1="${accHp.y}" x2="${accHp.x}" y2="${accHp.y + dropDistance}" stroke="#DCA471" stroke-width="5" stroke-linecap="round"/>`;
-    svgHTML += `<line x1="${accHp.x}" y1="${accHp.y + dropDistance}" x2="${hpEnd.x}" y2="${hpEnd.y}" stroke="#DCA471" stroke-width="5" stroke-linecap="round"/>`;
-
-    // 下海管線 (暮靄灰藍)
-    svgHTML += `<line x1="${tankRet.x}" y1="${tankRet.y}" x2="${tankRet.x}" y2="${tankRet.y + dropDistance}" stroke="#7A7D94" stroke-width="5" stroke-linecap="round"/>`;
-    svgHTML += `<line x1="${tankRet.x}" y1="${tankRet.y + dropDistance}" x2="${retEnd.x}" y2="${retEnd.y}" stroke="#7A7D94" stroke-width="5" stroke-linecap="round"/>`;
-
-    // 岸上互連 (套用唯美色調)
-    const a_acc_m = getCenter("anchor-acc-motor");
-    const a_mot_in = getCenter("anchor-motor-in");
-    svgHTML += `<line x1="${a_acc_m.x}" y1="${a_acc_m.y}" x2="${a_mot_in.x}" y2="${a_mot_in.y}" stroke="#DCA471" stroke-width="4" />`; 
-
-    const a_mot_out = getCenter("anchor-motor-out");
-    const a_gen_in = getCenter("anchor-gen-in");
-    svgHTML += `<line x1="${a_mot_out.x}" y1="${a_mot_out.y}" x2="${a_gen_in.x}" y2="${a_gen_in.y}" stroke="#98A1AA" stroke-width="5" stroke-dasharray="4,2"/>`; 
-
-    const a_gen_out = getCenter("anchor-gen-out");
-    const a_trans_in = getCenter("anchor-trans-in");
-    svgHTML += `<line x1="${a_gen_out.x}" y1="${a_gen_out.y}" x2="${a_trans_in.x}" y2="${a_trans_in.y}" stroke="#658196" stroke-width="4" />`; 
-
-    const a_trans_out = getCenter("anchor-trans-out");
-    const a_grid_in = getCenter("anchor-grid-in");
-    svgHTML += `<line x1="${a_trans_out.x}" y1="${a_trans_out.y}" x2="${a_grid_in.x}" y2="${a_grid_in.y}" stroke="#658196" stroke-width="4" />`; 
-
-    const a_mot_ret = getCenter("anchor-motor-ret");
-    const a_tank_in = getCenter("anchor-tank-in");
-    svgHTML += `<line x1="${a_mot_ret.x}" y1="${a_mot_ret.y}" x2="${a_tank_in.x}" y2="${a_tank_in.y}" stroke="#7A7D94" stroke-width="4" />`; 
-
-    svgCanvas.innerHTML = svgHTML;
-  }
     
-  window.addEventListener("resize", drawPipes);
-  setTimeout(drawPipes, 100);
+    window.addEventListener("resize", drawPipes);
+    setTimeout(drawPipes, 100);
 
     /* =========================
        分區點擊判定系統
@@ -450,13 +421,14 @@
         const pileEl = document.getElementById(targetLane.id);
         const floaterRect = pileEl.querySelector('.floater').getBoundingClientRect();
         const targetX = floaterRect.left + (floaterRect.width / 2);
+        const targetY = floaterRect.top + (floaterRect.height / 2);
 
         if (startX >= targetX - 20) {
             spawnDolphin(startX, startY);
             return;
         }
 
-        spawnWave(startX, startY, targetX, targetLane.scale, pileEl);
+        spawnWave(startX, startY, targetX, targetY, targetLane.scale, pileEl);
     });
 
     /* =========================
@@ -489,28 +461,41 @@
             <path d="M 40 20 L 35 5 L 50 15 Z"/><path d="M 10 40 L 0 30 L 15 35 Z"/>
         </svg>`;
         tank.appendChild(dolphin);
-        setTimeout(() => dolphin.remove(), 1800);
+        setTimeout(() => dolphin.remove(), 1000);
     }
 
-    function spawnWave(startX, startY, targetX, scale, pileEl) {
+    function spawnWave(startX, startY, targetX, targetY, scale, pileEl) {
         const waveHeight = 25 * scale;
         const wave = document.createElement("div");
         wave.className = "svg-wave";
-        wave.style.width = (80 * scale) + "px"; wave.style.height = waveHeight + "px";
-        wave.style.left = startX + "px"; wave.style.top = startY + "px"; 
+        wave.style.width = (80 * scale) + "px"; 
+        wave.style.height = waveHeight + "px";
+        
+        wave.style.left = startX + "px"; 
+        wave.style.top = startY + "px"; 
         wave.style.zIndex = pileEl.style.zIndex; 
         
         wave.innerHTML = `<svg viewBox="0 0 100 50" preserveAspectRatio="none"><path d="M0 50 Q 25 10, 50 30 T 100 50 Z" /></svg>`;
         tank.appendChild(wave);
 
-        const distance = targetX - startX; 
-        const duration = (distance / 600) * 1000; 
+        // 精準計算直線距離與 Y 軸移動量
+        const deltaX = targetX - startX; 
+        const deltaY = targetY - startY; 
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        
+        const speed = 350; 
+        const duration = (distance / speed) * 1000; 
 
-        wave.style.transition = `transform ${duration}ms linear, opacity ${duration}ms ease-in`;
+        wave.style.transform = `translate(-50%, -50%) scale(0.5)`;
+        wave.style.opacity = "0.95"; 
         
         requestAnimationFrame(() => {
-            wave.style.transform = `translate(calc(-50% + ${distance}px), -50%)`;
-            wave.style.opacity = "0.2";
+            requestAnimationFrame(() => {
+                wave.style.transition = `transform ${duration}ms linear, opacity ${duration}ms ease-in`;
+                // 同時移動 X 和 Y，保證 100% 擊中目標浮子
+                wave.style.transform = `translate(calc(-50% + ${deltaX}px), calc(-50% + ${deltaY}px)) scale(1.3)`;
+                wave.style.opacity = "0.85";
+            });
         });
 
         setTimeout(() => {
@@ -529,7 +514,19 @@
                 piston.style.transform = "translateY(0px)";
             }, 300);
 
-            currentPressure += 25; 
+            let maxDist = window.innerWidth * 0.55;
+            let distRatio = distance / maxDist;
+            if(distRatio > 1) distRatio = 1;
+            if(distRatio < 0) distRatio = 0;
+            
+            let baseEnergy = Math.floor(1 + distRatio * 19);
+            let noise = Math.floor(Math.random() * 3) - 1; 
+            let addedPressure = baseEnergy + noise;
+            
+            if (addedPressure < 1) addedPressure = 1;
+            if (addedPressure > 20) addedPressure = 20;
+            
+            currentPressure += addedPressure; 
             
             if (currentPressure >= 100) {
                 pressureGauge.style.height = "100%";
@@ -568,7 +565,7 @@
 
             } else {
                 pressureGauge.style.height = currentPressure + "%";
-                showEnergyText("+25% Press", targetX, pileEl.getBoundingClientRect().top - 20);
+                showEnergyText("+" + addedPressure + "% Press", targetX, targetY - 20);
             }
         }, duration);
     }
@@ -583,4 +580,4 @@
     }
   </script>
 </body>
-</html>
+</html>	
