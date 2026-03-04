@@ -156,6 +156,64 @@
     /* 【校正】減少上飄距離 (-35px) 讓文字更貼近發生位置 */
     .energy-text { position: absolute; color: #E5B487; font-weight: bold; font-family: monospace; font-size: 22px; text-shadow: 1px 1px 4px rgba(30, 20, 40, 0.9); pointer-events: none; z-index: 25; animation: floatUp 1.8s ease-out forwards; transform: translate(-50%, -50%); letter-spacing: 1px; }
     @keyframes floatUp { 0% { margin-top: 0; scale: 0.8; opacity: 1; } 100% { margin-top: -35px; scale: 1.1; opacity: 0; } }
+
+/* =========================
+   Lighthouse Light Overlay (充能與精準 3D 縮放版)
+========================= */
+
+#lighthouseLight {
+  position: absolute;
+  left: 1414px;  /* 完美的燈塔頂端 X */
+  top: 220px;    /* 完美的燈塔頂端 Y */
+  width: 2800px;
+  height: 2800px;
+  pointer-events: none;
+  z-index: 6;
+  
+  /* 基礎透視畫布 */
+  transform: translate(-50%, -50%) rotateX(78deg);
+  transform-style: preserve-3d;
+  
+  /* 沒電時整體變暗的過渡效果 */
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+}
+
+/* 有電力時的狀態 */
+#lighthouseLight.has-power {
+  opacity: 1;
+}
+
+/* 光束本體 (改為獨立物件方便 JS 控制動畫) */
+#lightBeam {
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(
+    from -12deg,
+    rgba(255, 245, 200, 0) 0deg,
+    rgba(255, 245, 200, 0.9) 12deg,
+    rgba(255, 245, 200, 0) 24deg
+  );
+  border-radius: 50%;
+  filter: blur(10px);
+  -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0) 55%);
+  mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0) 55%);
+
+  /* 預設播放，等一下 JS 會接手控制 */
+  animation: lighthouseSweep3D 8s linear infinite;
+  animation-play-state: running; 
+}
+
+/* 結合旋轉與縮放，精準控制各個角度的長度 */
+@keyframes lighthouseSweep3D {
+  0%   { transform: rotateZ(0deg) scale(0.3); opacity: 0.1; }   /* 正上方(山脈) - 短、暗 */
+  25%  { transform: rotateZ(90deg) scale(0.3); opacity: 0.1; }  /* 3點鐘(右側) - 短、暗 */
+  40%  { transform: rotateZ(144deg) scale(0.7); opacity: 0.6; } /* 往右下(岸邊) - 開始拉長 */
+  50%  { transform: rotateZ(180deg) scale(1.0); opacity: 0.85;} /* 6點鐘(岸邊設備) - 正常 */
+  75%  { transform: rotateZ(270deg) scale(1.4); opacity: 1; }   /* 9點鐘(左側深海) - 最長、最亮 */
+  85%  { transform: rotateZ(306deg) scale(0.5); opacity: 0.3; } /* 過海平面 - 快速收縮變短 */
+  100% { transform: rotateZ(360deg) scale(0.3); opacity: 0.1; } /* 回到正上方 */
+}
   </style>
 </head>
 <body>
@@ -172,7 +230,9 @@
     <div id="scene">
       <div id="bg"></div>
       <div id="overlay"></div>
-
+<div id="lighthouseLight" class="has-power">
+  <div id="lightBeam"></div>
+</div>
       <main id="tank">
         <svg id="dynamic-pipes"></svg>
 
@@ -204,6 +264,24 @@
     const fluidLevel = document.getElementById("fluidLevel");
     const svgCanvas = document.getElementById("dynamic-pipes");
     const sceneEl = document.getElementById("scene");
+
+const lighthouseLight = document.getElementById("lighthouseLight");
+    const lightBeam = document.getElementById("lightBeam");
+    
+    // 預設給予 1 圈的初始電力，讓使用者一進來能看到燈塔運作
+    let lighthouseCharge = 1; 
+
+    // 監聽光束動畫「轉完一圈」的瞬間
+    lightBeam.addEventListener('animationiteration', () => {
+        lighthouseCharge--; // 扣除一圈電力
+        if (lighthouseCharge <= 0) {
+            lighthouseCharge = 0;
+            // 沒電了，暫停動畫並讓燈塔變暗
+            lightBeam.style.animationPlayState = 'paused';
+            lighthouseLight.classList.remove('has-power');
+        }
+    });
+
 
     let currentPressure = 0;
     let rotationDeg = 0;
@@ -363,9 +441,8 @@
             "🏖️ 星期六：美好的週末，好好放鬆一下！"
         ];
         document.getElementById("dailyMessage").innerHTML = `
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E5B487" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            ${dayMsg[dayOfWeek]}
-        `;
+    🌊 ${dayMsg[dayOfWeek]}
+`;
 
         const epochDay = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
         const quoteIndex = epochDay % rawQuotes.length;
@@ -623,6 +700,12 @@
                     currentPressure = 0;
                     pressureGauge.style.height = "0%";
                     
+
+// ⚡ 給燈塔充電：增加一圈旋轉額度，並喚醒燈塔
+                    lighthouseCharge++;
+                    lighthouseLight.classList.add('has-power');
+                    lightBeam.style.animationPlayState = 'running';
+
                     rotationDeg += 1080; 
                     motorRotor.style.transform = `rotate(${rotationDeg}deg)`;
                     gear.style.transform = `rotate(${rotationDeg}deg)`;
