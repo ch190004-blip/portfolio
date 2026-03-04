@@ -3,28 +3,50 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Wave Energy Dashboard - Precise Aesthetic</title>
+  <title>Wave Energy Dashboard - Contain Letterbox Edition</title>
   <style>
     /* =========================
-       全域設定與背景
+       全域設定與變數
     ========================= */
     :root {
-      --sys-scale: 1; 
+      --hud-scale: 1;    
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { width: 100%; height: 100%; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; background: #211d24; }
-
-    #bg { position: fixed; inset: 0; background: url("sea.jpg") center/cover no-repeat; z-index: 0; }
-    #overlay { position: fixed; inset: 0; background: linear-gradient(180deg, rgba(50, 40, 60, 0.05), rgba(30, 25, 45, 0.25)); pointer-events: none; z-index: 1; }
-    #tank { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
+    html, body { width: 100%; height: 100%; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; background: #000; }
 
     /* =========================
-       HUD 面板 (精緻低調茶色玻璃)
+       場景畫布 (絕對置中，保留黑邊的 Contain 模式)
+    ========================= */
+    #scene-wrapper {
+      position: fixed; inset: 0; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      z-index: 0; pointer-events: none;
+      background: #000; 
+    }
+
+    #scene {
+      position: relative;
+      flex-shrink: 0; 
+      width: 1520px; 
+      height: 704px;
+      transform-origin: center center; 
+      pointer-events: auto; 
+      overflow: hidden;
+    }
+
+    #bg { position: absolute; inset: 0; background: url("sea.jpg") center/100% 100% no-repeat; z-index: 0; }
+    #overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(50, 40, 60, 0.05), rgba(30, 25, 45, 0.25)); pointer-events: none; z-index: 1; }
+    #tank { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
+
+    /* =========================
+       HUD 面板
     ========================= */
     #hud { 
       position: fixed; top: 20px; left: 20px; z-index: 20; pointer-events: none; 
-      transform: scale(var(--sys-scale)); 
+      transform: scale(var(--hud-scale)); 
       transform-origin: top left; 
     }
     .hud-panel {
@@ -35,121 +57,81 @@
     .clock { font-size: 28px; font-weight: 700; letter-spacing: 2px; color: #FDF9F5; text-shadow: 0 2px 4px rgba(40, 25, 45, 0.5); margin-bottom: 12px; font-variant-numeric: tabular-nums; }
     .daily-msg { font-size: 13px; font-weight: 700; color: #E5B487; padding-bottom: 8px; margin-bottom: 10px; border-bottom: 1px dashed rgba(255,230,220,0.2); display: flex; align-items: center; gap: 6px;}
     
-    /* 金句排版設計 */
     .quote-block {
-      background: rgba(255, 255, 255, 0.05);
-      border-left: 3px solid #DCA471;
-      border-radius: 0 6px 6px 0;
-      padding: 12px 14px;
-      margin-top: 8px;
-      box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+      background: rgba(255, 255, 255, 0.05); border-left: 3px solid #DCA471; border-radius: 0 6px 6px 0;
+      padding: 12px 14px; margin-top: 8px; box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
     }
-    .quote-text {
-      font-size: 13px;
-      line-height: 1.7;
-      color: #FDF9F5;
-      font-style: italic;
-      margin-bottom: 8px;
-      text-align: justify;
-      letter-spacing: 0.5px;
-    }
-    .quote-author {
-      font-size: 12px;
-      color: #A1AEC2;
-      text-align: right;
-      font-weight: bold;
-    }
+    .quote-text { font-size: 13px; line-height: 1.7; color: #FDF9F5; font-style: italic; margin-bottom: 8px; text-align: justify; letter-spacing: 0.5px; }
+    .quote-author { font-size: 12px; color: #A1AEC2; text-align: right; font-weight: bold; }
 
     /* =========================
        動態 SVG 管線系統
     ========================= */
-    #dynamic-pipes { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; filter: drop-shadow(0px 4px 4px rgba(30, 20, 40, 0.25)); }
+    #dynamic-pipes { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; filter: drop-shadow(0px 4px 4px rgba(30, 20, 40, 0.25)); }
 
     /* =========================
        插樁式浮子陣列
     ========================= */
     .pile-container { position: absolute; width: 40px; height: 180px; z-index: 5; transform-origin: bottom center; }
-    .pole { 
-      position: absolute; left: 15px; top: 0; width: 10px; height: 100%; 
-      background: linear-gradient(to right, #6D757C, #4B5259); 
-      border-radius: 5px; box-shadow: inset -2px 0 5px rgba(20, 20, 30, 0.4);
-    }
-    .floater { 
-      position: absolute; left: 0; top: 60px; width: 40px; height: 45px; 
-      background: linear-gradient(to bottom, #E89574, #C26C4E);
-      border: 2px solid #75402D; border-radius: 6px; box-shadow: 0 4px 10px rgba(30, 20, 40, 0.4);
-      transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 4;
-    }
-    .piston {
-      position: absolute; left: 16px; top: 30px; width: 8px; height: 30px;
-      background: #D4D8DC; border: 1px solid #7A8188; transition: height 0.25s, transform 0.25s; z-index: 3;
-    }
-    
+    .pole { position: absolute; left: 15px; top: 0; width: 10px; height: 100%; background: linear-gradient(to right, #6D757C, #4B5259); border-radius: 5px; box-shadow: inset -2px 0 5px rgba(20, 20, 30, 0.4); }
+    .floater { position: absolute; left: 0; top: 60px; width: 40px; height: 45px; background: linear-gradient(to bottom, #E89574, #C26C4E); border: 2px solid #75402D; border-radius: 6px; box-shadow: 0 4px 10px rgba(30, 20, 40, 0.4); transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 4; }
+    .piston { position: absolute; left: 16px; top: 30px; width: 8px; height: 30px; background: #D4D8DC; border: 1px solid #7A8188; transition: height 0.25s, transform 0.25s; z-index: 3; }
     .pipe-anchor-hp { position: absolute; left: 20px; bottom: -10px; width: 1px; height: 1px; }
     .pipe-anchor-ret { position: absolute; left: 10px; bottom: -10px; width: 1px; height: 1px; }
 
-    #pile1 { left: 55%; top: 40%; transform: scale(calc(0.60 * var(--sys-scale))); }
-    #pile2 { left: 60%; top: 48%; transform: scale(calc(0.75 * var(--sys-scale))); }
-    #pile3 { left: 65%; top: 56%; transform: scale(calc(0.90 * var(--sys-scale))); }
-    #pile4 { left: 70%; top: 64%; transform: scale(calc(1.05 * var(--sys-scale))); } 
+    #pile1 { left: 60%; top: 42%; transform: scale(0.60); }
+    #pile2 { left: 65%; top: 50%; transform: scale(0.75); }
+    #pile3 { left: 70%; top: 60%; transform: scale(0.90); }
+    #pile4 { left: 75%; top: 72%; transform: scale(1.05); } 
 
     /* =========================
-       岸上設備總成 (依照組長指定註解與參數)
+       岸上設備總成 (你的精準座標)
     ========================= */
     #shoreStation { 
-      position: absolute; left: 65%; top: 40%; z-index: 8; transform: scale(calc(0.60 * var(--sys-scale))); transform-origin: left center;
+      position: absolute; left: 63%; top: 43%; z-index: 8; 
+      transform: scale(0.60); transform-origin: left center;
     }
 
     .equip-box { position: absolute; z-index: 8; }
-    .equip-label { 
-      position: absolute; font-size: 16px; color: #F5F0F0; font-family: monospace; 
-      text-align: center; width: 140%; left: -20%; bottom: -30px; 
-      text-shadow: 1px 1px 4px rgba(30, 20, 40, 0.9); font-weight: bold; letter-spacing: 1px;
-    }
+    .equip-label { position: absolute; font-size: 16px; color: #F5F0F0; font-family: monospace; text-align: center; width: 140%; left: -20%; bottom: -30px; text-shadow: 1px 1px 4px rgba(30, 20, 40, 0.9); font-weight: bold; letter-spacing: 1px; }
 
-    /* 1. 蓄壓器 (不動) */
-    #accumulator { left: 0px; top: 0px; width: 50px; height: 95px; }
-    .acc-body { width: 100%; height: 100%; background: #5C5A6B; border: 3px solid #8B889E; border-radius: 25px 25px 4px 4px; display: flex; align-items: flex-end; overflow: hidden; box-shadow: 4px 4px 12px rgba(0,0,0,0.5); }
+    #accumulator { left: 200px; top: 0px; width: 50px; height: 95px; }
+    .acc-body { width: 100%; height: 100%; background: #5C5A6B; border: 3px solid #8B889E; border-radius: 25px 25px 4px 4px; display: flex; align-items: flex-end; overflow: hidden; box-shadow: 4px 4px 12px rgba(30, 20, 40, 0.5); }
     #pressureGauge { width: 100%; height: 0%; background: linear-gradient(to top, #E74C3C, #F1C40F); transition: height 0.3s ease-out; }
     #anchor-acc-hp { position: absolute; left: 5px; bottom: 0; width: 1px; height: 1px; } 
     #anchor-acc-motor { position: absolute; right: -5px; top: 65px; width: 1px; height: 1px; }
 
-    /* 2. 液壓馬達 (不動) */
-    #motor { left: 250px; top: 100px; width: 60px; height: 60px; }
-    .motor-body { width: 100%; height: 100%; background: #27AE60; border: 3px solid #196F3D; border-radius: 8px; box-shadow: 3px 3px 10px rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; }
+    #motor { left: 400px; top: 100px; width: 60px; height: 60px; }
+    .motor-body { width: 100%; height: 100%; background: #27AE60; border: 3px solid #196F3D; border-radius: 8px; box-shadow: 3px 3px 10px rgba(30, 20, 40, 0.5); display: flex; justify-content: center; align-items: center; }
     .motor-rotor { width: 34px; height: 34px; border-radius: 50%; background: #E8E8E8; border: 4px dashed #145A32; transition: transform 1.5s cubic-bezier(0.1, 0.8, 0.2, 1); }
     #anchor-motor-in { position: absolute; left: -5px; top: 30px; width: 1px; height: 1px; }
     #anchor-motor-out { position: absolute; right: -5px; top: 30px; width: 1px; height: 1px; }
     #anchor-motor-ret { position: absolute; left: 30px; bottom: -5px; width: 1px; height: 1px; }
 
-    /* 3. 發電機 (微調往右下) */
-    #generator { left: 350px; top: 125px; width: 75px; height: 75px; }
-    .gen-body { width: 100%; height: 100%; background: radial-gradient(circle, #2ECC71, #1E8449); border: 3px solid #145A32; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 3px 3px 10px rgba(0,0,0,0.5); }
+    #generator { left: 500px; top: 125px; width: 75px; height: 75px; }
+    .gen-body { width: 100%; height: 100%; background: radial-gradient(circle, #2ECC71, #1E8449); border: 3px solid #145A32; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 3px 3px 10px rgba(30, 20, 40, 0.5); }
     .gear { width: 46px; height: 46px; fill: #FFF; transition: transform 1.5s cubic-bezier(0.1, 0.8, 0.2, 1); }
     .gen-spark { position: absolute; inset: 0; border-radius: 50%; border: 3px solid #F1C40F; opacity: 0; box-shadow: 0 0 15px #F1C40F, inset 0 0 15px #F1C40F; transition: opacity 0.2s; pointer-events: none; }
     #anchor-gen-in { position: absolute; left: -5px; top: 37px; width: 1px; height: 1px; }
     #anchor-gen-out { position: absolute; right: -5px; top: 37px; width: 1px; height: 1px; }
 
-    /* 4. 變壓器 (微調往右下) */
-    #transformer { left: 480px; top: 170px; width: 65px; height: 60px; }
-    .trans-body { width: 100%; height: 100%; background: linear-gradient(135deg, #3498DB, #2980B9); border: 3px solid #1A5276; border-radius: 6px; display: flex; flex-direction: column; justify-content: space-evenly; align-items: center; box-shadow: 3px 3px 10px rgba(0,0,0,0.5); transition: box-shadow 0.2s; }
+    #transformer { left: 600px; top: 170px; width: 65px; height: 60px; }
+    .trans-body { width: 100%; height: 100%; background: linear-gradient(135deg, #3498DB, #2980B9); border: 3px solid #1A5276; border-radius: 6px; display: flex; flex-direction: column; justify-content: space-evenly; align-items: center; box-shadow: 3px 3px 10px rgba(30, 20, 40, 0.5); transition: box-shadow 0.2s; }
     .coil { width: 50px; height: 6px; background: #154360; border-radius: 3px; }
     #anchor-trans-in { position: absolute; left: -5px; top: 30px; width: 1px; height: 1px; }
     #anchor-trans-out { position: absolute; right: -5px; top: 30px; width: 1px; height: 1px; }
 
-    /* 5. 電網 (微調往右下) */
-    #gridTower { left: 600px; top: 170px; font-size: 70px; line-height: 1; filter: drop-shadow(0 0 3px rgba(52, 152, 219, 0.4)); transition: filter 0.2s, transform 0.2s; color: #BDC3C7; }
+    #gridTower { left: 720px; top: 170px; font-size: 70px; line-height: 1; filter: drop-shadow(0 0 3px rgba(52, 152, 219, 0.4)); transition: filter 0.2s, transform 0.2s; color: #BDC3C7; }
     #anchor-grid-in { position: absolute; left: 0px; top: 35px; width: 1px; height: 1px; }
 
-    /* 6. 液壓油槽 (移回水泥防波堤上) */
-    #fluidTank { left: 120px; top: 60px; width: 70px; height: 60px; }
-    .tank-body { width: 100%; height: 100%; background: rgba(236, 240, 241, 0.2); border: 3px solid #95A5A6; border-radius: 5px; display: flex; align-items: flex-end; overflow: hidden; backdrop-filter: blur(2px); box-shadow: inset 0 0 10px rgba(0,0,0,0.6); }
-    #fluidLevel { width: 100%; height: 20%; background: #7F8C8D; transition: height 1.5s ease-in-out; }
+    #fluidTank { left: 300px; top: 80px; width: 70px; height: 60px; }
+    .tank-body { width: 100%; height: 100%; background: rgba(180, 190, 200, 0.1); border: 3px solid #82919E; border-radius: 5px; display: flex; align-items: flex-end; overflow: hidden; backdrop-filter: blur(3px); box-shadow: inset 0 0 12px rgba(30, 20, 40, 0.3); }
+    #fluidLevel { width: 100%; height: 20%; background: #687987; transition: height 1.5s ease-in-out; }
     #anchor-tank-in { position: absolute; left: 62px; top: 60px; width: 1px; height: 1px; }
     #anchor-tank-out { position: absolute; left: 5px; bottom: -5px; width: 1px; height: 1px; }
 
     /* =========================
-       動態特效 (波浪、海鷗、海豚)
+       動態特效
     ========================= */
     .svg-wave { position: absolute; pointer-events: none; z-index: 15; }
     .svg-wave svg { width: 100%; height: 100%; fill: rgba(255, 255, 255, 0.85); stroke: rgba(255, 255, 255, 0.95); stroke-width: 2; animation: waveBob 0.8s infinite alternate ease-in-out; }
@@ -159,13 +141,8 @@
     .bird svg { width: 100%; height: 100%; fill: #FFF2E6; animation: flap 1.5s infinite alternate ease-in-out; opacity: 0.9; }
     @keyframes flap { 0% { transform: scaleY(1); } 100% { transform: scaleY(0.2); } }
 
-    .dolphin {
-      position: absolute; width: 45px; height: 45px; pointer-events: none; z-index: 3;
-      filter: drop-shadow(0px 4px 4px rgba(30, 20, 40, 0.35));
-      animation: dolphinJump 1s linear forwards; 
-    }
+    .dolphin { position: absolute; width: 45px; height: 45px; pointer-events: none; z-index: 3; filter: drop-shadow(0px 4px 4px rgba(30, 20, 40, 0.35)); animation: dolphinJump 1s linear forwards; }
     .dolphin svg { width: 100%; height: 100%; fill: #5A6372; }
-    
     @keyframes dolphinJump {
       0%   { transform: translate(-50%, -50%) rotate(-45deg) scale(0.8); opacity: 0; }
       15%  { transform: translate(calc(-50% + 15px), calc(-50% - 20px)) rotate(-25deg) scale(1); opacity: 1; }
@@ -176,18 +153,13 @@
       100% { transform: translate(calc(-50% + 90px), calc(-50% + 10px)) rotate(60deg) scale(0.8); opacity: 0; }
     }
 
-    .energy-text {
-      position: absolute; color: #E5B487; font-weight: bold; font-family: monospace; font-size: 22px;
-      text-shadow: 1px 1px 4px rgba(30, 20, 40, 0.9); pointer-events: none; z-index: 25; animation: floatUp 1.8s ease-out forwards;
-      transform: translate(-50%, -50%); letter-spacing: 1px;
-    }
-    @keyframes floatUp { 0% { margin-top: 0; scale: 0.8; opacity: 1; } 100% { margin-top: -60px; scale: 1.1; opacity: 0; } }
+    /* 【校正】減少上飄距離 (-35px) 讓文字更貼近發生位置 */
+    .energy-text { position: absolute; color: #E5B487; font-weight: bold; font-family: monospace; font-size: 22px; text-shadow: 1px 1px 4px rgba(30, 20, 40, 0.9); pointer-events: none; z-index: 25; animation: floatUp 1.8s ease-out forwards; transform: translate(-50%, -50%); letter-spacing: 1px; }
+    @keyframes floatUp { 0% { margin-top: 0; scale: 0.8; opacity: 1; } 100% { margin-top: -35px; scale: 1.1; opacity: 0; } }
   </style>
 </head>
 <body>
-  <div id="bg"></div>
-  <div id="overlay"></div>
-
+  
   <header id="hud">
     <div class="hud-panel">
       <div id="clock" class="clock"></div>
@@ -196,60 +168,32 @@
     </div>
   </header>
 
-  <main id="tank">
-    <svg id="dynamic-pipes"></svg>
+  <div id="scene-wrapper">
+    <div id="scene">
+      <div id="bg"></div>
+      <div id="overlay"></div>
 
-    <div class="pile-container" id="pile1"><div class="pole"></div><div class="piston"></div><div class="floater"></div><div class="pipe-anchor-hp" id="anchor-p1-hp"></div><div class="pipe-anchor-ret" id="anchor-p1-ret"></div></div>
-    <div class="pile-container" id="pile2"><div class="pole"></div><div class="piston"></div><div class="floater"></div><div class="pipe-anchor-hp" id="anchor-p2-hp"></div><div class="pipe-anchor-ret" id="anchor-p2-ret"></div></div>
-    <div class="pile-container" id="pile3"><div class="pole"></div><div class="piston"></div><div class="floater"></div><div class="pipe-anchor-hp" id="anchor-p3-hp"></div><div class="pipe-anchor-ret" id="anchor-p3-ret"></div></div>
-    <div class="pile-container" id="pile4"><div class="pole"></div><div class="piston"></div><div class="floater"></div><div class="pipe-anchor-hp" id="anchor-p4-hp"></div><div class="pipe-anchor-ret" id="anchor-p4-ret"></div></div>
+      <main id="tank">
+        <svg id="dynamic-pipes"></svg>
 
-    <div id="shoreStation">
-      <div class="equip-box" id="accumulator">
-        <div class="acc-body"><div id="pressureGauge"></div></div>
-        <div class="equip-label">ACCUMULATOR</div>
-        <div id="anchor-acc-hp"></div><div id="anchor-acc-motor"></div>
-      </div>
+        <div class="pile-container" id="pile1"><div class="pole"></div><div class="piston"></div><div class="floater"></div><div class="pipe-anchor-hp" id="anchor-p1-hp"></div><div class="pipe-anchor-ret" id="anchor-p1-ret"></div></div>
+        <div class="pile-container" id="pile2"><div class="pole"></div><div class="piston"></div><div class="floater"></div><div class="pipe-anchor-hp" id="anchor-p2-hp"></div><div class="pipe-anchor-ret" id="anchor-p2-ret"></div></div>
+        <div class="pile-container" id="pile3"><div class="pole"></div><div class="piston"></div><div class="floater"></div><div class="pipe-anchor-hp" id="anchor-p3-hp"></div><div class="pipe-anchor-ret" id="anchor-p3-ret"></div></div>
+        <div class="pile-container" id="pile4"><div class="pole"></div><div class="piston"></div><div class="floater"></div><div class="pipe-anchor-hp" id="anchor-p4-hp"></div><div class="pipe-anchor-ret" id="anchor-p4-ret"></div></div>
 
-      <div class="equip-box" id="motor">
-        <div class="motor-body"><div class="motor-rotor" id="motorRotor"></div></div>
-        <div class="equip-label">MOTOR</div>
-        <div id="anchor-motor-in"></div><div id="anchor-motor-out"></div><div id="anchor-motor-ret"></div>
-      </div>
-
-      <div class="equip-box" id="generator">
-        <div class="gen-body">
-          <div class="gen-spark" id="genSpark"></div>
-          <svg class="gear" id="gear" viewBox="0 0 100 100">
-            <path d="M50 15 L55 5 L65 10 L60 20 A30 30 0 0 1 80 40 L90 35 L95 45 L85 50 A30 30 0 0 1 80 60 L90 65 L85 75 L75 70 A30 30 0 0 1 60 80 L65 90 L55 95 L50 85 A30 30 0 0 1 40 80 L35 90 L25 85 L30 70 A30 30 0 0 1 20 60 L10 65 L5 55 L15 50 A30 30 0 0 1 20 40 L10 35 L15 25 L25 30 A30 30 0 0 1 40 20 L35 10 L45 5 Z" />
-            <circle cx="50" cy="50" r="16" fill="#43614D" stroke="#FDF9F5" stroke-width="5"/>
-          </svg>
+        <div id="shoreStation">
+          <div class="equip-box" id="accumulator"><div class="acc-body"><div id="pressureGauge"></div></div><div class="equip-label">ACCUMULATOR</div><div id="anchor-acc-hp"></div><div id="anchor-acc-motor"></div></div>
+          <div class="equip-box" id="motor"><div class="motor-body"><div class="motor-rotor" id="motorRotor"></div></div><div class="equip-label">MOTOR</div><div id="anchor-motor-in"></div><div id="anchor-motor-out"></div><div id="anchor-motor-ret"></div></div>
+          <div class="equip-box" id="generator"><div class="gen-body"><div class="gen-spark" id="genSpark"></div><svg class="gear" id="gear" viewBox="0 0 100 100"><path d="M50 15 L55 5 L65 10 L60 20 A30 30 0 0 1 80 40 L90 35 L95 45 L85 50 A30 30 0 0 1 80 60 L90 65 L85 75 L75 70 A30 30 0 0 1 60 80 L65 90 L55 95 L50 85 A30 30 0 0 1 40 80 L35 90 L25 85 L30 70 A30 30 0 0 1 20 60 L10 65 L5 55 L15 50 A30 30 0 0 1 20 40 L10 35 L15 25 L25 30 A30 30 0 0 1 40 20 L35 10 L45 5 Z" /><circle cx="50" cy="50" r="16" fill="#43614D" stroke="#FDF9F5" stroke-width="5"/></svg></div><div class="equip-label">GENERATOR</div><div id="anchor-gen-in"></div><div id="anchor-gen-out"></div></div>
+          <div class="equip-box" id="transformer"><div class="trans-body"><div class="coil"></div><div class="coil"></div><div class="coil"></div></div><div class="equip-label">TRANSFORMER</div><div id="anchor-trans-in"></div><div id="anchor-trans-out"></div></div>
+          <div class="equip-box" id="gridTower">⚡<div class="equip-label" style="bottom:-18px;">GRID</div><div id="anchor-grid-in"></div></div>
+          <div class="equip-box" id="fluidTank"><div class="tank-body"><div id="fluidLevel"></div></div><div class="equip-label">FLUID TANK</div><div id="anchor-tank-in"></div><div id="anchor-tank-out"></div></div>
         </div>
-        <div class="equip-label">GENERATOR</div>
-        <div id="anchor-gen-in"></div><div id="anchor-gen-out"></div>
-      </div>
-
-      <div class="equip-box" id="transformer">
-        <div class="trans-body"><div class="coil"></div><div class="coil"></div><div class="coil"></div></div>
-        <div class="equip-label">TRANSFORMER</div>
-        <div id="anchor-trans-in"></div><div id="anchor-trans-out"></div>
-      </div>
-
-      <div class="equip-box" id="gridTower">
-        ⚡<div class="equip-label" style="bottom:-18px;">GRID</div>
-        <div id="anchor-grid-in"></div>
-      </div>
-      
-      <div class="equip-box" id="fluidTank">
-        <div class="tank-body"><div id="fluidLevel"></div></div>
-        <div class="equip-label">FLUID TANK</div>
-        <div id="anchor-tank-in"></div><div id="anchor-tank-out"></div>
-      </div>
+      </main>
     </div>
-  </main>
+  </div>
 
   <script>
-    document.body.style.pointerEvents = "auto";
     const tank = document.getElementById("tank");
     const pressureGauge = document.getElementById("pressureGauge");
     const motorRotor = document.getElementById("motorRotor");
@@ -259,63 +203,70 @@
     const gridTower = document.getElementById("gridTower");
     const fluidLevel = document.getElementById("fluidLevel");
     const svgCanvas = document.getElementById("dynamic-pipes");
+    const sceneEl = document.getElementById("scene");
 
     let currentPressure = 0;
     let rotationDeg = 0;
 
-    const Y_HORIZON = 0.40;       
-    const Y_DOLPHIN_END = 0.52;   
+    /* =========================
+       【校正】根據浮子位置精確測量的 Y 軸判定線
+       sea.jpg 真實海平線約在 Y=340px (0.48)
+    ========================= */
+    const Y_HORIZON = 0.45;       
+    const Y_DOLPHIN_END = 0.53;   
 
     const lanes = [
-      { minY: 0.52, maxY: 0.60, id: "pile1", scale: 0.60 }, 
-      { minY: 0.60, maxY: 0.68, id: "pile2", scale: 0.75 },
-      { minY: 0.68, maxY: 0.76, id: "pile3", scale: 0.90 },
-      { minY: 0.76, maxY: 0.85, id: "pile4", scale: 1.05 }  
+      { minY: 0.53, maxY: 0.63, id: "pile1", scale: 0.60 }, 
+      { minY: 0.63, maxY: 0.74, id: "pile2", scale: 0.75 },
+      { minY: 0.74, maxY: 0.87, id: "pile3", scale: 0.90 },
+      { minY: 0.87, maxY: 0.97, id: "pile4", scale: 1.05 }  
     ];
-    
-    const Y_DEEP_SEA = 0.85;      
+    const Y_DEEP_SEA = 0.92;      
 
     /* =========================
-       動態適應縮放機制
+       保留等比縮放包含機制 (Contain / Letterbox)
     ========================= */
     function updateLayout() {
-        let s = window.innerWidth / 1440;
-        if (s > 1) s = 1;      
-        if (s < 0.4) s = 0.4;  
+        const winW = window.innerWidth;
+        const winH = window.innerHeight;
+
+        let hudScale = winW / 1440;
+        if (hudScale > 1) hudScale = 1;      
+        if (hudScale < 0.5) hudScale = 0.5; 
+        document.documentElement.style.setProperty('--hud-scale', hudScale);
+
+        const scale = Math.min(winW / 1520, winH / 704);
+        sceneEl.style.transform = `scale(${scale})`;
         
-        document.documentElement.style.setProperty('--sys-scale', s);
-        
-        requestAnimationFrame(() => {
-            drawPipes();
-        });
+        requestAnimationFrame(() => { drawPipes(); });
     }
     window.addEventListener("resize", updateLayout);
 
     /* =========================
-       100句金句資料庫
+       每日金句系統
     ========================= */
     const rawQuotes = [
       "「上帝沒有给你所想要的東西, 不是你不配, 而是你值得擁有更好的。」—《亂世佳人》",
-      "「如果你對每隻向你吠的狗,都停下來扔石頭,你永遠到不了目的地。」— 邱吉爾（前英國首相）",
+      "「如果你對每隻向你吠的狗,都停下來扔石頭,你永遠到不了目的地。」— 邱吉爾",
       "「嘗試改變,你或許就變得不一樣, 之所以害怕是因為害怕本身。」—《動物方城市》",
       "「唯有愛能凌駕時間和空間。」—《星際效應》",
       "「TO LOVE and to be loved is the greatest happiness of existence.」",
       "「成功=艱苦勞動+正確的方法 +少說空話。」",
       "「決定我們成為什麼樣人的, 不是我們的能力, 而是我們的選擇。」—《哈利波特》",
       "「請記著要保持好奇心。 無論生命歷程有多艱難, 你也有機會有所成就, 重點是不要放棄。」— 史蒂芬·霍金",
-      "「生命中的愛、犧牲, 還有掙扎。 都將使你成為內心強大的人。」— 蜜雪兒（前美國第一夫人）",
+      "「生命中的愛、犧牲, 還有掙扎。 都將使你成為內心強大的人。」— 蜜雪兒",
       "「生活總會有點不順意,我們都會犯錯。 天性如何並不重要,重要的是你開始改變。」—《動物方城市》",
       "「THE FUTURE belongs to those who believe in the beauty of their dreams.」",
       "「不要只因一次挫敗, 就放棄你原來決心想達到的目的。」— 莎士比亞",
-      "「愛是含忍的,愛是慈祥的, 愛不嫉妒,不誇張,不自大。」—《格前13:4》（聖經）",
+      "「愛是含忍的,愛是慈祥的, 愛不嫉妒,不誇張,不自大。」—《格前13:4》",
       "「你必須對人們有信心,更重要的是必須相信自己。」",
       "「如果你有夢想,就去守護它。」—《當幸福來敲門》",
       "「愛的反面,不是仇恨,而是漠不關心。」— 德蕾莎修女",
       "「愛,是在别人的需要上看見自己的責任。」— 德蕾莎修女",
       "「生命就像一盒巧克力,你永遠不知道你會得到什麼。」—《阿甘正傳》",
-      "「天主能豐厚地賜與你們各種恩惠 使你們在一切事上常十分充足, 能多多行各種善事。」—《格後9:8》（聖經）",
-      "「你若有能力作到,不要拒绝向有求於你的人行善。」—《箴3:27》（聖經）",
-      "「智慧的真起點,是切願受教;切願受教就是愛。」—《智慧6:18-19》（聖經）",
+      "「天主能豐厚地賜與你們各種恩惠 使你們在一切事上常十分充足, 能多多行各種善事。」—《格後9:8》",
+      "「你若有能力作到,不要拒绝向有求於你的人行善。」—《箴3:27》",
+      "「智慧的真起點,是切願受教;切願受教就是愛。」—《智慧6:18-19》",
       "「你需要去相信,生命中有些特别的東西,是可能存在的。」—《美麗境界》",
       "「凡你們願意人給你們做的，你們也要照樣給人做。」—《瑪竇福音 7:12》",
       "「你們不要憂慮明天的事，因為明天有明天的憂慮。」—《瑪竇福音 6:34》",
@@ -334,49 +285,49 @@
       "「你們求，必要給你們；你們找，必要找著；你們敲，必要給你們開。」—《瑪竇福音 7:7》",
       "「不要害怕，只管信。」—《馬爾谷福音 5:36》",
       "「既然天主這樣愛了我們，我們也應該彼此相愛。」—《若望一書 4:11》",
-      "「你們建塔，誰不先坐下計算費用，看是否有力完成呢？」—《路加福音 14:28》（聖經）",
-      "「我們在各方面受了磨難，卻沒有被困住；絕了路，卻沒有絕望。」—《格後 4:8》（聖經）",
+      "「你們建塔，誰不先坐下計算費用，看是否有力完成呢？」—《路加福音 14:28》",
+      "「我們在各方面受了磨難，卻沒有被困住；絕了路，卻沒有絕望。」—《格後 4:8》",
       "「為此，我們決不膽怯，即使我們外在的人日漸損壞，但我們內在的人卻日日更新。」—《格後 4:16》",
       "「義人的路卻如黎明的曙光，越來越明，直到永晝。」—《箴言 4:18》",
-      "「你們應當堅強，不可膽怯，因為你們的工作必有報酬。」—《編年紀下 15:7》（聖經）",
+      "「你們應當堅強，不可膽怯，因為你們的工作必有報酬。」—《編年紀下 15:7》",
       "「天主為愛他的人所準備的，是眼所未見，耳所未聞，人心所未想到的。」—《格前 2:9》",
       "「只要你們懷有信德，不論向天主求什麼，必可得到。」—《瑪竇福音 21:22》",
       "「凡勞苦和負重擔的，你們都到我跟前來，我要使你們安息。」—《瑪竇福音 11:28》",
-      "「我們不能改變過去，但能決定未來的模樣。」—《蜘蛛人：無家日》(2021)",
-      "「生命的意義不在於你成就了什麼，而在於你準備好去體驗什麼。」—《靈魂急轉彎》(2020)",
-      "「火花不是靈魂的目的，當你準備好生活，你就已經找到火花了。」—《靈魂急轉彎》(2020)",
-      "「有時候，正確的路並不是最輕鬆的那一條。」—《奇異博士2：失控多重宇宙》(2022)",
-      "「每一個選擇，都能創造出一個截然不同的宇宙。」—《媽的多重宇宙》(2022)",
-      "「當你學會擁抱自己的脆弱，你就會變得無比強大。」—《媽的多重宇宙》(2022)",
-      "「真正的勇氣不是不害怕，而是帶著恐懼繼續前進。」—《捍衛戰士：獨行俠》(2022)",
-      "「重要的不是你飛得多高，而是你在這趟飛行中陪伴了誰。」—《捍衛戰士：獨行俠》(2022)",
-      "「水沒有起點，也沒有終點；海在你的周圍，也在你的裡面。」—《阿凡達：水之道》(2022)",
-      "「只要你願意相信，奇蹟就會在最意想不到的時候發生。」—《星願》(2023)",
-      "「不要讓別人的眼光，定義你的價值。」—《Barbie芭比》(2023)",
-      "「我們都是不完美的，但這正是我們與眾不同的地方。」—《Barbie芭比》(2023)",
-      "「只有當我們學會放下過去，才能真正擁抱未來。」—《星際異攻隊3》(2023)",
-      "「去愛，去經歷，去感受，即使會受傷，這才是活著的意義。」—《鈴芽之旅》(2022)",
-      "「你無法阻止海浪，但你可以學會衝浪。」— 喬·卡巴金（正念減壓創始人）",
-      "「每一次的告別，都是為了下一次更好的相遇。」—《蒼鷺與少年》(2023)",
-      "「這世界並不完美，但你可以選擇你想活出的樣子。」—《蒼鷺與少年》(2023)",
-      "「真正的力量，來自於保護你所愛的人。」—《沙丘：第二部》(2024)",
-      "「恐懼是心靈的殺手。當恐懼消散，唯我獨存。」—《沙丘：第二部》(2024)",
-      "「有時候，我們必須學會與悲傷共存，才能懂得快樂的珍貴。」—《腦筋急轉彎2》(2024)",
-      "「不要急著長大，每一種情緒都有它存在的意義。」—《腦筋急轉彎2》(2024)",
-      "「我或許不知道如何去愛，但我知道我愛你。」—《怪物》(2023)",
-      "「比起結果，我們共同經歷的過程才是一生最寶貴的財富。」—《灌籃高手 THE FIRST SLAM DUNK》(2022)",
+      "「我們不能改變過去，但能決定未來的模樣。」—《蜘蛛人：無家日》",
+      "「生命的意義不在於你成就了什麼，而在於你準備好去體驗什麼。」—《靈魂急轉彎》",
+      "「火花不是靈魂的目的，當你準備好生活，你就已經找到火花了。」—《靈魂急轉彎》",
+      "「有時候，正確的路並不是最輕鬆的那一條。」—《奇異博士2：失控多重宇宙》",
+      "「每一個選擇，都能創造出一個截然不同的宇宙。」—《媽的多重宇宙》",
+      "「當你學會擁抱自己的脆弱，你就會變得無比強大。」—《媽的多重宇宙》",
+      "「真正的勇氣不是不害怕，而是帶著恐懼繼續前進。」—《捍衛戰士：獨行俠》",
+      "「重要的不是你飛得多高，而是你在這趟飛行中陪伴了誰。」—《捍衛戰士：獨行俠》",
+      "「水沒有起點，也沒有終點；海在你的周圍，也在你的裡面。」—《阿凡達：水之道》",
+      "「只要你願意相信，奇蹟就會在最意想不到的時候發生。」—《星願》",
+      "「不要讓別人的眼光，定義你的價值。」—《Barbie芭比》",
+      "「我們都是不完美的，但這正是我們與眾不同的地方。」—《Barbie芭比》",
+      "「只有當我們學會放下過去，才能真正擁抱未來。」—《星際異攻隊3》",
+      "「去愛，去經歷，去感受，即使會受傷，這才是活著的意義。」—《鈴芽之旅》",
+      "「你無法阻止海浪，但你可以學會衝浪。」— 喬·卡巴金",
+      "「每一次的告別，都是為了下一次更好的相遇。」—《蒼鷺與少年》",
+      "「這世界並不完美，但你可以選擇你想活出的樣子。」—《蒼鷺與少年》",
+      "「真正的力量，來自於保護你所愛的人。」—《沙丘：第二部》",
+      "「恐懼是心靈的殺手。當恐懼消散，唯我獨存。」—《沙丘：第二部》",
+      "「有時候，我們必須學會與悲傷共存，才能懂得快樂的珍貴。」—《腦筋急轉彎2》",
+      "「不要急著長大，每一種情緒都有它存在的意義。」—《腦筋急轉彎2》",
+      "「我或許不知道如何去愛，但我知道我愛你。」—《怪物》",
+      "「比起結果，我們共同經歷的過程才是一生最寶貴的財富。」—《灌籃高手》",
       "「任何困境總有出路，你只需要去把它找出來。」—《絕地救援》",
       "「即使世界再荒蕪，只要心中有光，就能找到綠洲。」—《瘋狂麥斯：憤怒道》",
       "「計畫本身或許毫無價值，但規劃的過程卻是一切。」— 德懷特·艾森豪",
-      "「只有當我們走入大自然，才會發現自己有多麼渺小，而世界有多麼廣闊。」— 約翰·繆爾（自然保育先驅）",
-      "「旅行的意義不在於去過多少地方，而在於你看世界的視角改變了多少。」— 艾倫·狄波頓（作家）",
+      "「只有當我們走入大自然，才會發現自己有多麼渺小，而世界有多麼廣闊。」— 約翰·繆爾",
+      "「旅行的意義不在於去過多少地方，而在於你看世界的視角改變了多少。」— 艾倫·狄波頓",
       "「大自然不會匆忙，但一切都能如期完成。」— 老子",
-      "「我不知道未來會怎樣，但我知道是誰掌管未來。」— 威廉·巴克萊（神學家）",
-      "「科技的目的是為了提升人的生活，而不是取代人的溫度。」— 提姆·庫克（Apple CEO）",
+      "「我不知道未來會怎樣，但我知道是誰掌管未來。」— 威廉·巴克萊",
+      "「科技的目的是為了提升人的生活，而不是取代人的溫度。」— 提姆·庫克",
       "「平靜的海洋鍛鍊不出優秀的水手。」— 富蘭克林·羅斯福",
-      "「前進的秘訣在於開始；開始的秘訣在於將複雜繁重的任務，分解成可管理的小任務，然後從第一個著手。」— 馬克·吐溫",
+      "「前進的秘訣在於開始；開始的秘訣在於將複雜任務分解成小任務，然後從第一個著手。」— 馬克·吐溫",
       "「不要因為走得太遠，而忘記了為什麼出發。」— 紀伯倫",
-      "「如果你想造一艘船，不要先去分配任務或收集木材，而是去激發人們對浩瀚海洋的渴望。」— 安東尼·聖修伯里（《小王子》作者）",
+      "「如果你想造一艘船，去激發人們對浩瀚海洋的渴望，而非指派任務。」— 安東尼·聖修伯里",
       "「成功不是終點，失敗也不是終結，最重要的是繼續前進的勇氣。」— 邱吉爾",
       "「把每一天都當成生命中的最後一天去生活，你總有一天會是對的。」— 史蒂夫·賈伯斯",
       "「你無法將點點滴滴預先串連起來，只能在回顧時將其串連。」— 史蒂夫·賈伯斯",
@@ -397,14 +348,10 @@
       "「最好的時間是過去，其次是現在。」— 英國諺語"
     ];
 
-    /* =========================
-       動態儀表板與金句更新
-    ========================= */
     function updateDashboard() {
         const d = new Date();
         document.getElementById("clock").textContent = d.toLocaleTimeString('zh-TW', { hour12: false });
 
-        // 每日精神喊話 (保留)
         const dayOfWeek = d.getDay();
         const dayMsg = [
             "🌞 星期日：好好休息，準備迎接新的一週！",
@@ -420,23 +367,17 @@
             ${dayMsg[dayOfWeek]}
         `;
 
-        // 【更新】使用 epoch day 確保 100 天內絕對不重複
         const epochDay = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
         const quoteIndex = epochDay % rawQuotes.length;
         let todayQuoteText = rawQuotes[quoteIndex];
         let todayAuthor = "";
 
-        // 解析出引言與作者
         if (todayQuoteText.includes("—")) {
             let parts = todayQuoteText.split("—");
             todayQuoteText = parts[0].trim();
             todayAuthor = "— " + parts[1].trim();
-        } else {
-            // 少數沒有破折號的句子
-            todayAuthor = "";
         }
 
-        // 取代原本的行事曆 HTML
         document.getElementById("quoteDisplay").innerHTML = `
             <div class="quote-block">
                 <div class="quote-text">${todayQuoteText}</div>
@@ -448,13 +389,18 @@
     updateDashboard();
 
     /* =========================
-       精準繪製所有唯美管線 
+       精準繪製所有唯美管線
     ========================= */
     function getCenter(id) {
         const el = document.getElementById(id);
         if(!el) return {x:0, y:0};
         const rect = el.getBoundingClientRect();
-        return { x: rect.left + rect.width/2, y: rect.top + rect.height/2 };
+        const sceneRect = sceneEl.getBoundingClientRect();
+        const scale = parseFloat(sceneEl.style.transform.replace('scale(', '').replace(')', '')) || 1;
+        
+        const x = (rect.left - sceneRect.left) / scale + (rect.width / scale) / 2;
+        const y = (rect.top - sceneRect.top) / scale + (rect.height / scale) / 2;
+        return { x, y };
     }
 
     function drawPipes() {
@@ -476,25 +422,14 @@
 
       let svgHTML = "";
 
-      svgHTML += `
-        <polyline points="${hpPolyline}"
-          fill="none" stroke="#DCA471" stroke-width="5"
-          stroke-linecap="round" stroke-linejoin="round" opacity="0.9" />
-      `;
-
-      svgHTML += `
-        <polyline points="${retPolyline}"
-          fill="none" stroke="#7A7D94" stroke-width="5"
-          stroke-linecap="round" stroke-linejoin="round" opacity="0.9" />
-      `;
+      svgHTML += `<polyline points="${hpPolyline}" fill="none" stroke="#DCA471" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9" />`;
+      svgHTML += `<polyline points="${retPolyline}" fill="none" stroke="#7A7D94" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9" />`;
 
       function getClosestPoint(points, target) {
         let minDist = Infinity;
         let closest = points[0];
         for (let p of points) {
-          const dx = p.x - target.x;
-          const dy = p.y - target.y;
-          const dist = dx * dx + dy * dy;
+          const dx = p.x - target.x; const dy = p.y - target.y; const dist = dx * dx + dy * dy;
           if (dist < minDist) { minDist = dist; closest = p; }
         }
         return closest;
@@ -506,7 +441,7 @@
       const hpEnd = getClosestPoint(hpPoints, accHp);
       const retEnd = getClosestPoint(retPoints, tankRet);
 
-      const dropDistance = 75;
+      const dropDistance = 75; 
 
       svgHTML += `<line x1="${accHp.x}" y1="${accHp.y}" x2="${accHp.x}" y2="${accHp.y + dropDistance}" stroke="#DCA471" stroke-width="5" stroke-linecap="round"/>`;
       svgHTML += `<line x1="${accHp.x}" y1="${accHp.y + dropDistance}" x2="${hpEnd.x}" y2="${hpEnd.y}" stroke="#DCA471" stroke-width="5" stroke-linecap="round"/>`;
@@ -540,22 +475,28 @@
     setTimeout(updateLayout, 100);
 
     /* =========================
-       分區點擊判定系統
+       精準點擊判定系統 (不受偏移影響)
     ========================= */
     window.addEventListener("pointerdown", (e) => {
         if(e.target.closest("#hud")) return;
 
-        const startX = e.clientX;
-        const startY = e.clientY;
-        const yRatio = startY / window.innerHeight;
+        const sceneRect = sceneEl.getBoundingClientRect();
+        const scale = parseFloat(sceneEl.style.transform.replace('scale(', '').replace(')', '')) || 1;
+        
+        const internalX = (e.clientX - sceneRect.left) / scale;
+        const internalY = (e.clientY - sceneRect.top) / scale;
+        
+        if(internalX < 0 || internalX > 1520 || internalY < 0 || internalY > 704) return;
+
+        const yRatio = internalY / 704;
 
         if (yRatio < Y_HORIZON) {
-            spawnBird(startX, startY);
+            spawnBird(internalX, internalY);
             return;
         }
 
         if ((yRatio >= Y_HORIZON && yRatio < Y_DOLPHIN_END) || yRatio > Y_DEEP_SEA) {
-            spawnDolphin(startX, startY);
+            spawnDolphin(internalX, internalY);
             return;
         }
 
@@ -571,15 +512,16 @@
 
         const pileEl = document.getElementById(targetLane.id);
         const floaterRect = pileEl.querySelector('.floater').getBoundingClientRect();
-        const targetX = floaterRect.left + (floaterRect.width / 2);
-        const targetY = floaterRect.top + (floaterRect.height / 2);
+        
+        const targetX = (floaterRect.left - sceneRect.left) / scale + (floaterRect.width / scale) / 2;
+        const targetY = (floaterRect.top - sceneRect.top) / scale + (floaterRect.height / scale) / 2;
 
-        if (startX >= targetX - 20) {
-            spawnDolphin(startX, startY);
+        if (internalX >= targetX - 20) {
+            spawnDolphin(internalX, internalY);
             return;
         }
 
-        spawnWave(startX, startY, targetX, targetY, targetLane.scale, pileEl);
+        spawnWave(internalX, internalY, targetX, targetY, targetLane.scale, pileEl);
     });
 
     /* =========================
@@ -593,7 +535,7 @@
         tank.appendChild(bird);
 
         const direction = Math.random() > 0.5 ? 1 : -1; 
-        const flyDistance = direction * (window.innerWidth * 0.4);
+        const flyDistance = direction * 800; 
         bird.style.transition = `transform 15s linear, opacity 15s ease-in-out`;
         
         requestAnimationFrame(() => {
@@ -619,11 +561,8 @@
         const waveHeight = 25 * scale;
         const wave = document.createElement("div");
         wave.className = "svg-wave";
-        wave.style.width = (80 * scale) + "px"; 
-        wave.style.height = waveHeight + "px";
-        
-        wave.style.left = startX + "px"; 
-        wave.style.top = startY + "px"; 
+        wave.style.width = (80 * scale) + "px"; wave.style.height = waveHeight + "px";
+        wave.style.left = startX + "px"; wave.style.top = startY + "px"; 
         wave.style.zIndex = pileEl.style.zIndex; 
         
         wave.innerHTML = `<svg viewBox="0 0 100 50" preserveAspectRatio="none"><path d="M0 50 Q 25 10, 50 30 T 100 50 Z" /></svg>`;
@@ -663,7 +602,7 @@
                 piston.style.transform = "translateY(0px)";
             }, 300);
 
-            let maxDist = window.innerWidth * 0.55;
+            let maxDist = 1520 * 0.55; 
             let distRatio = distance / maxDist;
             if(distRatio > 1) distRatio = 1;
             if(distRatio < 0) distRatio = 0;
@@ -694,8 +633,8 @@
                     gridTower.style.color = "#F2C785";
                     gridTower.style.transform = "scale(1.1)";
                     
-                    const shoreLeft = document.getElementById("shoreStation").getBoundingClientRect().left;
-                    showEnergyText("GRID SYNCED ⚡", shoreLeft + 120, window.innerHeight * 0.35);
+                    /* 【校正】修正 GRID SYNCED 位置對準電網 */
+                    showEnergyText("GRID SYNCED ⚡", 1390, 360);
 
                     setTimeout(() => {
                         fluidLevel.style.height = "90%";
