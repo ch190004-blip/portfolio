@@ -10,98 +10,80 @@ tank.style.pointerEvents = "none";
 document.body.style.pointerEvents = "auto";
 
 /* =========================
-   新增：特殊考程與搖鈴系統
+   特殊考程與搖鈴系統
 ========================= */
-window.isExamMode = false;
+// 預設模式為昱澐組長
+window.currentMode = 'yuyun'; 
 
-// 根據組長提供的圖表，精準建立三天的搖鈴資料庫
 const examBells = {
     "3/2": [
-        { time: "09:50", msg: "搖鈴 (高一.二)" },
-        { time: "12:00", msg: "搖鈴 (高一.二)" },
-        { time: "13:15", msg: "搖鈴 (高一.二)" },
-        { time: "16:30", msg: "搖鈴 (高二)" }
+        { time: "09:50", msg: "搖鈴 (高一.二)" }, { time: "12:00", msg: "搖鈴 (高一.二)" },
+        { time: "13:15", msg: "搖鈴 (高一.二)" }, { time: "16:30", msg: "搖鈴 (高二)" }
     ],
     "3/3": [
-        { time: "08:50", msg: "搖鈴 (國八.九)" },
-        { time: "09:30", msg: "搖鈴 (國七)" },
-        { time: "09:50", msg: "搖鈴 (國七.高一.二)" },
-        { time: "10:35", msg: "搖鈴 (國九)" },
-        { time: "12:00", msg: "搖鈴 (高一.二)" },
-        { time: "13:15", msg: "搖鈴 (高一.二)" },
-        { time: "13:35", msg: "搖鈴 (國九)" },
-        { time: "13:55", msg: "搖鈴 (國八)" },
-        { time: "14:15", msg: "搖鈴 (國八)" },
-        { time: "17:00", msg: "搖鈴 (國七)" }
+        { time: "08:50", msg: "搖鈴 (國八.九)" }, { time: "09:30", msg: "搖鈴 (國七)" },
+        { time: "09:50", msg: "搖鈴 (國七.高一.二)" }, { time: "10:35", msg: "搖鈴 (國九)" },
+        { time: "12:00", msg: "搖鈴 (高一.二)" }, { time: "13:15", msg: "搖鈴 (高一.二)" },
+        { time: "13:35", msg: "搖鈴 (國九)" }, { time: "13:55", msg: "搖鈴 (國八)" },
+        { time: "14:15", msg: "搖鈴 (國八)" }, { time: "17:00", msg: "搖鈴 (國七)" }
     ],
     "3/4": [
-        { time: "08:50", msg: "搖鈴 (國七.八.九)" },
-        { time: "10:35", msg: "搖鈴 (國八)" },
-        { time: "11:10", msg: "搖鈴 (國九)" },
-        { time: "11:20", msg: "搖鈴 (國九)" },
-        { time: "13:35", msg: "搖鈴 (國八)" },
-        { time: "15:50", msg: "搖鈴 (國七)" },
+        { time: "08:50", msg: "搖鈴 (國七.八.九)" }, { time: "10:35", msg: "搖鈴 (國八)" },
+        { time: "11:10", msg: "搖鈴 (國九)" }, { time: "11:20", msg: "搖鈴 (國九)" },
+        { time: "13:35", msg: "搖鈴 (國八)" }, { time: "15:50", msg: "搖鈴 (國七)" },
         { time: "16:10", msg: "搖鈴 (國七)" }
     ]
 };
 
-const toggleBtn = document.getElementById("toggleExamBtn");
-if (toggleBtn) {
-    toggleBtn.addEventListener("pointerdown", function(e) {
-        e.stopPropagation(); // 避免觸發灑飼料
-        window.isExamMode = !window.isExamMode;
-        this.textContent = window.isExamMode ? "返回課表" : "切換考程";
-        this.className = window.isExamMode ? "exam-btn active" : "exam-btn";
-        updateHUD(); // 立刻刷新畫面
-    });
-}
+// 四個按鈕切換邏輯
+const modes = ['chienyun', 'yuyun', 'yuwen', 'exam'];
+modes.forEach(mode => {
+    const btn = document.getElementById(`btn-${mode}`);
+    if (btn) {
+        btn.addEventListener("pointerdown", (e) => {
+            e.stopPropagation(); 
+            window.currentMode = mode;
+            // 更新按鈕的視覺狀態
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            updateHUD(); 
+        });
+    }
+});
 
 /* =========================
-   課表系統
+   課表系統 (多人資料庫)
 ========================= */
 const periods = [
-    { name:"第一節", start:490, end:540 },   
-    { name:"第二節", start:550, end:600 },   
-    { name:"第三節", start:610, end:660 },   
-    { name:"第四節", start:665, end:715 },   
-    { name:"第五節", start:775, end:825 },   
-    { name:"第六節", start:835, end:885 },   
-    { name:"第七節", start:890, end:940 },   
-    { name:"第八節", start:950, end:1000 },  
-    { name:"第九節", start:1005, end:1050 }, 
-    { name:"行政輪值", start:1050, end:1200 } 
+    { name:"第一節", start:490, end:540 }, { name:"第二節", start:550, end:600 },   
+    { name:"第三節", start:610, end:660 }, { name:"第四節", start:665, end:715 },   
+    { name:"第五節", start:775, end:825 }, { name:"第六節", start:835, end:885 },   
+    { name:"第七節", start:890, end:940 }, { name:"第八節", start:950, end:1000 },  
+    { name:"第九節", start:1005, end:1050 }, { name:"行政輪值", start:1050, end:1200 } 
 ];
 
-const teacherSchedule = {
-    1: { 
-        2: {class:"國七A+組", subject:"數學"},
-        5: {class:"國七A班", subject:"生活科技"},
-        6: {class:"國七A班", subject:"資訊科技"},
-        8: {class:"國八B組", subject:"數學"},
-        9: {class:"國八B組", subject:"數學"}
+const schedules = {
+    // 一、千芸主任
+    chienyun: {
+        1: { 1: {class:"國七A3組", subject:"英語文"} },
+        3: { 7: {class:"國七A3組", subject:"英語文"} },
+        4: { 2: {class:"國七A3組", subject:"英語文"}, 9: {class:"國七A3組", subject:"英文素養"} }
     },
-    2: { 
-        2: {class:"國七A+組", subject:"數學"},
-        5: {class:"高一班", subject:"多元選修"}, 
-        6: {class:"高一班", subject:"多元選修"}
+    // 二、昱澐組長
+    yuyun: {
+        1: { 2: {class:"國七A+組", subject:"數學"}, 5: {class:"國七A班", subject:"生活科技"}, 6: {class:"國七A班", subject:"資訊科技"}, 8: {class:"國八B組", subject:"數學"}, 9: {class:"國八B組", subject:"數學"} },
+        2: { 2: {class:"國七A+組", subject:"數學"}, 5: {class:"高一班", subject:"多元選修"}, 6: {class:"高一班", subject:"多元選修"} },
+        3: { 2: {class:"國七A+組", subject:"數學"}, 3: {class:"國八B組", subject:"數學"}, 4: {class:"國八B組", subject:"數學"}, 5: {class:"國七B班", subject:"生活科技"}, 6: {class:"國七B班", subject:"資訊科技"}, 9: {class:"高三理組", subject:"自然探究"}, 10: {class:"辦公室", subject:"行政輪值"} },
+        4: { 3: {class:"國七A+組", subject:"數學"}, 5: {class:"國八B組", subject:"數學"}, 6: {class:"國八B組", subject:"數學"}, 9: {class:"國八B班", subject:"數學"} },
+        5: { 8: {class:"國七A+組", subject:"數學"} }
     },
-    3: { 
-        2: {class:"國七A+組", subject:"數學"},
-        3: {class:"國八B組", subject:"數學"},
-        4: {class:"國八B組", subject:"數學"},
-        5: {class:"國七B班", subject:"生活科技"},
-        6: {class:"國七B班", subject:"資訊科技"},
-        9: {class:"高三理組", subject:"自然探究"},
-        10: {class:"辦公室", subject:"行政輪值"}
-    },
-    4: { 
-        3: {class:"國七A+組", subject:"數學"},
-        5: {class:"國八B組", subject:"數學"},
-        6: {class:"國八B組", subject:"數學"},
-        9: {class:"國八B班", subject:"數學"}
-    },
-    5: { 
-        8: {class:"國七A+組", subject:"數學"}
+    // 三、妤文組長
+    yuwen: {
+        1: { 2: {class:"國九A2組", subject:"英語文"}, 5: {class:"高一A2組", subject:"ESL"}, 9: {class:"國七B組", subject:"ESL"} },
+        2: { 5: {class:"國七B組", subject:"ESL"}, 6: {class:"國七B組", subject:"ESL"}, 9: {class:"高一A2組", subject:"ESL"} },
+        3: { 3: {class:"國七B組", subject:"ESL"}, 4: {class:"國九A2組", subject:"英語文"}, 7: {class:"高一A2組", subject:"ESL"}, 8: {class:"高一A2組", subject:"ESL"}, 9: {class:"高二A+組", subject:"ESL"} },
+        4: { 6: {class:"國九A2組", subject:"英語文"}, 7: {class:"國七B組", subject:"ESL"}, 8: {class:"國七B組", subject:"ESL"} },
+        5: { 8: {class:"國九A2組", subject:"英語文"} }
     }
 };
 
@@ -117,14 +99,16 @@ function nowMinutes(d=new Date()){ return d.getHours()*60 + d.getMinutes(); }
 function getCurrentPeriodStatus(d = new Date()) {
     const wd = d.getDay();
     const m = nowMinutes(d);
+    const activeSchedule = schedules[window.currentMode];
 
     for(let i=0; i<periods.length; i++){
         const index = i+1; 
         if(m >= periods[i].start && m <= periods[i].end){
             let lessonInfo = null;
-            if(teacherSchedule[wd] && teacherSchedule[wd][index]){
-                lessonInfo = teacherSchedule[wd][index];
-                if(wd === 2 && (index === 5 || index === 6) && !isTuesdayElectiveDay(d)) {
+            if(activeSchedule && activeSchedule[wd] && activeSchedule[wd][index]){
+                lessonInfo = activeSchedule[wd][index];
+                // 只有昱澐組長的星期二 5, 6 節需要判斷特定日期
+                if(window.currentMode === 'yuyun' && wd === 2 && (index === 5 || index === 6) && !isTuesdayElectiveDay(d)) {
                     lessonInfo = null;
                 }
             }
@@ -137,15 +121,16 @@ function getCurrentPeriodStatus(d = new Date()) {
 
 function getNextLesson(d=new Date()){
     const wd=d.getDay();
-    if(!teacherSchedule[wd]) return null;
+    const activeSchedule = schedules[window.currentMode];
+    if(!activeSchedule || !activeSchedule[wd]) return null;
+    
     const m=nowMinutes(d);
     let list=[];
-
     for(let i=0;i<periods.length;i++){
         const index=i+1;
-        if(teacherSchedule[wd][index] && m<periods[i].start){
-            if(wd === 2 && (index === 5 || index === 6) && !isTuesdayElectiveDay(d)) continue;
-            list.push({ ...teacherSchedule[wd][index], period:periods[i].name, start:periods[i].start });
+        if(activeSchedule[wd][index] && m<periods[i].start){
+            if(window.currentMode === 'yuyun' && wd === 2 && (index === 5 || index === 6) && !isTuesdayElectiveDay(d)) continue;
+            list.push({ ...activeSchedule[wd][index], period:periods[i].name, start:periods[i].start });
         }
     }
     if(list.length===0) return null;
@@ -158,26 +143,22 @@ function updateHUD(){
         const d=new Date();
         clockEl.textContent=d.toLocaleTimeString();
 
-        // 判斷是否開啟考程模式
-        if (window.isExamMode) {
+        // 考程模式
+        if (window.currentMode === 'exam') {
             const dateStr = `${d.getMonth() + 1}/${d.getDate()}`;
             const bellsToday = examBells[dateStr];
             
             if (!bellsToday) {
                 periodEl.textContent = `📝 考程模式 (今天 ${dateStr} 無考程)`;
-                nextEl.innerHTML = "請切換回課表以檢視正常作息";
+                nextEl.innerHTML = "請切換上方按鈕以檢視正常作息";
             } else {
                 periodEl.textContent = `📝 考程進行中 (${dateStr})`;
-                
                 const nowMins = nowMinutes(d);
                 let nextBell = null;
-                
-                // 尋找今天還沒響的第一個鈴
                 for (let b of bellsToday) {
                     const [bh, bm] = b.time.split(':').map(Number);
                     if (bh * 60 + bm > nowMins) {
-                        nextBell = b;
-                        break;
+                        nextBell = b; break;
                     }
                 }
                 
@@ -185,45 +166,45 @@ function updateHUD(){
                     const [bh, bm] = nextBell.time.split(':').map(Number);
                     const target = new Date(d);
                     target.setHours(bh, bm, 0, 0);
-                    
                     const now = new Date(d);
                     now.setMilliseconds(0);
-                    
                     const diff = Math.max(0, target - now);
                     const mm = Math.floor(diff/60000);
                     const ss = Math.floor((diff%60000)/1000);
-                    
                     nextEl.innerHTML = `<span style="color:#ffb74d;">下一個搖鈴：${nextBell.time} ${nextBell.msg}</span><br>倒數 ${mm} 分 ${ss} 秒`;
                 } else {
                     nextEl.innerHTML = "今日搖鈴均已順利結束！";
                 }
             }
-            return; // 考程模式啟動時，跳過一般課表渲染
+            return; 
         }
 
-        // 以下為一般課表渲染邏輯
+        // 一般課表模式 (依據當前選取的老師)
         const status = getCurrentPeriodStatus(d);
         const next = getNextLesson(d);
+        
+        // 取得當前老師的稱呼
+        let teacherName = "";
+        if(window.currentMode === 'chienyun') teacherName = "千芸主任 ";
+        else if(window.currentMode === 'yuyun') teacherName = "昱澐組長 ";
+        else if(window.currentMode === 'yuwen') teacherName = "妤文組長 ";
 
         if(status.type === "class"){
-            periodEl.textContent = `正在上課：${status.class} ${status.subject}（${status.periodName}）`;
+            periodEl.textContent = `🧑‍🏫 ${teacherName}上課：${status.class} ${status.subject}（${status.periodName}）`;
         } else if (status.type === "empty") {
-            periodEl.textContent = `現在：${status.periodName} / 空堂`;
+            periodEl.textContent = `☕ ${teacherName}現在：${status.periodName} / 空堂`;
         } else {
-            periodEl.textContent = `現在：下課時間 / 午休`;
+            periodEl.textContent = `🌴 ${teacherName}現在：下課時間 / 午休`;
         }
 
         if(next){
             const target=new Date(d);
             target.setHours(Math.floor(next.start/60), next.start%60, 0, 0);
-            
             const now = new Date(d);
             now.setMilliseconds(0);
-            
             const diff = Math.max(0, target - now);
             const mm = Math.floor(diff/60000);
             const ss = Math.floor((diff%60000)/1000);
-            
             nextEl.innerHTML=
                 `下一堂：${next.class} ${next.subject}（${next.period}）倒數 ${mm} 分 ${ss} 秒 <br><span style="color:#ffb74d; font-size:0.9em; display:inline-block; margin-top:4px;">(提醒：鐘聲會提早 36 秒響起)</span>`;
         }else{
@@ -235,6 +216,7 @@ function updateHUD(){
 }
 setInterval(updateHUD,500);
 updateHUD();
+
 
 /* =========================
    丟飼料互動 (全域防呆)
