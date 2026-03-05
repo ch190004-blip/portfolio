@@ -1,12 +1,28 @@
 /* =========================
-   全域設定
+   全域設定與 Ghibli 色票
 ========================= */
+:root {
+  --bg1:#0b2b33;
+  --bg2:#12434a;
+  --turtleShell1:#8da08f;
+  --turtleShell2:#6f8578;
+  --turtleSkin:#b9c2b6;
+  --turtleAccent:#5c6f65;
+  --star1:#d8b3a6;
+  --star2:#c99586;
+  --jelly1:#c8c7df;
+  --jelly2:#aeb4d6;
+  --ink:#17323a;
+  --shine: rgba(255,255,255,.55);
+  --glow: rgba(160, 235, 255, .22);
+}
+
 *{ box-sizing:border-box; margin:0; padding:0; }
 html,body{ 
   width:100%; height:100%; overflow:hidden; 
   font-family:system-ui,-apple-system,"Segoe UI",Arial; 
   background:#000; 
-  user-select: none; -webkit-user-select: none; /* 防呆：避免點擊全選文字 */
+  user-select: none; -webkit-user-select: none;
 }
 
 /* =========================
@@ -17,7 +33,7 @@ html,body{
 #tank{ position:fixed; inset:0; z-index:10; pointer-events: none; }
 
 /* =========================
-   HUD 面板佈局 (左右分開)
+   HUD 面板佈局
 ========================= */
 #hud{ position:fixed; top:14px; left:14px; right:14px; display:flex; justify-content:space-between; z-index:20; pointer-events:none; }
 .hud-left{ pointer-events:auto; background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.15); border-radius:14px; padding:12px 16px; min-width:280px; color:#fff; backdrop-filter: blur(6px); box-shadow:0 10px 25px rgba(0,0,0,.35); height: fit-content; }
@@ -38,11 +54,12 @@ html,body{
 .event-countdown { color:#ffb74d; font-size:0.9em; margin-left:4px; font-weight: bold; }
 
 /* =========================
-   SVG 魚隻容器與內部 3D 聯動動畫
+   共通陰影與魚隻樣式
 ========================= */
-.fish-svg{ position:absolute; width:160px; height:87px; pointer-events:none; will-change: transform, filter; z-index: 5; }
+.floaty { filter: drop-shadow(0 12px 18px rgba(0,0,0,.22)) drop-shadow(0 0 18px var(--glow)); }
+.soft { filter: drop-shadow(0 10px 16px rgba(0,0,0,.18)) drop-shadow(0 0 16px var(--glow)); }
 
-/* 魚內部動畫 */
+.fish-svg{ position:absolute; width:160px; height:87px; pointer-events:none; will-change: transform, filter; z-index: 5; }
 .wiggle { transform-origin: 18% 50%; animation: bodyWiggle 1.4s ease-in-out infinite; }
 @keyframes bodyWiggle { 0%,100%{ transform: rotate(0deg); } 50%{ transform: rotate(-1.5deg); } }
 .tail-anim { transform-origin: 12% 50%; animation: tailAnim 0.32s ease-in-out infinite; }
@@ -51,37 +68,83 @@ html,body{
 @keyframes finAnim { 0%,100%{ transform: rotate(6deg); opacity:.9; } 50%{ transform: rotate(-10deg); opacity:1; } }
 .gill-anim { animation: breatheAnim 1.1s ease-in-out infinite; transform-origin: 62% 58%; }
 @keyframes breatheAnim { 0%,100%{ transform: scaleX(1); opacity:.75; } 50%{ transform: scaleX(1.12); opacity:.95; } }
-
-/* =========================
-   水母、飼料、烏龜
-========================= */
-.jellyfish-svg{ position:absolute; top:0; left:0; width:80px; height:96px; z-index: 6; pointer-events:auto; cursor: pointer; will-change: transform; }
 .food-dot{ position:absolute; width:10px; height:10px; border-radius:50%; background:#5c4033; pointer-events:none; box-shadow:0 0 6px rgba(0,0,0,.4); z-index: 4; }
-.turtle-container { position: absolute; bottom: 70px; left: -150px; width: 140px; height: 60px; z-index: 1; animation: crawlAcross 60s linear infinite; }
-.turtle-svg { width: 100%; height: 100%; animation: turtleWobble 2s ease-in-out infinite alternate; }
-@keyframes crawlAcross { 0% { transform: translateX(0); } 100% { transform: translateX(calc(100vw + 150px)); } }
-@keyframes turtleWobble { 0% { transform: rotate(0deg) translateY(0); } 50% { transform: rotate(1deg) translateY(-2px); } 100% { transform: rotate(-1deg) translateY(0); } }
 
 /* =========================
-   3D 質感環境氣泡 (升級)
+   側視版高質感海龜動畫 (完美仿生划水)
 ========================= */
-.bubble {
-  position:absolute;
-  border-radius:50%;
-  /* 琉璃感 3D 漸層 */
-  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.85), rgba(255,255,255,.15) 55%, rgba(255,255,255,.08));
-  box-shadow: 0 0 15px rgba(120,240,255,.20);
-  filter: blur(0.2px);
-  pointer-events:none;
-  z-index: 3;
+.turtle-container { 
+  position: absolute; 
+  bottom: 70px; 
+  left: -200px; 
+  width: 160px; 
+  height: 96px; 
+  z-index: 1; 
+  animation: crawlAcross 60s linear infinite; 
+}
+@keyframes crawlAcross { 
+  0% { transform: translateX(0); } 
+  100% { transform: translateX(calc(100vw + 200px)); } 
+}
+.turtle-svg { width: 100%; height: 100%; overflow: visible; }
+
+/* 身體跟隨拍水節奏產生上浮與滑行感 */
+.turtle-bob { transform-origin: center; animation: turtleBob 3s ease-in-out infinite; }
+@keyframes turtleBob { 
+  0%   { transform: translateY(0px) rotate(0deg); } 
+  30%  { transform: translateY(-5px) rotate(2deg); } /* 拍水時身體上抬 */
+  60%  { transform: translateY(-2px) rotate(0.5deg); } /* 準備滑行 */
+  100% { transform: translateY(0px) rotate(0deg); } 
 }
 
-/* 烏龜大氣泡 (維持原狀) */
-.big-bubble { position: absolute; top: 0; left: 0; border-radius: 50%; border: 2px solid rgba(255,255,255,0.7); background: rgba(255,255,255,0.2); backdrop-filter: blur(2px); z-index: 4; pointer-events: auto; cursor: pointer; transition: transform 0.15s ease-out, opacity 0.15s ease-out; }
+/* 呼吸微動 */
+.shell-anim { transform-origin: 87px 85px; animation: shellBreathe 3s ease-in-out infinite; }
+@keyframes shellBreathe { 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.015); } }
+.head-anim { transform-origin: 130px 75px; animation: headBob 3s ease-in-out infinite; }
+@keyframes headBob { 0%,100%{ transform: translateY(0px); } 50%{ transform: translateY(-2px); } }
+
+/* 海龜四肢流暢划水動畫：兩手同步抬起 -> 往後拍水 -> 伸平滑行 */
+.flipper-front-anim { transform-origin: 110px 80px; animation: flipperPower 3s ease-in-out infinite; }
+.flipper-front-anim-r { transform-origin: 120px 75px; animation: flipperPower 3s ease-in-out infinite; } 
+.flipper-back-anim { transform-origin: 60px 80px; animation: flipperSteer 3s ease-in-out infinite 0.2s; }
+.flipper-back-anim-r { transform-origin: 70px 75px; animation: flipperSteer 3s ease-in-out infinite 0.2s; }
+
+@keyframes flipperPower {
+  0%   { transform: rotate(20deg); }   /* 抬手準備 */
+  30%  { transform: rotate(-45deg); }  /* 用力向後拍水 */
+  60%  { transform: rotate(-35deg); }  /* 微收，保持向後滑行 */
+  100% { transform: rotate(20deg); }   /* 緩慢回正 */
+}
+
+@keyframes flipperSteer {
+  0%   { transform: rotate(10deg); }
+  50%  { transform: rotate(-15deg); }
+  100% { transform: rotate(10deg); }
+}
 
 /* =========================
-   互動海星
+   全新水母動畫 
 ========================= */
-.starfish-container { position: absolute; width: 50px; height: 50px; z-index: 2; pointer-events: auto; cursor: pointer; }
-.starfish-inner { width: 100%; height: 100%; transition: transform 0.15s cubic-bezier(0.2, 1.5, 0.8, 1); }
-.starfish-pulse { transform: scale(0.6) rotate(-15deg); }
+.jellyfish-svg{ position:absolute; top:0; left:0; width:100px; height:120px; z-index: 6; pointer-events:auto; cursor: pointer; will-change: transform; transform-origin: 50% 40%; }
+.jelly-bell { transform-origin: 50% 40%; animation: bellPump 1.35s ease-in-out infinite; }
+@keyframes bellPump { 0%,100% { transform: scaleY(1) scaleX(1); } 45% { transform: scaleY(0.90) scaleX(1.06); } }
+.jelly-tentacles { transform-origin: 50% 0%; animation: tentacleSway 1.8s ease-in-out infinite; }
+@keyframes tentacleSway { 0%,100%{ transform: rotate(2deg) translateX(0px); } 50%{ transform: rotate(-4deg) translateX(-3px); } }
+.jelly-tentacles2 { transform-origin: 50% 0%; animation: tentacleSway2 2.2s ease-in-out infinite; }
+@keyframes tentacleSway2 { 0%,100%{ transform: rotate(-2deg) translateX(0px); } 50%{ transform: rotate(5deg) translateX(4px); } }
+
+/* =========================
+   全新海星動畫
+========================= */
+.starfish-container { position: absolute; width: 80px; height: 80px; z-index: 2; pointer-events: auto; cursor: pointer; transform-origin: center; animation: starWobble 4.2s ease-in-out infinite; }
+@keyframes starWobble { 0%,100%{ transform: rotate(-2deg) translateY(0px); } 50%{ transform: rotate(3deg) translateY(-6px); } }
+.starfish-inner { width: 100%; height: 100%; transition: transform 0.15s cubic-bezier(0.2, 1.5, 0.8, 1); transform-origin: center; }
+.star-breathe { transform-origin: 100px 100px; animation: starPulse 2.6s ease-in-out infinite; }
+@keyframes starPulse { 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.03); } }
+.starfish-click { transform: scale(0.7) rotate(-25deg); } 
+
+/* =========================
+   氣泡
+========================= */
+.bubble { position:absolute; border-radius:50%; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.85), rgba(255,255,255,.15) 55%, rgba(255,255,255,.08)); box-shadow: 0 0 15px rgba(120,240,255,.20); filter: blur(0.2px); pointer-events:none; z-index: 3; }
+.big-bubble { position: absolute; top: 0; left: 0; border-radius: 50%; border: 2px solid rgba(255,255,255,0.7); background: rgba(255,255,255,0.2); backdrop-filter: blur(2px); z-index: 4; pointer-events: auto; cursor: pointer; transition: transform 0.15s ease-out, opacity 0.15s ease-out; }
