@@ -10,11 +10,16 @@
   <div id="bg"></div>
   <div id="overlay"></div>
 
- <header id="hud">
+<header id="hud">
     <div class="hud-left">
       <div class="hud-header">
         <div id="clock" class="clock"></div>
-        <button id="toggleExamBtn" class="exam-btn">切換考程</button>
+        <div class="mode-buttons">
+          <button id="btn-chienyun" class="mode-btn">千芸主任</button>
+          <button id="btn-yuyun" class="mode-btn active">昱澐組長</button>
+          <button id="btn-yuwen" class="mode-btn">妤文組長</button>
+          <button id="btn-exam" class="mode-btn">考程模式</button>
+        </div>
       </div>
       <div id="period" class="period"></div>
       <div id="nextClass" class="next"></div>
@@ -25,6 +30,7 @@
       <div id="eventList" class="event-list"></div>
     </div>
   </header>
+
 
   <main id="tank" aria-label="aquarium">
     <div class="turtle-container">
