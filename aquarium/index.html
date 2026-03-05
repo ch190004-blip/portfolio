@@ -32,19 +32,44 @@
   </header>
 
   <main id="tank" aria-label="aquarium">
-    <div class="turtle-container">
-      <svg class="turtle-svg" viewBox="0 0 140 60" width="140" height="60">
-        <ellipse cx="35" cy="48" rx="10" ry="6" fill="#4a6b3a" />
-        <ellipse cx="105" cy="48" rx="10" ry="6" fill="#4a6b3a" />
-        <polygon points="15,40 0,45 15,50" fill="#6b8e23"/>
-        <path d="M 20 45 Q 70 10 120 45 L 120 50 L 20 50 Z" fill="#6b8e23" stroke="#4a6b3a" stroke-width="3"/>
-        <circle cx="50" cy="35" r="8" fill="#4a6b3a" opacity="0.3"/>
-        <circle cx="75" cy="30" r="10" fill="#4a6b3a" opacity="0.3"/>
-        <circle cx="100" cy="38" r="6" fill="#4a6b3a" opacity="0.3"/>
-        <ellipse cx="125" cy="40" rx="14" ry="10" fill="#8fbc8f" />
-        <circle cx="132" cy="38" r="1.5" fill="#000"/>
-        <ellipse cx="45" cy="52" rx="12" ry="7" fill="#8fbc8f" />
-        <ellipse cx="115" cy="52" rx="12" ry="7" fill="#8fbc8f" />
+    <div class="turtle-container floaty">
+      <svg class="turtle-svg" viewBox="0 0 200 120" width="160" height="96">
+        <defs>
+          <linearGradient id="t-shell" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="var(--turtleShell1)"/>
+            <stop offset="1" stop-color="var(--turtleShell2)"/>
+          </linearGradient>
+          <linearGradient id="t-skin-dark" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#9aa598"/>
+            <stop offset="1" stop-color="#7c8a7b"/>
+          </linearGradient>
+        </defs>
+
+        <g class="turtle-bob">
+          <path class="flipper-front-anim-r" d="M 120 75 C 90 85 50 95 30 110 C 50 130 90 115 115 85 Z" fill="url(#t-skin-dark)" />
+          <path class="flipper-back-anim-r" d="M 70 75 C 55 85 35 90 25 100 C 35 110 55 105 65 85 Z" fill="url(#t-skin-dark)" />
+
+          <path d="M 35 70 Q 15 75 20 85 Q 35 85 45 75 Z" fill="var(--turtleSkin)"/>
+
+          <g class="head-anim">
+            <path d="M 130 75 C 130 50 185 55 185 75 C 185 90 150 95 130 80 Z" fill="var(--turtleSkin)"/>
+            <circle cx="165" cy="68" r="4.5" fill="var(--ink)"/>
+            <circle cx="166.5" cy="66.5" r="1.5" fill="#fff"/>
+            <circle cx="175" cy="76" r="4" fill="#ff9999" opacity="0.6"/>
+            <path d="M 175 82 Q 180 85 183 80" fill="none" stroke="var(--turtleAccent)" stroke-width="2" stroke-linecap="round"/>
+          </g>
+
+          <g class="shell-anim">
+            <path d="M 30 75 C 30 20 145 20 145 75 Z" fill="url(#t-shell)" stroke="var(--turtleAccent)" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M 25 75 L 150 75 C 150 82 145 85 140 85 L 35 85 C 30 85 25 82 25 75 Z" fill="var(--turtleShell1)" stroke="var(--turtleAccent)" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M 60 75 L 70 45 L 105 45 L 115 75" fill="none" stroke="var(--turtleAccent)" stroke-width="3" stroke-linejoin="round" opacity="0.5"/>
+            <path d="M 70 45 L 87 25 L 105 45" fill="none" stroke="var(--turtleAccent)" stroke-width="3" stroke-linejoin="round" opacity="0.5"/>
+            <path d="M 87 25 L 87 20" fill="none" stroke="var(--turtleAccent)" stroke-width="3" stroke-linejoin="round" opacity="0.5"/>
+          </g>
+
+          <path class="flipper-front-anim" d="M 110 80 C 80 90 40 100 20 115 C 40 135 80 120 105 90 Z" fill="var(--turtleSkin)" stroke="var(--turtleAccent)" stroke-width="2"/>
+          <path class="flipper-back-anim" d="M 60 80 C 45 90 25 95 15 105 C 25 115 45 110 55 90 Z" fill="var(--turtleSkin)" stroke="var(--turtleAccent)" stroke-width="2"/>
+        </g>
       </svg>
     </div>
   </main>
