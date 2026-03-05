@@ -73,35 +73,44 @@ html,body{
 }
 
 /* =========================
-   新增：按鈕樣式與佈局
+   切換按鈕樣式與佈局
 ========================= */
-.hud-header {
+.hud-header { 
+  display: flex; 
+  flex-direction: column; /* 讓時間和按鈕分上下兩排，避免太擠 */
+  align-items: flex-start; 
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.mode-buttons {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap; /* 如果螢幕變窄會自動換行 */
 }
 
-.exam-btn {
-  background: rgba(255, 183, 77, 0.2);
-  border: 1px solid #ffb74d;
-  color: #ffb74d;
-  border-radius: 6px;
-  padding: 4px 10px;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-weight: bold;
+.mode-btn { 
+  background: rgba(255, 183, 77, 0.15); 
+  border: 1px solid rgba(255, 183, 77, 0.6); 
+  color: #ffb74d; 
+  border-radius: 6px; 
+  padding: 5px 10px; 
+  font-size: 13px; 
+  cursor: pointer; 
+  transition: all 0.2s; 
+  font-weight: bold; 
 }
 
-.exam-btn:hover {
-  background: #ffb74d;
-  color: #000;
+.mode-btn:hover { 
+  background: rgba(255, 183, 77, 0.4); 
+  color: #fff; 
 }
 
-.exam-btn.active {
-  background: #ff6b6b;
-  border-color: #ff6b6b;
-  color: #fff;
+.mode-btn.active { 
+  background: #ffb74d; 
+  border-color: #ffb74d; 
+  color: #000; 
+  box-shadow: 0 0 8px rgba(255, 183, 77, 0.5);
 }
 
 .clock{ font-size:20px; font-weight:700; letter-spacing:.5px; }
