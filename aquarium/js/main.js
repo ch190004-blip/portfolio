@@ -161,96 +161,84 @@ window.addEventListener("pointerdown", (e) => {
 });
 
 /* =========================
-   3D 魚群系統 (包含動態成長、智慧拒食與隨機基因)
+   3D 魚群系統 (精準吃 5 顆飽足機制)
 ========================= */
-const fishes=[];
-const foods=[];
-
-// 定義精美的 3D 魚身漸層組合
+const fishes=[]; const foods=[];
 const fish3DPalette = [
-    { c1: '#ffcf6a', c2: '#ff7a45', c3: '#ff3d7b' }, // 金橘粉
-    { c1: '#7bf7ff', c2: '#1dd6c2', c3: '#0b7cff' }, // 湖水藍
-    { c1: '#b4ff7b', c2: '#47d61d', c3: '#0b9cff' }, // 青草綠
-    { c1: '#ffb47b', c2: '#d6471d', c3: '#ff0b9c' }, // 珊瑚桃
-    { c1: '#e0c3fc', c2: '#8ec5fc', c3: '#4facfe' }  // 夢幻紫
+    { c1: '#ffcf6a', c2: '#ff7a45', c3: '#ff3d7b' }, 
+    { c1: '#7bf7ff', c2: '#1dd6c2', c3: '#0b7cff' }, 
+    { c1: '#b4ff7b', c2: '#47d61d', c3: '#0b9cff' }, 
+    { c1: '#ffb47b', c2: '#d6471d', c3: '#ff0b9c' }, 
+    { c1: '#e0c3fc', c2: '#8ec5fc', c3: '#4facfe' }  
 ];
 
+let fishCount = 0;
 function createFish(index){
-    const fish = document.createElement("div");
-    fish.className = "fish-svg";
-    
-    // 取得顏色與隨機色相偏移，創造獨一無二的色彩
+    const fish = document.createElement("div"); fish.className = "fish-svg";
     const color = fish3DPalette[index % fish3DPalette.length];
     const hueShift = Math.floor(Math.random() * 60 - 30); 
-    
-    // 基礎體型
     const baseScale = Math.random() * 0.25 + 0.35; 
+    const uid = fishCount++;
 
-    // 將全新 3D 結構寫入
     fish.innerHTML=`
     <svg viewBox="0 0 220 120" width="100%" height="100%" style="overflow:visible;">
         <defs>
-            <linearGradient id="bodyGrad${index}" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="${color.c1}"/>
-                <stop offset="0.55" stop-color="${color.c2}"/>
-                <stop offset="1" stop-color="${color.c3}"/>
+            <linearGradient id="bodyGrad${uid}" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="${color.c1}"/><stop offset="0.55" stop-color="${color.c2}"/><stop offset="1" stop-color="${color.c3}"/>
             </linearGradient>
-            <linearGradient id="shineGrad${index}" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0" stop-color="rgba(255,255,255,.75)"/>
-                <stop offset="0.6" stop-color="rgba(255,255,255,0)"/>
+            <linearGradient id="shineGrad${uid}" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="rgba(255,255,255,.75)"/><stop offset="0.6" stop-color="rgba(255,255,255,0)"/>
             </linearGradient>
         </defs>
         <g style="transform-origin: center; filter: hue-rotate(${hueShift}deg);">
             <g class="wiggle">
                 <path class="tail-anim" d="M35,60 C8,40 6,24 10,16 C26,22 48,36 58,52 C50,44 46,76 56,84 C46,86 22,100 10,104 C6,96 10,78 35,60Z" fill="rgba(255,255,255,.20)"/>
-                <path d="M55,60 C70,20 140,10 180,35 C205,50 205,70 180,85 C140,110 70,100 55,60Z" fill="url(#bodyGrad${index})"/>
+                <path d="M55,60 C70,20 140,10 180,35 C205,50 205,70 180,85 C140,110 70,100 55,60Z" fill="url(#bodyGrad${uid})"/>
                 <path d="M68,68 C90,95 140,98 168,82 C150,103 95,104 70,80Z" fill="rgba(0,0,0,.14)"/>
                 <path class="fin-anim" d="M120,62 C110,45 122,35 140,36 C132,44 132,58 140,70 C128,70 122,68 120,62Z" fill="rgba(255,255,255,.25)"/>
                 <path class="gill-anim" d="M140,58 C132,52 132,68 140,62" stroke="rgba(0,0,0,.25)" stroke-width="3" stroke-linecap="round" fill="none"/>
-                <path d="M75,48 C95,28 135,24 165,38 C135,36 110,42 90,56 C82,58 74,56 75,48Z" fill="url(#shineGrad${index})" opacity=".55"/>
+                <path d="M75,48 C95,28 135,24 165,38 C135,36 110,42 90,56 C82,58 74,56 75,48Z" fill="url(#shineGrad${uid})" opacity=".55"/>
                 <circle cx="162" cy="56" r="9" fill="rgba(255,255,255,.88)"/>
                 <circle cx="165" cy="58" r="4.5" fill="#10202b"/>
                 <circle cx="167" cy="56" r="1.6" fill="rgba(255,255,255,.85)"/>
             </g>
         </g>
     </svg>`;
-
-    // 初始狀態：肚子餓沒精神的低飽和度
+    
+    // 初始化時，未進食狀態且未吃飽
     fish.style.filter = "saturate(0.3) brightness(0.7)";
-
     tank.appendChild(fish);
-
     fishes.push({
-        el:fish,
-        x: (Math.random()* (window.innerWidth || 1920)),
-        y: (Math.random()* (window.innerHeight || 1080)),
-        vx:(Math.random()-0.5)*1.5,
-        vy:(Math.random()-0.5)*1.5,
-        baseScale: baseScale,
-        currentScale: baseScale,
-        fullness: 0 
+        el:fish, x: (Math.random()* (window.innerWidth || 1920)), y: (Math.random()* (window.innerHeight || 1080)),
+        vx:(Math.random()-0.5)*1.5, vy:(Math.random()-0.5)*1.5, baseScale: baseScale, currentScale: baseScale, 
+        foodEaten: 0, 
+        isFull: false // 狀態標記：吃飽了就拒絕再吃
     });
 }
-
-// 產生 7 隻絕美 3D 魚
 for(let i=0;i<7;i++) createFish(i);
 
 function updateFish(){
     const W = window.innerWidth || 1920; const H = window.innerHeight || 1080;
-
+    
+    // 飼料掉落與移除
     for(let i=foods.length-1; i>=0; i--){
         let food = foods[i]; food.y += 0.8; food.el.style.top = food.y + "px";
         if(food.y > H){ food.el.remove(); foods.splice(i, 1); }
     }
-
+    
     for(let f of fishes){
         if (isNaN(f.x) || isNaN(f.y) || isNaN(f.vx) || isNaN(f.vy)) { f.x = W / 2; f.y = H / 2; f.vx = 0; f.vy = 0; }
+        
+        // 隨著時間慢慢消化 (大約每過幾秒就扣掉0.005)
+        f.foodEaten = Math.max(0, f.foodEaten - 0.005); 
 
-        // 隨時間消化
-        f.fullness = Math.max(0, f.fullness - 0.03);
+        // 如果肚子已經消化到低於 2 顆的狀態，就解除「吃飽拒食」狀態，再度感覺飢餓
+        if (f.foodEaten <= 2) {
+            f.isFull = false;
+        }
 
-        // 吃飽就不理食物的 AI
-        if(foods.length > 0 && f.fullness < 90){
+        // 只有在「尚未吃飽」的狀態下，才會主動追逐食物
+        if(foods.length > 0 && !f.isFull){
             let closest=null; let min=Infinity;
             for(let food of foods){
                 let dx=food.x-f.x; let dy=food.y-f.y; let d=Math.hypot(dx,dy);
@@ -259,31 +247,35 @@ function updateFish(){
             if(closest){
                 let dx=closest.x-f.x; let dy=closest.y-f.y; let d=Math.max(1,Math.hypot(dx,dy));
                 f.vx+=dx/d*0.3; f.vy+=dy/d*0.3;
-                if(d<15){
-                    f.fullness = Math.min(100, f.fullness + 35);
-                    const index = foods.indexOf(closest);
-                    if(index > -1) { closest.el.remove(); foods.splice(index, 1); }
+                
+                if(d<15){ 
+                    // 精準吃下 1 顆，並確保上限為 5
+                    f.foodEaten += 1; 
+                    if (f.foodEaten >= 5) {
+                        f.foodEaten = 5;
+                        f.isFull = true; // 達到 5 顆，立刻切換為拒食狀態
+                    }
+                    const index = foods.indexOf(closest); 
+                    if(index > -1) { closest.el.remove(); foods.splice(index, 1); } 
                 }
             }
             f.vx*=0.95; f.vy*=0.95;
         } else {
+            // 吃飽了或畫面中沒食物，悠哉散步
             f.vx += (Math.random() - 0.5) * 0.1; f.vy += (Math.random() - 0.5) * 0.1;
-            let speed = Math.hypot(f.vx, f.vy);
-            if(speed > 1) { f.vx /= speed; f.vy /= speed; }
+            let speed = Math.hypot(f.vx, f.vy); if(speed > 1) { f.vx /= speed; f.vy /= speed; }
         }
-
-        f.x+=f.vx; f.y+=f.vy;
-        f.x=Math.max(0,Math.min(W-160,f.x)); f.y=Math.max(0,Math.min(H-87,f.y));
-
-        // 動態成長體型與色澤恢復
-        const targetScale = f.baseScale + (f.fullness / 100) * 0.45; 
-        f.currentScale += (targetScale - f.currentScale) * 0.05; 
         
-        const sat = 0.3 + (f.fullness / 100) * 0.7; 
-        const bri = 0.7 + (f.fullness / 100) * 0.3;
-        // JS 套用的濾鏡不會影響 SVG 內部的 hue-rotate，兩者完美疊加
+        f.x+=f.vx; f.y+=f.vy; f.x=Math.max(0,Math.min(W-160,f.x)); f.y=Math.max(0,Math.min(H-87,f.y));
+        
+        // 依照肚子裡累積的顆數 (0~5)，計算當前放大倍率與色彩
+        const targetScale = f.baseScale + (f.foodEaten / 5) * 0.45; // 滿5顆時變大0.45倍
+        f.currentScale += (targetScale - f.currentScale) * 0.05; // 平滑過渡
+        
+        const sat = 0.3 + (f.foodEaten / 5) * 0.7; // 飽和度隨著顆數從 0.3 逐漸升到 1.0
+        const bri = 0.7 + (f.foodEaten / 5) * 0.3; // 亮度隨著顆數從 0.7 逐漸升到 1.0
         f.el.style.filter = `saturate(${sat}) brightness(${bri})`;
-
+        
         if(f.vx<0) f.el.style.transform=`translate(${f.x}px,${f.y}px) scaleX(-${f.currentScale}) scaleY(${f.currentScale})`;
         else f.el.style.transform=`translate(${f.x}px,${f.y}px) scaleX(${f.currentScale}) scaleY(${f.currentScale})`;
     }
@@ -293,7 +285,7 @@ updateFish();
 
 
 /* =========================
-   環境氣泡、水母與海星系統
+   完美整合：氣泡、新水母與可愛海星
 ========================= */
 const bubbles = []; const bigBubbles = []; const jellyfishes = [];
 
@@ -320,14 +312,34 @@ function createBigBubble(x, y) {
     });
 }
 
+let jellyCount = 0;
 function createJellyfish() {
-    const j = document.createElement("div"); j.className = "jellyfish-svg";
+    const j = document.createElement("div"); j.className = "jellyfish-svg floaty";
+    const uid = jellyCount++;
     j.innerHTML = `
-    <svg viewBox="0 0 100 120" width="80" height="96">
-        <path d="M 10 50 C 10 10, 90 10, 90 50 Q 50 60, 10 50 Z" fill="rgba(255, 255, 255, 0.3)" stroke="rgba(255, 255, 255, 0.7)" stroke-width="2"/>
-        <path d="M 30 55 Q 25 85, 30 115" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="3" stroke-linecap="round"/>
-        <path d="M 50 58 Q 50 90, 50 120" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="3" stroke-linecap="round"/>
-        <path d="M 70 55 Q 75 85, 70 115" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="3" stroke-linecap="round"/>
+    <svg viewBox="0 0 240 260" width="100%" height="100%" class="soft">
+        <defs>
+          <linearGradient id="jBell${uid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--jelly1)"/><stop offset="1" stop-color="var(--jelly2)"/></linearGradient>
+          <linearGradient id="jShine${uid}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--shine)"/><stop offset="0.7" stop-color="rgba(255,255,255,0)"/></linearGradient>
+        </defs>
+        <g class="jelly-tentacles2" opacity=".85">
+          <path d="M96,160 C84,190 92,214 78,244" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="5" stroke-linecap="round"/>
+          <path d="M120,164 C110,194 122,214 110,246" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="5" stroke-linecap="round"/>
+          <path d="M144,160 C154,194 142,214 156,246" fill="none" stroke="rgba(255,255,255,.33)" stroke-width="5" stroke-linecap="round"/>
+        </g>
+        <g class="jelly-bell">
+          <path d="M60,118 C60,62 92,30 120,30 C148,30 180,62 180,118 C172,132 156,140 120,140 C84,140 68,132 60,118Z" fill="url(#jBell${uid})"/>
+          <path d="M64,118 C78,132 96,138 120,138 C144,138 162,132 176,118" fill="none" stroke="rgba(23,50,58,.14)" stroke-width="6" stroke-linecap="round"/>
+          <path d="M86,62 C100,44 128,42 154,56 C132,54 112,58 98,70 C92,74 86,70 86,62Z" fill="url(#jShine${uid})" opacity=".7"/>
+          <circle cx="112" cy="96" r="5" fill="rgba(255,255,255,.85)"/><circle cx="130" cy="96" r="5" fill="rgba(255,255,255,.85)"/>
+          <circle cx="113.8" cy="98" r="2.2" fill="var(--ink)"/><circle cx="131.8" cy="98" r="2.2" fill="var(--ink)"/>
+        </g>
+        <g class="jelly-tentacles">
+          <path d="M86,150 C72,182 78,210 60,246" fill="none" stroke="rgba(255,255,255,.42)" stroke-width="6" stroke-linecap="round"/>
+          <path d="M108,152 C92,186 108,214 96,248" fill="none" stroke="rgba(255,255,255,.36)" stroke-width="6" stroke-linecap="round"/>
+          <path d="M132,152 C148,186 132,214 144,248" fill="none" stroke="rgba(255,255,255,.38)" stroke-width="6" stroke-linecap="round"/>
+          <path d="M154,150 C168,182 162,210 180,246" fill="none" stroke="rgba(255,255,255,.40)" stroke-width="6" stroke-linecap="round"/>
+        </g>
     </svg>`;
     tank.appendChild(j);
     const jObj = { el: j, x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight, vx: (Math.random() - 0.5) * 2, vy: (Math.random() - 0.5) * 2 - 0.5, pulse: Math.random() * 10 };
@@ -338,16 +350,33 @@ function createJellyfish() {
 }
 for(let i=0; i<6; i++) createJellyfish();
 
+let starCount = 0;
 function createStarfish() {
-    const s = document.createElement("div"); s.className = "starfish-container";
+    const s = document.createElement("div"); s.className = "starfish-container floaty";
     s.style.left = Math.random() * 95 + "vw"; s.style.bottom = (Math.random() * 8 + 2) + "vh"; 
     const scale = 0.6 + Math.random() * 0.4; const rot = Math.random() * 360;
+    const uid = starCount++;
     s.style.transform = `scale(${scale}) rotate(${rot}deg)`;
-    s.innerHTML = `<svg class="starfish-inner" viewBox="0 0 100 100"><path d="M50 5 L62 35 L95 35 L68 55 L78 85 L50 65 L22 85 L32 55 L5 35 L38 35 Z" fill="#e8896a" stroke="#c45a40" stroke-width="3" stroke-linejoin="round"/><circle cx="50" cy="50" r="4" fill="#c45a40" opacity="0.4"/><circle cx="50" cy="30" r="2" fill="#c45a40" opacity="0.4"/><circle cx="38" cy="55" r="2" fill="#c45a40" opacity="0.4"/><circle cx="62" cy="55" r="2" fill="#c45a40" opacity="0.4"/></svg>`;
+    s.innerHTML = `
+    <svg class="starfish-inner soft" viewBox="0 0 200 200">
+        <defs>
+          <radialGradient id="starG${uid}" cx="35%" cy="28%" r="70%"><stop offset="0" stop-color="var(--star1)"/><stop offset="1" stop-color="var(--star2)"/></radialGradient>
+        </defs>
+        <g class="star-breathe">
+            <path d="M 100 30 L 120 80 L 170 85 L 130 120 L 145 170 L 100 140 L 55 170 L 70 120 L 30 85 L 80 80 Z" fill="url(#starG${uid})" stroke="#c99586" stroke-width="12" stroke-linejoin="round"/>
+            <circle cx="85" cy="110" r="4.5" fill="var(--ink)" />
+            <circle cx="115" cy="110" r="4.5" fill="var(--ink)" />
+            <circle cx="86.5" cy="108.5" r="1.5" fill="#fff" />
+            <circle cx="116.5" cy="108.5" r="1.5" fill="#fff" />
+            <path d="M 95 120 Q 100 125 105 120" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="72" cy="115" r="7" fill="#ff9999" opacity="0.6"/>
+            <circle cx="128" cy="115" r="7" fill="#ff9999" opacity="0.6"/>
+        </g>
+    </svg>`;
     tank.appendChild(s);
     s.addEventListener("pointerdown", (e) => {
-        e.stopPropagation(); const inner = s.querySelector('.starfish-inner'); inner.classList.add("starfish-pulse"); 
-        setTimeout(() => { inner.classList.remove("starfish-pulse"); }, 150);
+        e.stopPropagation(); const inner = s.querySelector('.starfish-inner'); inner.classList.add("starfish-click"); 
+        setTimeout(() => { inner.classList.remove("starfish-click"); }, 150);
     });
 }
 for(let i=0; i<6; i++) createStarfish(); 
@@ -357,7 +386,7 @@ function updateEcosystem(){
 
     for(let b of bubbles){
         b.y -= b.speed;
-        b.x += Math.sin(b.y / 30) * 0.5; // 新增：3D 氣泡的微微左右搖擺特效
+        b.x += Math.sin(b.y / 30) * 0.5; 
         if(b.y < -20){ b.y = H + 20; b.x = Math.random() * W; }
         b.el.style.transform = `translate(${b.x}px, ${b.y}px)`;
     }
@@ -365,7 +394,7 @@ function updateEcosystem(){
     const turtle = document.querySelector('.turtle-container');
     if (turtle && Math.random() < 0.01) { 
         const rect = turtle.getBoundingClientRect();
-        if (rect.right > 0 && rect.left < W) createBigBubble(rect.left + 120, rect.top + 20); 
+        if (rect.right > 0 && rect.left < W) createBigBubble(rect.left + 120, rect.top + 50); 
     }
 
     for (let i = bigBubbles.length - 1; i >= 0; i--) {
@@ -380,9 +409,9 @@ function updateEcosystem(){
         j.pulse += 0.05; j.vx += (Math.random() - 0.5) * 0.1; j.vy += (Math.random() - 0.5) * 0.1 - 0.01; 
         j.vx *= 0.94; j.vy *= 0.94; j.x += j.vx; j.y += j.vy;
         if (j.x < 0) { j.x = 0; j.vx = Math.abs(j.vx)*0.5; }
-        if (j.x > W - 80) { j.x = W - 80; j.vx = -Math.abs(j.vx)*0.5; }
+        if (j.x > W - 100) { j.x = W - 100; j.vx = -Math.abs(j.vx)*0.5; }
         if (j.y < 0) { j.y = 0; j.vy = Math.abs(j.vy)*0.5; }
-        if (j.y > H - 100) { j.y = H - 100; j.vy = -Math.abs(j.vy)*0.5; }
+        if (j.y > H - 120) { j.y = H - 120; j.vy = -Math.abs(j.vy)*0.5; }
         let scaleX = 1 + Math.sin(j.pulse) * 0.05; let scaleY = 1 - Math.sin(j.pulse) * 0.05; let rot = j.vx * 2; 
         j.el.style.transform = `translate(${j.x}px, ${j.y}px) rotate(${rot}deg) scale(${scaleX}, ${scaleY})`;
     }
@@ -392,7 +421,7 @@ updateEcosystem();
 
 
 /* =========================
-   行事曆與貼心提醒系統 (動態自適應高度)
+   行事曆與貼心提醒系統
 ========================= */
 const schoolEvents = [
     { name: "228連假", start: "02/27", end: "03/01", type: "holiday" }, { name: "全校複習考", start: "03/02", end: "03/04" },
