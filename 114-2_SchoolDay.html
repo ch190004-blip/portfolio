@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>輔大聖心 數學科學校日</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #b91c1c;
+            --accent: #d97706;
+            --bg-color: #f8fafc;
+            --text-main: #1e293b;
+            --text-light: #64748b;
+        }
+
+        body, html {
+            margin: 0; padding: 0; font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color); color: var(--text-main);
+            height: 100vh; overflow: hidden; display: flex; flex-direction: column;
+        }
+
+        /* 頂部導航列 */
+        .top-nav {
+            background-color: white; padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 100;
+        }
+        .nav-logo { font-weight: bold; color: var(--primary); font-size: 1.2rem; }
+        .tab-group { display: flex; gap: 10px; }
+        .tab-btn {
+            background: none; border: 2px solid #cbd5e1; padding: 8px 20px;
+            border-radius: 20px; cursor: pointer; font-weight: bold; color: var(--text-light);
+            transition: all 0.3s;
+        }
+        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* 簡報主體 */
+        .presentation-area { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; }
+
+        .slide {
+            position: absolute; width: 85%; max-width: 1000px; height: 75vh;
+            background: white; border-radius: 15px; box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            padding: 3rem; box-sizing: border-box; overflow-y: auto;
+            opacity: 0; transform: translateY(20px); transition: all 0.4s ease-out;
+            pointer-events: none; display: flex; flex-direction: column; justify-content: center;
+        }
+        .slide.active { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+        /* 排版樣式 */
+        h1 { font-size: 3rem; color: var(--primary); margin: 0 0 10px 0; line-height: 1.2; }
+        h2 { font-size: 2rem; color: var(--secondary); margin: 0 0 20px 0; border-bottom: 3px solid var(--accent); display: inline-block; padding-bottom: 5px; }
+        p, li { font-size: 1.3rem; line-height: 1.6; color: var(--text-main); margin-bottom: 15px; }
+        
+        /* 互動元件：刮刮樂/隱藏文字 */
+        .mystery-box {
+            background-color: #94a3b8; color: transparent; border-radius: 6px;
+            padding: 0 8px; cursor: pointer; transition: 0.3s; user-select: none;
+            display: inline-block; position: relative;
+        }
+        .mystery-box::after {
+            content: "❓ 點擊揭曉"; color: white; position: absolute; font-size: 1rem;
+            left: 50%; top: 50%; transform: translate(-50%, -50%); width: max-content;
+        }
+        .mystery-box:hover { background-color: #64748b; }
+        .mystery-box.revealed {
+            background-color: transparent; color: var(--secondary); font-weight: bold;
+            border-bottom: 2px dashed var(--secondary); border-radius: 0; padding: 0 4px;
+        }
+        .mystery-box.revealed::after { display: none; }
+
+        /* 互動元件：實體到虛擬動畫 */
+        .world-transition {
+            display: flex; align-items: center; justify-content: center; gap: 20px;
+            background: #f1f5f9; padding: 20px; border-radius: 12px; margin: 20px 0;
+        }
+        .world { font-weight: bold; font-size: 1.3rem; padding: 15px 25px; border-radius: 8px; display: flex; align-items: center; gap: 10px;}
+        .world.physical { background: #dcfce7; color: #166534; }
+        .world.virtual { background: #fee2e2; color: #991b1b; animation: pulse 2s infinite; }
+        .arrow-anim { font-size: 2rem; color: var(--text-light); animation: slideRight 1.5s infinite; }
+        
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+        @keyframes slideRight { 0% { transform: translateX(-10px); opacity: 0.5; } 50% { transform: translateX(10px); opacity: 1; } 100% { transform: translateX(-10px); opacity: 0.5; } }
+
+        /* 互動元件：雙向開合按鈕與隱藏區塊 */
+        .guess-btn {
+            background: var(--accent); color: white; border: none; padding: 10px 20px;
+            border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s;
+        }
+        .guess-btn:hover { transform: scale(1.02); }
+        .hidden-content { display: none; opacity: 0; transition: opacity 0.5s; background: #fffbeb; border-left: 5px solid var(--accent); padding: 15px; margin-top: 15px; border-radius: 0 8px 8px 0; }
+        .hidden-content.show { display: block; opacity: 1; }
+
+        /* 表格樣式 */
+        .math-table {
+            width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 1.15rem; background: white;
+        }
+        .math-table th, .math-table td {
+            border: 1px solid #cbd5e1; padding: 12px; text-align: left;
+        }
+        .math-table th { background-color: var(--primary); color: white; }
+        .ng-text { color: var(--text-light); text-decoration: line-through; }
+        .ok-text { color: #166534; font-weight: bold; }
+        
+        /* 策略卡片 */
+        .strategy-card {
+            margin-top: 15px; background: white; padding: 15px 20px; border-radius: 8px; border: 1px solid #cbd5e1;
+        }
+        .strategy-card h3 { margin: 0 0 10px 0; color: var(--primary); font-size: 1.3rem; }
+        .strategy-card ul { margin: 0; padding-left: 20px; font-size: 1.15rem; color: var(--text-main); }
+        .strategy-card li { margin-bottom: 8px; }
+
+        /* 翻牌特效 (P3) */
+        .flip-container { display: flex; gap: 20px; margin-top: 20px; }
+        .flip-card { flex: 1; height: 180px; perspective: 1000px; }
+        .flip-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; cursor: pointer; }
+        .flip-card:hover .flip-inner { transform: rotateY(180deg); }
+        .flip-front, .flip-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 12px; padding: 20px; box-sizing: border-box; }
+        .flip-front { background: #f8fafc; border: 2px solid #e2e8f0; color: var(--primary); }
+        .flip-front h3 { font-size: 1.4rem; margin: 0; }
+        .flip-back { background: var(--primary); color: white; transform: rotateY(180deg); }
+        .flip-back p { font-size: 1.1rem; color: white; margin: 0; line-height: 1.5; }
+
+        /* 底部控制列 */
+        .controls { padding: 20px; display: flex; justify-content: center; gap: 20px; align-items: center; }
+        .nav-btn {
+            background: white; border: 2px solid var(--primary); color: var(--primary);
+            padding: 10px 25px; border-radius: 25px; font-size: 1.1rem; font-weight: bold;
+            cursor: pointer; transition: 0.2s;
+        }
+        .nav-btn:hover:not(:disabled) { background: var(--primary); color: white; }
+        .nav-btn:disabled { border-color: #cbd5e1; color: #cbd5e1; cursor: not-allowed; }
+        .progress { font-size: 1.2rem; font-weight: bold; color: var(--text-light); width: 60px; text-align: center; }
+
+        /* 動態隱藏特定年級內容 */
+        .grade-g7, .grade-g8 { display: none; }
+        .show-g7 .grade-g7 { display: block; }
+        .show-g8 .grade-g8 { display: block; }
+    </style>
+</head>
+<body class="show-g7">
+
+    <div class="top-nav">
+        <div class="nav-logo">輔大聖心 數學科學校日 | 教學組長 陳昱澐</div>
+        <div class="tab-group">
+            <button class="tab-btn active" id="tab-g7" onclick="setGrade('g7')">國七 A+組</button>
+            <button class="tab-btn" id="tab-g8" onclick="setGrade('g8')">國八</button>
+        </div>
+    </div>
+
+    <div class="presentation-area">
+        
+        <div class="slide active" id="slide-1">
+            <h2 style="border:none;">114-2 學年度 第二學期</h2>
+            <h1>奪回專注力：<br>在這個世代中，數學能給孩子什麼？</h1>
+            <p style="margin-top: 20px; font-weight: bold; color: var(--text-light);">B組教師：陳昱澐</p>
+        </div>
+
+        <div class="slide" id="slide-2">
+            <h2>📱 我們面對的不是不用心，是<span class="mystery-box" onclick="this.classList.add('revealed')">焦慮世代</span></h2>
+            <p>社會心理學家強納森．海特點出，這代孩子正經歷「童年的重組」：</p>
+            
+            <div class="world-transition">
+                <div class="world physical">🌳 實體世界的探索</div>
+                <div class="arrow-anim">🔜</div>
+                <div class="world virtual">📱 手機螢幕的虛擬世界</div>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <p>大腦習慣了短影音的強烈刺激，各位家長猜猜看，現在孩子專注力的「基本單位」剩下幾秒？</p>
+                <button class="guess-btn" onclick="toggleContent('reveal-15s', this, '讓我想想... 點擊看解答')">讓我想想... 點擊看解答</button>
+            </div>
+
+            <div class="hidden-content" id="reveal-15s">
+                <p><strong>答案是：<span style="font-size: 1.8rem; color: var(--secondary); font-weight: bold;"> 15 秒！</span></strong></p>
+                <p><strong>專注力被切碎：</strong>大腦越來越難忍受 15 分鐘的深度思考，這是學習最大的致命傷。</p>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-3">
+            <h2>🛡️ 數學，是對抗焦慮的「大腦重訓」</h2>
+            <p>既然 AI 拍照三秒就能解題，我們為何還要算數學？</p>
+            <div class="flip-container">
+                <div class="flip-card">
+                    <div class="flip-inner">
+                        <div class="flip-front"><h3>AI 都能算了，<br>幹嘛自己算？</h3></div>
+                        <div class="flip-back"><p>AI 給的是答案，數學練的是「拆解邏輯」。未來不缺計算機，缺的是能精準定義問題的人才。</p></div>
+                    </div>
+                </div>
+                <div class="flip-card">
+                    <div class="flip-inner">
+                        <div class="flip-front"><h3>算這麼久，<br>生活又用不到？</h3></div>
+                        <div class="flip-back"><p>買菜用不到幾何，但面對困難的「延遲滿足感」用得到。數學是訓練孩子在枯燥中堅持到底的重訓。</p></div>
+                    </div>
+                </div>
+                <div class="flip-card">
+                    <div class="flip-inner">
+                        <div class="flip-front"><h3>一直算錯，<br>是不是沒天份？</h3></div>
+                        <div class="flip-back"><p>錯誤不是失敗，是找出邏輯缺角的過程。數學課是最好的挫折容忍度訓練場。</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-4">
+            
+            <div class="grade-g7">
+                <h2>🎯 國七 A+組：卓越之外的挑戰 (27人)</h2>
+                <p>國七正處於從「<span class="mystery-box" onclick="this.classList.add('revealed')">具體數字</span>」跨入「<span class="mystery-box" onclick="this.classList.add('revealed')">抽象代數</span>」的關鍵轉折。這群孩子非常優秀，但也容易落入害怕犯錯的完美主義。</p>
+                
+                <p>為了打破僵局，我本學期的教學策略是：</p>
+                <button class="guess-btn" onclick="toggleContent('g7-strategy', this, '點擊揭曉 昱澐老師的策略')">點擊揭曉 昱澐老師的策略</button>
+                
+                <div class="hidden-content" id="g7-strategy">
+                    <p><span style="color:var(--secondary); font-weight:bold;">講述 ➔ 難題挑戰 ➔ 自主學習 (AI融入輔助學習、跨領域素養陶成)</span></p>
+                    <ul>
+                        <li><strong>從「會算」到「會教」：</strong>能把邏輯講給同學聽明白，才是真正的高階素養。</li>
+                        <li><strong>會考目標：</strong> 至少拿 A，建立絕對優勢。</li>
+                        <li><strong>家長神助攻：</strong> 容許孩子卡關，多問他們「你是怎麼想到的？」，取代只看分數。</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="grade-g8">
+                <h2 style="font-size: 1.8rem;">🎯 國八：解鎖「中二」叛逆的對話公式</h2>
+                <p>國八的孩子正處於青春期高峰，大腦重塑加上課業變難，是他們最容易對數學「<span class="mystery-box" onclick="this.classList.add('revealed')">直接放棄</span>」的階段。針對我負責的 <strong>B組 (11位孩子)</strong>，重建手感與信心是首要任務。</p>
+
+                <p>面對這個階段的叛逆，不需要硬碰硬。這邊提供幾個溝通小建議，邀請家長一起試試：</p>
+                <button class="guess-btn" onclick="toggleContent('g8-strategy', this, '點擊揭曉：給家長的建議與分組策略')">點擊揭曉：給家長的建議與分組策略</button>
+                
+                <div class="hidden-content" id="g8-strategy" style="padding: 10px 15px;">
+                    <table class="math-table">
+                        <tr>
+                            <th>情境</th>
+                            <th>情緒化 NG 對話</th>
+                            <th>✅ 建設性對話 (釐清與陪伴)</th>
+                        </tr>
+                        <tr>
+                            <td>考差充滿挫折</td>
+                            <td><span class="ng-text">你怎麼又粗心？到底有沒有讀？</span></td>
+                            <td><span class="ok-text">「我們一起看看是哪邊卡住了。」</span><br><span style="font-size:1.1rem; color:#475569;">把考卷當作診斷工具，針對錯題討論，不否定整個人。</span></td>
+                        </tr>
+                        <tr>
+                            <td>拒絕溝通嫌煩</td>
+                            <td><span class="ng-text">你這是什麼態度？我是為你好！</span></td>
+                            <td><span class="ok-text">「看來你今天很累，休息15分鐘再說。」</span><br><span style="font-size:1.1rem; color:#475569;">先同理狀態，給予緩衝空間，避免硬碰硬的衝突。</span></td>
+                        </tr>
+                        <tr>
+                            <td>抱怨學這些沒用</td>
+                            <td><span class="ng-text">考試就是要考！哪來這麼多藉口！</span></td>
+                            <td><span class="ok-text">「這是在做大腦的重量訓練。」</span><br><span style="font-size:1.1rem; color:#475569;">告訴孩子，學的不是背題型，是培養面對困難不逃避的韌性。</span></td>
+                        </tr>
+                    </table>
+                    
+                    <div class="strategy-card">
+                        <h3>👨‍🏫 國八分組教學策略：針對不同特質，給予最適合的引導</h3>
+                        <ul>
+                            <li><strong>A+組 (蘇試 老師)：</strong> 講述 ➔ 難題挑戰 ➔ 自主學習</li>
+                            <li><strong>A組 (吳宇綸 老師)：</strong> 講述 ➔ 重點演練 ➔ 穩定學習</li>
+                            <li><strong>B組 (昱澐 老師)：</strong> 講述 ➔ 大量練習 ➔ 不輕易放棄  (AI融入引起興趣、增加動機)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="slide" id="slide-5">
+            <h1 style="text-align: center; margin-top: 15%;">成績是一時的，<br>面對困難的態度是一輩子的。</h1>
+            <p style="text-align: center; margin-top: 30px; font-size: 1.5rem;">感謝各位家長的支持與協助。</p>
+        </div>
+
+    </div>
+
+    <div class="controls">
+        <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)" disabled>上一頁</button>
+        <div class="progress" id="progressText">1 / 5</div>
+        <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">下一頁</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 5;
+
+        // 雙向開合的控制函數
+        function toggleContent(targetId, btnElement, originalText) {
+            const target = document.getElementById(targetId);
+            target.classList.toggle('show');
+            
+            if (target.classList.contains('show')) {
+                btnElement.innerText = '收起內容 ⬆';
+                btnElement.style.backgroundColor = '#94a3b8'; // 變成灰色表示已展開
+            } else {
+                btnElement.innerText = originalText;
+                btnElement.style.backgroundColor = 'var(--accent)'; // 恢復原本顏色
+            }
+        }
+
+        function setGrade(grade) {
+            document.body.className = 'show-' + grade;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('tab-' + grade).classList.add('active');
+            
+            if (currentSlide !== 4) goToSlide(4);
+        }
+
+        function changeSlide(dir) { goToSlide(currentSlide + dir); }
+
+        function goToSlide(target) {
+            if (target < 1 || target > totalSlides) return;
+            document.getElementById('slide-' + currentSlide).classList.remove('active');
+            currentSlide = target;
+            document.getElementById('slide-' + currentSlide).classList.add('active');
+            
+            document.getElementById('prevBtn').disabled = (currentSlide === 1);
+            document.getElementById('nextBtn').disabled = (currentSlide === totalSlides);
+            document.getElementById('progressText').innerText = currentSlide + ' / ' + totalSlides;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') changeSlide(1);
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+        });
+    </script>
+</body>
+</html>
