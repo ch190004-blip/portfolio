@@ -59,6 +59,7 @@ html,body{
 .floaty { filter: drop-shadow(0 12px 18px rgba(0,0,0,.22)) drop-shadow(0 0 18px var(--glow)); }
 .soft { filter: drop-shadow(0 10px 16px rgba(0,0,0,.18)) drop-shadow(0 0 16px var(--glow)); }
 
+/* 確保層級正確 */
 .fish-svg{ position:absolute; width:160px; height:87px; pointer-events:none; will-change: transform, filter; z-index: 5; }
 .wiggle { transform-origin: 18% 50%; animation: bodyWiggle 1.4s ease-in-out infinite; }
 @keyframes bodyWiggle { 0%,100%{ transform: rotate(0deg); } 50%{ transform: rotate(-1.5deg); } }
@@ -71,7 +72,7 @@ html,body{
 .food-dot{ position:absolute; width:10px; height:10px; border-radius:50%; background:#5c4033; pointer-events:none; box-shadow:0 0 6px rgba(0,0,0,.4); z-index: 4; }
 
 /* =========================
-   側視版高質感海龜動畫 (完美仿生划水)
+   側視版高質感海龜動畫 
 ========================= */
 .turtle-container { 
   position: absolute; 
@@ -79,7 +80,7 @@ html,body{
   left: -200px; 
   width: 160px; 
   height: 96px; 
-  z-index: 1; 
+  z-index: 3; /* 在鯨魚前面 */
   animation: crawlAcross 60s linear infinite; 
 }
 @keyframes crawlAcross { 
@@ -88,42 +89,23 @@ html,body{
 }
 .turtle-svg { width: 100%; height: 100%; overflow: visible; }
 
-/* 身體跟隨拍水節奏產生上浮與滑行感 */
 .turtle-bob { transform-origin: center; animation: turtleBob 3s ease-in-out infinite; }
-@keyframes turtleBob { 
-  0%   { transform: translateY(0px) rotate(0deg); } 
-  30%  { transform: translateY(-5px) rotate(2deg); } /* 拍水時身體上抬 */
-  60%  { transform: translateY(-2px) rotate(0.5deg); } /* 準備滑行 */
-  100% { transform: translateY(0px) rotate(0deg); } 
-}
-
-/* 呼吸微動 */
+@keyframes turtleBob { 0% { transform: translateY(0px) rotate(0deg); } 30% { transform: translateY(-5px) rotate(2deg); } 60% { transform: translateY(-2px) rotate(0.5deg); } 100% { transform: translateY(0px) rotate(0deg); } }
 .shell-anim { transform-origin: 87px 85px; animation: shellBreathe 3s ease-in-out infinite; }
 @keyframes shellBreathe { 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.015); } }
 .head-anim { transform-origin: 130px 75px; animation: headBob 3s ease-in-out infinite; }
 @keyframes headBob { 0%,100%{ transform: translateY(0px); } 50%{ transform: translateY(-2px); } }
 
-/* 海龜四肢流暢划水動畫：兩手同步抬起 -> 往後拍水 -> 伸平滑行 */
 .flipper-front-anim { transform-origin: 110px 80px; animation: flipperPower 3s ease-in-out infinite; }
 .flipper-front-anim-r { transform-origin: 120px 75px; animation: flipperPower 3s ease-in-out infinite; } 
 .flipper-back-anim { transform-origin: 60px 80px; animation: flipperSteer 3s ease-in-out infinite 0.2s; }
 .flipper-back-anim-r { transform-origin: 70px 75px; animation: flipperSteer 3s ease-in-out infinite 0.2s; }
 
-@keyframes flipperPower {
-  0%   { transform: rotate(20deg); }   /* 抬手準備 */
-  30%  { transform: rotate(-45deg); }  /* 用力向後拍水 */
-  60%  { transform: rotate(-35deg); }  /* 微收，保持向後滑行 */
-  100% { transform: rotate(20deg); }   /* 緩慢回正 */
-}
-
-@keyframes flipperSteer {
-  0%   { transform: rotate(10deg); }
-  50%  { transform: rotate(-15deg); }
-  100% { transform: rotate(10deg); }
-}
+@keyframes flipperPower { 0% { transform: rotate(20deg); } 30% { transform: rotate(-45deg); } 60% { transform: rotate(-35deg); } 100% { transform: rotate(20deg); } }
+@keyframes flipperSteer { 0% { transform: rotate(10deg); } 50% { transform: rotate(-15deg); } 100% { transform: rotate(10deg); } }
 
 /* =========================
-   全新水母動畫 
+   全新水母與海星
 ========================= */
 .jellyfish-svg{ position:absolute; top:0; left:0; width:100px; height:120px; z-index: 6; pointer-events:auto; cursor: pointer; will-change: transform; transform-origin: 50% 40%; }
 .jelly-bell { transform-origin: 50% 40%; animation: bellPump 1.35s ease-in-out infinite; }
@@ -133,10 +115,7 @@ html,body{
 .jelly-tentacles2 { transform-origin: 50% 0%; animation: tentacleSway2 2.2s ease-in-out infinite; }
 @keyframes tentacleSway2 { 0%,100%{ transform: rotate(-2deg) translateX(0px); } 50%{ transform: rotate(5deg) translateX(4px); } }
 
-/* =========================
-   全新海星動畫
-========================= */
-.starfish-container { position: absolute; width: 80px; height: 80px; z-index: 2; pointer-events: auto; cursor: pointer; transform-origin: center; animation: starWobble 4.2s ease-in-out infinite; }
+.starfish-container { position: absolute; width: 80px; height: 80px; z-index: 3; pointer-events: auto; cursor: pointer; transform-origin: center; animation: starWobble 4.2s ease-in-out infinite; }
 @keyframes starWobble { 0%,100%{ transform: rotate(-2deg) translateY(0px); } 50%{ transform: rotate(3deg) translateY(-6px); } }
 .starfish-inner { width: 100%; height: 100%; transition: transform 0.15s cubic-bezier(0.2, 1.5, 0.8, 1); transform-origin: center; }
 .star-breathe { transform-origin: 100px 100px; animation: starPulse 2.6s ease-in-out infinite; }
@@ -148,3 +127,52 @@ html,body{
 ========================= */
 .bubble { position:absolute; border-radius:50%; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.85), rgba(255,255,255,.15) 55%, rgba(255,255,255,.08)); box-shadow: 0 0 15px rgba(120,240,255,.20); filter: blur(0.2px); pointer-events:none; z-index: 3; }
 .big-bubble { position: absolute; top: 0; left: 0; border-radius: 50%; border: 2px solid rgba(255,255,255,0.7); background: rgba(255,255,255,0.2); backdrop-filter: blur(2px); z-index: 4; pointer-events: auto; cursor: pointer; transition: transform 0.15s ease-out, opacity 0.15s ease-out; }
+/* =========================
+   完美版：無透明巨鯨史詩巡遊動畫 (單向游動，不倒退)
+========================= */
+.whale-container {
+  position: absolute;
+  top: 15%; 
+  left: 100vw; 
+  width: 800px;
+  height: auto;
+  z-index: 2; 
+  filter: brightness(0.65) blur(1px) drop-shadow(0 20px 30px rgba(0,0,0,0.6));
+  transform: scaleX(-1); 
+  pointer-events: none;
+  visibility: hidden; /* 平常待命時完全隱藏，避免露出邊緣 */
+}
+
+.whale-container.swim-across {
+  visibility: visible; /* 呼叫時顯示 */
+  /* 拿掉原本的 transition，改用 animation 確保單向播放 */
+  animation: whalePassBy 60s linear forwards;
+}
+
+/* 讓鯨魚單向游過整個畫面 */
+@keyframes whalePassBy {
+  0% {
+    transform: scaleX(-1) translateX(0);
+  }
+  100% {
+    /* 游到畫面最左側之外 */
+    transform: scaleX(-1) translateX(calc(100vw + 1200px));
+  }
+}
+
+/* ==================================
+   (底下原本的 .w-breath, .w-tailBase 等身體動畫保留不動即可)
+================================== */
+
+/* 身體與四肢動畫 */
+.w-breath { transform-origin: 50% 50%; animation: wBreathe 4s ease-in-out infinite; }
+@keyframes wBreathe { 0%,100%{ transform: scale(1) translateY(0); } 50%{ transform: scale(1.015) translateY(-10px); } }
+
+.w-tailBase { transform-origin: 340px 350px; animation: wTailBase 3s ease-in-out infinite; }
+@keyframes wTailBase { 0%,100%{ transform: rotate(4deg); } 50%{ transform: rotate(-4deg); } }
+
+.w-tailFin { transform-origin: 200px 310px; animation: wTailFin 3s ease-in-out infinite 0.2s; }
+@keyframes wTailFin { 0%,100%{ transform: rotate(8deg); } 50%{ transform: rotate(-8deg); } }
+
+.w-pectoral { transform-origin: 720px 380px; animation: wPectoral 4s ease-in-out infinite; }
+@keyframes wPectoral { 0%,100%{ transform: rotate(5deg); } 50%{ transform: rotate(-15deg); } }
