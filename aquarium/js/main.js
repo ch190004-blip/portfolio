@@ -161,7 +161,7 @@ window.addEventListener("pointerdown", (e) => {
 });
 
 /* =========================
-   3D 魚群系統 (精準吃 5 顆飽足機制)
+   3D 魚群系統 
 ========================= */
 const fishes=[]; const foods=[];
 const fish3DPalette = [
@@ -205,14 +205,12 @@ function createFish(index){
         </g>
     </svg>`;
     
-    // 初始化時，未進食狀態且未吃飽
     fish.style.filter = "saturate(0.3) brightness(0.7)";
     tank.appendChild(fish);
     fishes.push({
         el:fish, x: (Math.random()* (window.innerWidth || 1920)), y: (Math.random()* (window.innerHeight || 1080)),
         vx:(Math.random()-0.5)*1.5, vy:(Math.random()-0.5)*1.5, baseScale: baseScale, currentScale: baseScale, 
-        foodEaten: 0, 
-        isFull: false // 狀態標記：吃飽了就拒絕再吃
+        foodEaten: 0, isFull: false 
     });
 }
 for(let i=0;i<7;i++) createFish(i);
@@ -220,7 +218,6 @@ for(let i=0;i<7;i++) createFish(i);
 function updateFish(){
     const W = window.innerWidth || 1920; const H = window.innerHeight || 1080;
     
-    // 飼料掉落與移除
     for(let i=foods.length-1; i>=0; i--){
         let food = foods[i]; food.y += 0.8; food.el.style.top = food.y + "px";
         if(food.y > H){ food.el.remove(); foods.splice(i, 1); }
@@ -229,15 +226,9 @@ function updateFish(){
     for(let f of fishes){
         if (isNaN(f.x) || isNaN(f.y) || isNaN(f.vx) || isNaN(f.vy)) { f.x = W / 2; f.y = H / 2; f.vx = 0; f.vy = 0; }
         
-        // 隨著時間慢慢消化 (大約每過幾秒就扣掉0.005)
         f.foodEaten = Math.max(0, f.foodEaten - 0.005); 
+        if (f.foodEaten <= 2) f.isFull = false;
 
-        // 如果肚子已經消化到低於 2 顆的狀態，就解除「吃飽拒食」狀態，再度感覺飢餓
-        if (f.foodEaten <= 2) {
-            f.isFull = false;
-        }
-
-        // 只有在「尚未吃飽」的狀態下，才會主動追逐食物
         if(foods.length > 0 && !f.isFull){
             let closest=null; let min=Infinity;
             for(let food of foods){
@@ -249,31 +240,24 @@ function updateFish(){
                 f.vx+=dx/d*0.3; f.vy+=dy/d*0.3;
                 
                 if(d<15){ 
-                    // 精準吃下 1 顆，並確保上限為 5
                     f.foodEaten += 1; 
-                    if (f.foodEaten >= 5) {
-                        f.foodEaten = 5;
-                        f.isFull = true; // 達到 5 顆，立刻切換為拒食狀態
-                    }
+                    if (f.foodEaten >= 5) { f.foodEaten = 5; f.isFull = true; }
                     const index = foods.indexOf(closest); 
                     if(index > -1) { closest.el.remove(); foods.splice(index, 1); } 
                 }
             }
             f.vx*=0.95; f.vy*=0.95;
         } else {
-            // 吃飽了或畫面中沒食物，悠哉散步
             f.vx += (Math.random() - 0.5) * 0.1; f.vy += (Math.random() - 0.5) * 0.1;
             let speed = Math.hypot(f.vx, f.vy); if(speed > 1) { f.vx /= speed; f.vy /= speed; }
         }
         
         f.x+=f.vx; f.y+=f.vy; f.x=Math.max(0,Math.min(W-160,f.x)); f.y=Math.max(0,Math.min(H-87,f.y));
         
-        // 依照肚子裡累積的顆數 (0~5)，計算當前放大倍率與色彩
-        const targetScale = f.baseScale + (f.foodEaten / 5) * 0.45; // 滿5顆時變大0.45倍
-        f.currentScale += (targetScale - f.currentScale) * 0.05; // 平滑過渡
-        
-        const sat = 0.3 + (f.foodEaten / 5) * 0.7; // 飽和度隨著顆數從 0.3 逐漸升到 1.0
-        const bri = 0.7 + (f.foodEaten / 5) * 0.3; // 亮度隨著顆數從 0.7 逐漸升到 1.0
+        const targetScale = f.baseScale + (f.foodEaten / 5) * 0.45; 
+        f.currentScale += (targetScale - f.currentScale) * 0.05; 
+        const sat = 0.3 + (f.foodEaten / 5) * 0.7; 
+        const bri = 0.7 + (f.foodEaten / 5) * 0.3; 
         f.el.style.filter = `saturate(${sat}) brightness(${bri})`;
         
         if(f.vx<0) f.el.style.transform=`translate(${f.x}px,${f.y}px) scaleX(-${f.currentScale}) scaleY(${f.currentScale})`;
@@ -283,9 +267,8 @@ function updateFish(){
 }
 updateFish();
 
-
 /* =========================
-   完美整合：氣泡、新水母與可愛海星
+   完美整合：氣泡、水母、海星
 ========================= */
 const bubbles = []; const bigBubbles = []; const jellyfishes = [];
 
@@ -477,3 +460,18 @@ function updateEventPanel() {
     panelMsg.innerHTML = messageHtml + upcomingHolidayMsg; panelList.innerHTML = eventHTML;
 }
 updateEventPanel(); setInterval(updateEventPanel, 60000);
+
+/* =========================
+   大鯨魚 15 分鐘史詩巡遊系統
+========================= */
+const giantWhale = document.getElementById("giant-whale");
+function summonWhale() {
+    if(!giantWhale || giantWhale.classList.contains("swim-across")) return;
+    giantWhale.classList.add("swim-across");
+    setTimeout(() => { giantWhale.classList.remove("swim-across"); }, 60000); 
+}
+setInterval(summonWhale, 900000);
+
+// 點擊左上角的時鐘，立刻召喚大鯨魚！
+const myClock = document.getElementById("clock");
+if(myClock) myClock.addEventListener("click", summonWhale);
