@@ -13,7 +13,7 @@
   <header id="hud">
     <div class="hud-left">
       <div class="hud-header">
-        <div id="clock" class="clock"></div>
+        <div id="clock" class="clock" style="cursor: pointer;" title="點擊召喚大鯨魚！"></div>
         <div class="mode-buttons">
           <button id="btn-chienyun" class="mode-btn">千芸主任</button>
           <button id="btn-yuyun" class="mode-btn active">昱澐組長</button>
@@ -32,6 +32,60 @@
   </header>
 
   <main id="tank" aria-label="aquarium">
+    
+   <div id="giant-whale" class="whale-container">
+      <svg viewBox="0 0 1100 520" width="100%" height="100%">
+        <defs>
+          <linearGradient id="whaleBody" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#7f9fa2"/>
+            <stop offset="0.55" stop-color="#5f7f86"/>
+            <stop offset="1" stop-color="#4b6670"/>
+          </linearGradient>
+          <linearGradient id="whaleBelly" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#c8d2cf"/>
+            <stop offset="1" stop-color="#aebdb8"/>
+          </linearGradient>
+          <linearGradient id="wShine" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="rgba(255,255,255,.30)"/>
+            <stop offset="0.6" stop-color="rgba(255,255,255,0)"/>
+          </linearGradient>
+        </defs>
+
+        <g class="w-tailBase">
+          <path d="M 360 320 Q 250 310 180 250 Q 160 270 200 370 Q 250 410 360 380 Z" fill="url(#whaleBody)"/>
+          <g class="w-tailFin">
+            <path d="M 230 250 Q 90 200 50 150 Q 130 220 170 310 Q 150 400 90 480 Q 160 410 240 380 Z" fill="url(#whaleBody)"/>
+          </g>
+        </g>
+
+        <g class="w-breath">
+          <path d="M 330 320 C 400 180 650 150 850 180 C 1050 210 1060 330 950 400 C 800 460 600 470 450 420 C 380 390 350 350 330 320 Z" fill="url(#whaleBody)"/>
+          <path d="M 360 360 C 500 430 750 450 900 390 C 850 440 650 460 400 410 Z" fill="url(#whaleBelly)"/>
+          <g opacity=".25" stroke="#17323a" stroke-width="4" stroke-linecap="round">
+            <path d="M 450 390 Q 650 450 850 390" fill="none"/>
+            <path d="M 480 410 Q 650 465 820 410" fill="none"/>
+            <path d="M 520 430 Q 650 480 780 430" fill="none"/>
+          </g>
+          <path d="M 650 160 Q 680 120 720 150 Q 680 180 650 160 Z" fill="url(#whaleBody)"/>
+          <path class="w-pectoral" d="M 700 370 Q 650 470 500 520 Q 620 480 740 400 Z" fill="url(#whaleBelly)"/>
+
+
+          <circle cx="860" cy="310" r="10" fill="rgba(255,255,255,.85)"/>
+          <circle cx="862" cy="312" r="5" fill="#17323a"/>
+          <circle cx="864" cy="310" r="1.5" fill="#fff"/>
+          
+          <path d="M 1000 325 Q 920 370 835 340" fill="none" stroke="#2a4047" stroke-width="5" stroke-linecap="round" opacity="0.6"/>
+          
+          <path d="M 835 340 Q 825 335 830 325" fill="none" stroke="#2a4047" stroke-width="3.5" stroke-linecap="round" opacity="0.6"/>
+
+
+          <path d="M 450 230 C 550 180 750 190 850 230 C 750 230 550 230 450 230 Z" fill="url(#wShine)"/>
+        </g>
+      </svg>
+    </div>
+ 
+
+
     <div class="turtle-container floaty">
       <svg class="turtle-svg" viewBox="0 0 200 120" width="160" height="96">
         <defs>
@@ -44,13 +98,10 @@
             <stop offset="1" stop-color="#7c8a7b"/>
           </linearGradient>
         </defs>
-
         <g class="turtle-bob">
           <path class="flipper-front-anim-r" d="M 120 75 C 90 85 50 95 30 110 C 50 130 90 115 115 85 Z" fill="url(#t-skin-dark)" />
           <path class="flipper-back-anim-r" d="M 70 75 C 55 85 35 90 25 100 C 35 110 55 105 65 85 Z" fill="url(#t-skin-dark)" />
-
           <path d="M 35 70 Q 15 75 20 85 Q 35 85 45 75 Z" fill="var(--turtleSkin)"/>
-
           <g class="head-anim">
             <path d="M 130 75 C 130 50 185 55 185 75 C 185 90 150 95 130 80 Z" fill="var(--turtleSkin)"/>
             <circle cx="165" cy="68" r="4.5" fill="var(--ink)"/>
@@ -58,7 +109,6 @@
             <circle cx="175" cy="76" r="4" fill="#ff9999" opacity="0.6"/>
             <path d="M 175 82 Q 180 85 183 80" fill="none" stroke="var(--turtleAccent)" stroke-width="2" stroke-linecap="round"/>
           </g>
-
           <g class="shell-anim">
             <path d="M 30 75 C 30 20 145 20 145 75 Z" fill="url(#t-shell)" stroke="var(--turtleAccent)" stroke-width="3" stroke-linejoin="round"/>
             <path d="M 25 75 L 150 75 C 150 82 145 85 140 85 L 35 85 C 30 85 25 82 25 75 Z" fill="var(--turtleShell1)" stroke="var(--turtleAccent)" stroke-width="3" stroke-linejoin="round"/>
@@ -66,7 +116,6 @@
             <path d="M 70 45 L 87 25 L 105 45" fill="none" stroke="var(--turtleAccent)" stroke-width="3" stroke-linejoin="round" opacity="0.5"/>
             <path d="M 87 25 L 87 20" fill="none" stroke="var(--turtleAccent)" stroke-width="3" stroke-linejoin="round" opacity="0.5"/>
           </g>
-
           <path class="flipper-front-anim" d="M 110 80 C 80 90 40 100 20 115 C 40 135 80 120 105 90 Z" fill="var(--turtleSkin)" stroke="var(--turtleAccent)" stroke-width="2"/>
           <path class="flipper-back-anim" d="M 60 80 C 45 90 25 95 15 105 C 25 115 45 110 55 90 Z" fill="var(--turtleSkin)" stroke="var(--turtleAccent)" stroke-width="2"/>
         </g>
