@@ -93,13 +93,24 @@
         .hidden-content { display: none; opacity: 0; transition: opacity 0.5s; background: #fffbeb; border-left: 5px solid var(--accent); padding: 15px; margin-top: 15px; border-radius: 0 8px 8px 0; }
         .hidden-content.show { display: block; opacity: 1; }
 
+        /* 專屬網站連結樣式 */
+        .resource-box {
+            background: white; border: 1px solid #cbd5e1; border-left: 5px solid var(--primary);
+            padding: 15px; border-radius: 8px; margin: 15px 0;
+        }
+        .resource-link {
+            display: inline-flex; align-items: center; gap: 8px;
+            background-color: #e0f2fe; color: var(--primary); text-decoration: none;
+            padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 1.15rem;
+            border: 1px solid #bae6fd; transition: 0.3s; margin-top: 10px;
+        }
+        .resource-link:hover { background-color: var(--primary); color: white; transform: translateY(-2px); }
+
         /* 表格樣式 */
         .math-table {
             width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 1.15rem; background: white;
         }
-        .math-table th, .math-table td {
-            border: 1px solid #cbd5e1; padding: 12px; text-align: left;
-        }
+        .math-table th, .math-table td { border: 1px solid #cbd5e1; padding: 12px; text-align: left; }
         .math-table th { background-color: var(--primary); color: white; }
         .ng-text { color: var(--text-light); text-decoration: line-through; }
         .ok-text { color: #166534; font-weight: bold; }
@@ -146,7 +157,7 @@
         <div class="nav-logo">輔大聖心 數學科學校日 | 教學組長 陳昱澐</div>
         <div class="tab-group">
             <button class="tab-btn active" id="tab-g7" onclick="setGrade('g7')">國七 A+組</button>
-            <button class="tab-btn" id="tab-g8" onclick="setGrade('g8')">國八</button>
+            <button class="tab-btn" id="tab-g8" onclick="setGrade('g8')">國八 802班</button>
         </div>
     </div>
 
@@ -155,7 +166,7 @@
         <div class="slide active" id="slide-1">
             <h2 style="border:none;">114-2 學年度 第二學期</h2>
             <h1>奪回專注力：<br>在這個世代中，數學能給孩子什麼？</h1>
-            <p style="margin-top: 20px; font-weight: bold; color: var(--text-light);">B組教師：陳昱澐</p>
+            <p style="margin-top: 20px; font-weight: bold; color: var(--text-light);">主講人：陳昱澐</p>
         </div>
 
         <div class="slide" id="slide-2">
@@ -214,23 +225,31 @@
                 <button class="guess-btn" onclick="toggleContent('g7-strategy', this, '點擊揭曉 昱澐老師的策略')">點擊揭曉 昱澐老師的策略</button>
                 
                 <div class="hidden-content" id="g7-strategy">
-                    <p><span style="color:var(--secondary); font-weight:bold;">講述 ➔ 難題挑戰 ➔ 自主學習 (AI融入輔助學習、跨領域素養陶成)</span></p>
+                    <p><span style="color:var(--secondary); font-weight:bold;">講述 ➔ 難題挑戰 ➔ 自主學習</span></p>
                     <ul>
                         <li><strong>從「會算」到「會教」：</strong>能把邏輯講給同學聽明白，才是真正的高階素養。</li>
-                        <li><strong>會考目標：</strong> 至少拿 A，建立絕對優勢。</li>
                         <li><strong>家長神助攻：</strong> 容許孩子卡關，多問他們「你是怎麼想到的？」，取代只看分數。</li>
                     </ul>
+
+                    <div class="resource-box">
+                        <span style="font-weight: bold; color: var(--primary);">🤖 AI 融入自主學習平台：</span><br>
+                        針對 A+ 組的孩子，我建置了專屬學習網站。當孩子遇到課外難題時，我鼓勵他們先透過平台尋找解題線索，讓 AI 工具與數位資源成為他們的專屬家教，培養自主找答案的高階能力。
+                        <br>
+                        <a href="https://sites.google.com/view/yuyunchen/math/7b" target="_blank" class="resource-link">
+                            🔗 進入昱澐老師的國七數學天地
+                        </a>
+                    </div>
                 </div>
             </div>
 
             <div class="grade-g8">
-                <h2 style="font-size: 1.8rem;">🎯 國八：解鎖「中二」叛逆的對話公式</h2>
+                <h2 style="font-size: 1.8rem;">🎯 國八 802班：解鎖「中二」叛逆的對話公式</h2>
                 <p>國八的孩子正處於青春期高峰，大腦重塑加上課業變難，是他們最容易對數學「<span class="mystery-box" onclick="this.classList.add('revealed')">直接放棄</span>」的階段。針對我負責的 <strong>B組 (11位孩子)</strong>，重建手感與信心是首要任務。</p>
 
                 <p>面對這個階段的叛逆，不需要硬碰硬。這邊提供幾個溝通小建議，邀請家長一起試試：</p>
-                <button class="guess-btn" onclick="toggleContent('g8-strategy', this, '點擊揭曉：給家長的建議與分組策略')">點擊揭曉：給家長的建議與分組策略</button>
+                <button class="guess-btn" onclick="toggleContent('g8-strategy', this, '點擊揭曉：給家長的建議與教學資源')">點擊揭曉：給家長的建議與教學資源</button>
                 
-                <div class="hidden-content" id="g8-strategy" style="padding: 10px 15px;">
+                <div class="hidden-content" id="g8-strategy" style="padding: 10px 15px; overflow-y: auto;">
                     <table class="math-table">
                         <tr>
                             <th>情境</th>
@@ -239,27 +258,31 @@
                         </tr>
                         <tr>
                             <td>考差充滿挫折</td>
-                            <td><span class="ng-text">你怎麼又粗心？到底有沒有讀？</span></td>
-                            <td><span class="ok-text">「我們一起看看是哪邊卡住了。」</span><br><span style="font-size:1.1rem; color:#475569;">把考卷當作診斷工具，針對錯題討論，不否定整個人。</span></td>
+                            <td><span class="ng-text">你怎麼又粗心？</span></td>
+                            <td><span class="ok-text">「我們一起看看是哪邊卡住了。」</span></td>
                         </tr>
                         <tr>
-                            <td>拒絕溝通嫌煩</td>
-                            <td><span class="ng-text">你這是什麼態度？我是為你好！</span></td>
-                            <td><span class="ok-text">「看來你今天很累，休息15分鐘再說。」</span><br><span style="font-size:1.1rem; color:#475569;">先同理狀態，給予緩衝空間，避免硬碰硬的衝突。</span></td>
-                        </tr>
-                        <tr>
-                            <td>抱怨學這些沒用</td>
-                            <td><span class="ng-text">考試就是要考！哪來這麼多藉口！</span></td>
-                            <td><span class="ok-text">「這是在做大腦的重量訓練。」</span><br><span style="font-size:1.1rem; color:#475569;">告訴孩子，學的不是背題型，是培養面對困難不逃避的韌性。</span></td>
+                            <td>抱怨學這沒用</td>
+                            <td><span class="ng-text">哪來這麼多藉口！</span></td>
+                            <td><span class="ok-text">「這是在做大腦的面對困難重訓。」</span></td>
                         </tr>
                     </table>
                     
+                    <div class="resource-box">
+                        <span style="font-weight: bold; color: var(--primary);">🤖 AI 融入適性陪伴平台：</span><br>
+                        為了穩固 B 組的基礎，我建置了課後支援網站。對於害怕犯錯的孩子來說，AI 系統是最不具威脅感、最有耐心的老師。他們可以無壓力地觀看引導、反覆練習，讓科技溫柔地輔助他們找回學習節奏。
+                        <br>
+                        <a href="https://sites.google.com/view/yuyunchen/math/8b" target="_blank" class="resource-link">
+                            🔗 進入昱澐老師的國八數學天地
+                        </a>
+                    </div>
+
                     <div class="strategy-card">
-                        <h3>👨‍🏫 國八分組教學策略：針對不同特質，給予最適合的引導</h3>
+                        <h3>👨‍🏫 國八分組教學策略：給予最適合的引導</h3>
                         <ul>
                             <li><strong>A+組 (蘇試 老師)：</strong> 講述 ➔ 難題挑戰 ➔ 自主學習</li>
-                            <li><strong>A組 (吳宇綸 老師)：</strong> 講述 ➔ 重點演練 ➔ 穩定學習</li>
-                            <li><strong>B組 (昱澐 老師)：</strong> 講述 ➔ 大量練習 ➔ 不輕易放棄  (AI融入引起興趣、增加動機)</li>
+                            <li><strong>A組 (吳宇綸 老師)：</strong> 講述 ➔ 重點演練 ➔ 反思討論</li>
+                            <li><strong>B組 (昱澐 老師)：</strong> 講述 ➔ 大量練習 ➔ 不輕易放棄</li>
                         </ul>
                     </div>
                 </div>
