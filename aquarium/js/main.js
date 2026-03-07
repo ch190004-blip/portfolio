@@ -146,22 +146,28 @@ function updateHUD(){
 setInterval(updateHUD,500); updateHUD();
 
 /* =========================
-   丟飼料互動
+   丟飼料互動 (滿版視窗精準對位)
 ========================= */
 window.addEventListener("pointerdown", (e) => {
-    if(e.target.closest("#hud") || e.target.closest(".jellyfish-svg") || e.target.closest(".big-bubble") || e.target.closest(".starfish-container")) return;
-    let cx = e.clientX; let cy = e.clientY;
+    if(e.target.closest("#hud") || e.target.closest(".jellyfish-svg") || e.target.closest(".big-bubble") || e.target.closest(".mascot-container") || e.target.closest("#god-light-btn")) return;
+    
+    // 滿版模式下，直接使用視窗座標即可
+    let cx = e.clientX; 
+    let cy = e.clientY;
     if(cx === undefined || cy === undefined) return;
+
     for(let i=0;i<5;i++){
         const foodEl = document.createElement("div"); foodEl.className = "food-dot";
-        const startX = cx + (Math.random()*40-20); const startY = cy + (Math.random()*40-20);
-        foodEl.style.left = startX + "px"; foodEl.style.top = startY + "px";
+        const startX = cx + (Math.random()*40-20); 
+        const startY = cy + (Math.random()*40-20);
+        foodEl.style.left = startX + "px"; 
+        foodEl.style.top = startY + "px";
         tank.appendChild(foodEl); foods.push({ el: foodEl, x: startX, y: startY });
     }
 });
 
 /* =========================
-   3D 魚群系統 
+   3D 魚群系統
 ========================= */
 const fishes=[]; const foods=[];
 const fish3DPalette = [
@@ -208,7 +214,7 @@ function createFish(index){
     fish.style.filter = "saturate(0.3) brightness(0.7)";
     tank.appendChild(fish);
     fishes.push({
-        el:fish, x: (Math.random()* (window.innerWidth || 1920)), y: (Math.random()* (window.innerHeight || 1080)),
+        el:fish, x: (Math.random()* window.innerWidth), y: (Math.random()* window.innerHeight),
         vx:(Math.random()-0.5)*1.5, vy:(Math.random()-0.5)*1.5, baseScale: baseScale, currentScale: baseScale, 
         foodEaten: 0, isFull: false 
     });
@@ -216,16 +222,13 @@ function createFish(index){
 for(let i=0;i<7;i++) createFish(i);
 
 function updateFish(){
-    const W = window.innerWidth || 1920; const H = window.innerHeight || 1080;
-    
+    const W = window.innerWidth; const H = window.innerHeight;
     for(let i=foods.length-1; i>=0; i--){
         let food = foods[i]; food.y += 0.8; food.el.style.top = food.y + "px";
         if(food.y > H){ food.el.remove(); foods.splice(i, 1); }
     }
-    
     for(let f of fishes){
         if (isNaN(f.x) || isNaN(f.y) || isNaN(f.vx) || isNaN(f.vy)) { f.x = W / 2; f.y = H / 2; f.vx = 0; f.vy = 0; }
-        
         f.foodEaten = Math.max(0, f.foodEaten - 0.005); 
         if (f.foodEaten <= 2) f.isFull = false;
 
@@ -238,7 +241,6 @@ function updateFish(){
             if(closest){
                 let dx=closest.x-f.x; let dy=closest.y-f.y; let d=Math.max(1,Math.hypot(dx,dy));
                 f.vx+=dx/d*0.3; f.vy+=dy/d*0.3;
-                
                 if(d<15){ 
                     f.foodEaten += 1; 
                     if (f.foodEaten >= 5) { f.foodEaten = 5; f.isFull = true; }
@@ -251,15 +253,12 @@ function updateFish(){
             f.vx += (Math.random() - 0.5) * 0.1; f.vy += (Math.random() - 0.5) * 0.1;
             let speed = Math.hypot(f.vx, f.vy); if(speed > 1) { f.vx /= speed; f.vy /= speed; }
         }
-        
         f.x+=f.vx; f.y+=f.vy; f.x=Math.max(0,Math.min(W-160,f.x)); f.y=Math.max(0,Math.min(H-87,f.y));
-        
         const targetScale = f.baseScale + (f.foodEaten / 5) * 0.45; 
         f.currentScale += (targetScale - f.currentScale) * 0.05; 
         const sat = 0.3 + (f.foodEaten / 5) * 0.7; 
         const bri = 0.7 + (f.foodEaten / 5) * 0.3; 
         f.el.style.filter = `saturate(${sat}) brightness(${bri})`;
-        
         if(f.vx<0) f.el.style.transform=`translate(${f.x}px,${f.y}px) scaleX(-${f.currentScale}) scaleY(${f.currentScale})`;
         else f.el.style.transform=`translate(${f.x}px,${f.y}px) scaleX(${f.currentScale}) scaleY(${f.currentScale})`;
     }
@@ -268,7 +267,7 @@ function updateFish(){
 updateFish();
 
 /* =========================
-   完美整合：氣泡、水母、海星
+   環境：氣泡與水母
 ========================= */
 const bubbles = []; const bigBubbles = []; const jellyfishes = [];
 
@@ -333,39 +332,8 @@ function createJellyfish() {
 }
 for(let i=0; i<6; i++) createJellyfish();
 
-let starCount = 0;
-function createStarfish() {
-    const s = document.createElement("div"); s.className = "starfish-container floaty";
-    s.style.left = Math.random() * 95 + "vw"; s.style.bottom = (Math.random() * 8 + 2) + "vh"; 
-    const scale = 0.6 + Math.random() * 0.4; const rot = Math.random() * 360;
-    const uid = starCount++;
-    s.style.transform = `scale(${scale}) rotate(${rot}deg)`;
-    s.innerHTML = `
-    <svg class="starfish-inner soft" viewBox="0 0 200 200">
-        <defs>
-          <radialGradient id="starG${uid}" cx="35%" cy="28%" r="70%"><stop offset="0" stop-color="var(--star1)"/><stop offset="1" stop-color="var(--star2)"/></radialGradient>
-        </defs>
-        <g class="star-breathe">
-            <path d="M 100 30 L 120 80 L 170 85 L 130 120 L 145 170 L 100 140 L 55 170 L 70 120 L 30 85 L 80 80 Z" fill="url(#starG${uid})" stroke="#c99586" stroke-width="12" stroke-linejoin="round"/>
-            <circle cx="85" cy="110" r="4.5" fill="var(--ink)" />
-            <circle cx="115" cy="110" r="4.5" fill="var(--ink)" />
-            <circle cx="86.5" cy="108.5" r="1.5" fill="#fff" />
-            <circle cx="116.5" cy="108.5" r="1.5" fill="#fff" />
-            <path d="M 95 120 Q 100 125 105 120" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
-            <circle cx="72" cy="115" r="7" fill="#ff9999" opacity="0.6"/>
-            <circle cx="128" cy="115" r="7" fill="#ff9999" opacity="0.6"/>
-        </g>
-    </svg>`;
-    tank.appendChild(s);
-    s.addEventListener("pointerdown", (e) => {
-        e.stopPropagation(); const inner = s.querySelector('.starfish-inner'); inner.classList.add("starfish-click"); 
-        setTimeout(() => { inner.classList.remove("starfish-click"); }, 150);
-    });
-}
-for(let i=0; i<6; i++) createStarfish(); 
-
 function updateEcosystem(){
-    const W = window.innerWidth || 1920; const H = window.innerHeight || 1080;
+    const W = window.innerWidth; const H = window.innerHeight;
 
     for(let b of bubbles){
         b.y -= b.speed;
@@ -462,7 +430,7 @@ function updateEventPanel() {
 updateEventPanel(); setInterval(updateEventPanel, 60000);
 
 /* =========================
-   大鯨魚 15 分鐘史詩巡遊系統
+   大鯨魚 15 分鐘史詩巡遊系統 (已修復卡住問題)
 ========================= */
 const giantWhale = document.getElementById("giant-whale");
 function summonWhale() {
@@ -471,7 +439,179 @@ function summonWhale() {
     setTimeout(() => { giantWhale.classList.remove("swim-across"); }, 60000); 
 }
 setInterval(summonWhale, 900000);
-
-// 點擊左上角的時鐘，立刻召喚大鯨魚！
 const myClock = document.getElementById("clock");
 if(myClock) myClock.addEventListener("click", summonWhale);
+
+
+/* =========================
+   守護地景精靈互動與課表廣播系統 (統一膨脹特效 + 火山總開關)
+========================= */
+const SCHOOL_DATA = {
+    periods: [
+        { period: 1, start: "08:10", end: "09:00" }, { period: 2, start: "09:10", end: "10:00" },
+        { period: 3, start: "10:10", end: "11:00" }, { period: 4, start: "11:05", end: "11:55" },
+        { period: 5, start: "12:55", end: "13:45" }, { period: 6, start: "13:55", end: "14:45" },
+        { period: 7, start: "14:50", end: "15:40" }, { period: 8, start: "15:50", end: "16:40" },
+        { period: 9, start: "16:45", end: "17:30" }
+    ],
+    classSchedule: {
+        "高一": {"星期一":{"4":[{"teacher":"張秀玫","subject":"國語文"}],"8":[{"teacher":"張秀玫","subject":"國語文(輔)"}],"2":[{"teacher":"倪世斌","subject":"資訊科技"}],"3":[{"teacher":"曾美芝","subject":"自主學習"}],"1":[{"teacher":"陳瑋筠","subject":"公民與社會"}],"6":[{"teacher":"江霂歖","subject":"體育"}],"7":[{"teacher":"何文達","subject":"地理"}],"5":[{"teacher":"王妤文/Roja/Chad","subject":"英語聽講"}],"9":[{"teacher":"蔡玉良","subject":"自然探究"}]},"星期二":{"7":[{"teacher":"張秀玫","subject":"國語文"}],"5":[{"teacher":"選修群","subject":"多元選修"}],"6":[{"teacher":"選修群","subject":"多元選修"}],"2":[{"teacher":"羅雅苓/鄒湘平","subject":"英語文"}],"3":[{"teacher":"羅雅苓/鄒湘平","subject":"英語文"}],"1":[{"teacher":"何文達","subject":"地理"}],"8":[{"teacher":"何文達","subject":"地理(輔)"}],"9":[{"teacher":"外師群","subject":"英文素養"}],"4":[{"teacher":"劉綺芍","subject":"倫理思辨"}]},"星期三":{"3":[{"teacher":"曾美芝/李牧","subject":"數學"}],"4":[{"teacher":"曾美芝/李牧","subject":"數學"}],"9":[{"teacher":"曾美芝","subject":"數學探究"}],"2":[{"teacher":"陳瑋筠","subject":"歷史"}],"5":[{"teacher":"陳瑋筠","subject":"公民與社會"}],"6":[{"teacher":"江霂歖","subject":"體育"}],"1":[{"teacher":"羅雅苓/鄒湘平","subject":"英語文"}],"7":[{"teacher":"外師群","subject":"專題研究-ESL"}],"8":[{"teacher":"外師群","subject":"ESL(輔)"}]},"星期四":{"7":[{"teacher":"張秀玫","subject":"國語文"}],"9":[{"teacher":"張秀玫","subject":"語文素養-新詩"}],"5":[{"teacher":"曾美芝/李牧","subject":"數學"}],"6":[{"teacher":"曾美芝/李牧","subject":"數學"}],"8":[{"teacher":"王世宗","subject":"生物(輔)"}],"1":[{"teacher":"楊志元","subject":"化學"}],"2":[{"teacher":"楊志元","subject":"化學"}],"3":[{"teacher":"蔡玉良","subject":"地球科學"}],"4":[{"teacher":"蔡玉良","subject":"地球科學"}]},"星期五":{"4":[{"teacher":"張秀玫","subject":"國語文"}],"5":[{"teacher":"曾美芝","subject":"班會"}],"6":[{"teacher":"曾美芝","subject":"團體活動"}],"7":[{"teacher":"曾美芝","subject":"團體活動"}],"8":[{"teacher":"曾美芝","subject":"數學(輔)"}],"2":[{"teacher":"陳瑋筠","subject":"歷史"}],"1":[{"teacher":"羅雅苓/鄒湘平","subject":"英語文"}],"9":[{"teacher":"羅雅苓/鄒湘平","subject":"英文素養-ESL"}],"3":[{"teacher":"曾淑汝","subject":"本土語言"}]}},
+        "高二理組": {"星期一":{"5":[{"teacher":"倪世斌","subject":"生活科技"}],"4":[{"teacher":"王世宗","subject":"自然科學探究"}],"9":[{"teacher":"蔡佳玲","subject":"自然探究"}],"2":[{"teacher":"江霂歖","subject":"體育"}],"3":[{"teacher":"Chad/Gina","subject":"英文專題簡報實作"}],"7":[{"teacher":"Chad/Gina","subject":"美術-ESL"}]},"星期二":{"7":[{"teacher":"倪世斌","subject":"生活科技"}],"4":[{"teacher":"莊旭惠/王志遠","subject":"增廣補強"}],"8":[{"teacher":"莊/鄒","subject":"英語文(輔)"}],"9":[{"teacher":"莊/鄒","subject":"英文素養"}],"1":[{"teacher":"江霂歖","subject":"體育"}],"2":[{"teacher":"劉綺芍","subject":"生涯規劃"}],"3":[{"teacher":"蔡玉良","subject":"物理"}],"5":[{"teacher":"王志遠","subject":"數位化數學"}],"6":[{"teacher":"王志遠","subject":"數位化數學"}]},"星期三":{"2":[{"teacher":"莊/鄒","subject":"英語文"}],"3":[{"teacher":"莊/鄒","subject":"英語文"}],"8":[{"teacher":"王世宗","subject":"生物(輔)"}],"9":[{"teacher":"王/Gina","subject":"ESL(素養)"}],"4":[{"teacher":"Chad/Gina","subject":"英文專題簡報實作"}],"7":[{"teacher":"蔡玉良","subject":"物理"}],"5":[{"teacher":"蘇試","subject":"數學A"}],"6":[{"teacher":"蘇試","subject":"數學A"}]},"星期四":{"8":[{"teacher":"蔡佳玲","subject":"物理(輔)"}],"2":[{"teacher":"劉玉華","subject":"國語文"}],"9":[{"teacher":"劉玉華/名敦","subject":"國文寫作"}],"6":[{"teacher":"楊志元","subject":"選修化學"}],"7":[{"teacher":"楊志元","subject":"選修化學"}],"5":[{"teacher":"楊政忠","subject":"全民國防教育"}],"1":[{"teacher":"翟洛嫻","subject":"音樂"}],"3":[{"teacher":"蘇試","subject":"數學A"}],"4":[{"teacher":"蘇試","subject":"數學A"}]},"星期五":{"3":[{"teacher":"莊/鄒","subject":"英語文"}],"4":[{"teacher":"莊/鄒","subject":"英語文"}],"2":[{"teacher":"王世宗","subject":"自然科學探究"}],"1":[{"teacher":"劉玉華","subject":"國語文"}],"5":[{"teacher":"劉玉華","subject":"班會"}],"6":[{"teacher":"劉玉華","subject":"團體活動"}],"7":[{"teacher":"劉玉華","subject":"團體活動"}],"8":[{"teacher":"蘇試","subject":"數學(輔)"}],"9":[{"teacher":"蘇試","subject":"數學探究"}]}},
+        "高二文組": {"星期一":{"1":[{"teacher":"劉玉華","subject":"國語文"}],"2":[{"teacher":"江霂歖","subject":"體育"}],"3":[{"teacher":"Chad/Gina","subject":"英文專題簡報實作"}],"4":[{"teacher":"王世宗","subject":"自然科學探究"}],"5":[{"teacher":"倪世斌","subject":"生活科技"}],"6":[{"teacher":"劉玉華","subject":"學習"}],"7":[{"teacher":"Chad/Gina","subject":"美術-ESL"}],"9":[{"teacher":"陳瑋筠","subject":"社會探究(歷史)"}]},"星期二":{"1":[{"teacher":"江霂歖","subject":"體育"}],"2":[{"teacher":"劉綺芍","subject":"生涯規劃"}],"3":[{"teacher":"陳瑋筠","subject":"探究與實作：歷史"}],"4":[{"teacher":"莊/劉/王","subject":"增廣補強"}],"5":[{"teacher":"劉玉華","subject":"文案設計"}],"6":[{"teacher":"劉玉華","subject":"文案設計"}],"7":[{"teacher":"倪世斌","subject":"生活科技"}],"8":[{"teacher":"莊/鄒","subject":"英語文(輔)"}],"9":[{"teacher":"莊/鄒","subject":"英文素養"}]},"星期三":{"1":[{"teacher":"劉玉華","subject":"國語文"}],"2":[{"teacher":"莊/鄒","subject":"英語文"}],"3":[{"teacher":"莊/鄒","subject":"英語文"}],"4":[{"teacher":"Chad/Gina","subject":"英文專題簡報實作"}],"5":[{"teacher":"王志遠","subject":"數學B"}],"6":[{"teacher":"王志遠","subject":"數學B"}],"7":[{"teacher":"何文達","subject":"地理與人文研究"}],"8":[{"teacher":"何文達","subject":"地理(輔)"}],"9":[{"teacher":"王/Gina","subject":"ESL(素養)"}]},"星期四":{"1":[{"teacher":"翟洛嫻","subject":"音樂"}],"2":[{"teacher":"劉玉華","subject":"國語文"}],"3":[{"teacher":"王志遠","subject":"數學B"}],"4":[{"teacher":"王志遠","subject":"數學B"}],"5":[{"teacher":"楊政忠","subject":"全民國防教育"}],"6":[{"teacher":"何文達","subject":"地理與人文研究"}],"7":[{"teacher":"陳瑋筠","subject":"探究與實作：歷史"}],"8":[{"teacher":"陳瑋筠","subject":"歷史(輔)"}],"9":[{"teacher":"劉玉華/名敦","subject":"國文寫作"}]},"星期五":{"1":[{"teacher":"劉玉華","subject":"國語文"}],"2":[{"teacher":"王世宗","subject":"自然科學探究"}],"3":[{"teacher":"莊/鄒","subject":"英語文"}],"4":[{"teacher":"莊/鄒","subject":"英語文"}],"5":[{"teacher":"劉玉華","subject":"班會"}],"6":[{"teacher":"劉玉華","subject":"團體活動"}],"7":[{"teacher":"劉玉華","subject":"團體活動"}],"8":[{"teacher":"王志遠","subject":"數學(輔)"}],"9":[{"teacher":"王志遠","subject":"數學探究"}]}},
+        "高三理組": {"星期一":{"1":[{"teacher":"張秀玫","subject":"語文表達"}],"2":[{"teacher":"王世宗","subject":"選修生物"}],"5":[{"teacher":"蔡玉良","subject":"現象一"}],"6":[{"teacher":"蔡玉良","subject":"現象一"}],"7":[{"teacher":"之宇","subject":"英文增補"}],"8":[{"teacher":"之宇","subject":"英文(輔)"}],"9":[{"teacher":"之宇","subject":"英文素養"}],"3":[{"teacher":"吳宇綸","subject":"生活藝數"}],"4":[{"teacher":"吳宇綸","subject":"生活藝數"}]},"星期二":{"1":[{"teacher":"張秀玫","subject":"自主學習"}],"3":[{"teacher":"張秀玫","subject":"專題閱讀"}],"2":[{"teacher":"江霂歖","subject":"健康與護理"}],"7":[{"teacher":"江霂歖","subject":"體育"}],"4":[{"teacher":"外師群","subject":"美術"}],"5":[{"teacher":"蔡玉良","subject":"現象二與量子"}],"6":[{"teacher":"蔡玉良","subject":"現象二與量子"}],"8":[{"teacher":"蘇試","subject":"數學(輔)"}],"9":[{"teacher":"蘇試","subject":"數學探究"}]},"星期三":{"7":[{"teacher":"張秀玫","subject":"語文表達"}],"8":[{"teacher":"張秀玫","subject":"自主學習"}],"3":[{"teacher":"孔令堅","subject":"藝術生活"}],"4":[{"teacher":"孔令堅","subject":"藝術生活"}],"2":[{"teacher":"江霂歖","subject":"體育"}],"9":[{"teacher":"陳昱澐","subject":"自然探究"}],"1":[{"teacher":"翟洛嫻","subject":"音樂"}],"5":[{"teacher":"李牧","subject":"數學甲"}],"6":[{"teacher":"李牧","subject":"數學甲"}]},"星期四":{"8":[{"teacher":"張秀玫","subject":"專題閱讀(輔)"}],"1":[{"teacher":"王世宗","subject":"選修生物"}],"2":[{"teacher":"江霂歖","subject":"健康與護理"}],"9":[{"teacher":"外師群","subject":"ESL(素養)"}],"5":[{"teacher":"之宇","subject":"專題閱讀"}],"6":[{"teacher":"之宇","subject":"英文作文"}],"7":[{"teacher":"之宇","subject":"英文作文"}],"3":[{"teacher":"李牧","subject":"數學甲"}],"4":[{"teacher":"李牧","subject":"數學甲"}]},"星期五":{"5":[{"teacher":"張秀玫","subject":"自主學習"}],"6":[{"teacher":"張秀玫","subject":"班會"}],"7":[{"teacher":"張秀玫","subject":"團體活動"}],"8":[{"teacher":"王世宗","subject":"生物(輔)"}],"9":[{"teacher":"王世宗","subject":"自然探究"}],"1":[{"teacher":"楊志元","subject":"選修化學"}],"2":[{"teacher":"楊志元","subject":"選修化學"}]}},
+        "高三文組": {"星期一":{"1":[{"teacher":"張秀玫","subject":"語文表達"}],"2":[{"teacher":"陳瑋筠","subject":"科技歷史"}],"3":[{"teacher":"何文達","subject":"社會環境"}],"4":[{"teacher":"何文達","subject":"民主政治"}],"5":[{"teacher":"陳瑋筠","subject":"科技歷史"}],"6":[{"teacher":"張秀玫","subject":"各類文學"}],"7":[{"teacher":"之宇","subject":"英文增補"}],"8":[{"teacher":"之宇","subject":"英文(輔)"}],"9":[{"teacher":"之宇","subject":"英文素養"}]},"星期二":{"1":[{"teacher":"張秀玫","subject":"自主學習"}],"2":[{"teacher":"江霂歖","subject":"健康與護理"}],"3":[{"teacher":"張秀玫","subject":"專題閱讀"}],"4":[{"teacher":"外師群","subject":"美術"}],"5":[{"teacher":"陳瑋筠","subject":"科技歷史"}],"6":[{"teacher":"何文達","subject":"民主政治"}],"7":[{"teacher":"江霂歖","subject":"體育"}],"8":[{"teacher":"曾美芝","subject":"數學(輔)"}],"9":[{"teacher":"曾美芝","subject":"數學探究"}]},"星期三":{"1":[{"teacher":"翟洛嫻","subject":"音樂"}],"2":[{"teacher":"江霂歖","subject":"體育"}],"3":[{"teacher":"孔令堅","subject":"藝術生活"}],"4":[{"teacher":"孔令堅","subject":"藝術生活"}],"5":[{"teacher":"曾美芝","subject":"數學乙"}],"6":[{"teacher":"曾美芝","subject":"數學乙"}],"7":[{"teacher":"張秀玫","subject":"語文表達"}],"8":[{"teacher":"張秀玫","subject":"自主學習"}],"9":[{"teacher":"陳瑋筠","subject":"社會探究"}]},"星期四":{"1":[{"teacher":"何文達","subject":"民主政治"}],"2":[{"teacher":"江霂歖","subject":"健康與護理"}],"3":[{"teacher":"曾美芝","subject":"數學乙"}],"4":[{"teacher":"曾美芝","subject":"數學乙"}],"5":[{"teacher":"之宇","subject":"專題閱讀"}],"6":[{"teacher":"之宇","subject":"英文作文"}],"7":[{"teacher":"之宇","subject":"英文作文"}],"8":[{"teacher":"張秀玫","subject":"專題閱讀(輔)"}],"9":[{"teacher":"外師群","subject":"ESL(素養)"}]},"星期五":{"1":[{"teacher":"何文達","subject":"社會環境"}],"2":[{"teacher":"何文達","subject":"社會環境"}],"5":[{"teacher":"張秀玫","subject":"自主學習"}],"6":[{"teacher":"張秀玫","subject":"班會"}],"7":[{"teacher":"張秀玫","subject":"團體活動"}],"8":[{"teacher":"何文達","subject":"公民與社會(輔)"}],"9":[{"teacher":"何文達","subject":"社會探究"}]}},
+        "國七A": {"星期一":{"1":[{"teacher":"莊/邱/羅","subject":"英語文"}],"3":[{"teacher":"王世宗","subject":"健康教育"}],"8":[{"teacher":"王世宗","subject":"生物(輔)"}],"2":[{"teacher":"蔡/桂/陳","subject":"數學"}],"4":[{"teacher":"吳雯菁","subject":"童軍"}],"7":[{"teacher":"呂宜霖","subject":"國語文"}],"5":[{"teacher":"陳昱澐","subject":"生活科技"}],"6":[{"teacher":"陳昱澐","subject":"資訊科技"}],"9":[{"teacher":"外師群","subject":"英文素養"}]},"星期二":{"1":[{"teacher":"陳瑋筠","subject":"歷史"}],"3":[{"teacher":"王世宗","subject":"生物"}],"2":[{"teacher":"蔡/桂/陳","subject":"數學"}],"9":[{"teacher":"吳雯菁","subject":"公民與社會(輔)"}],"4":[{"teacher":"簡珮瑜","subject":"輔導活動"}],"7":[{"teacher":"呂宜霖","subject":"國語文"}],"8":[{"teacher":"呂宜霖","subject":"國語文(輔)"}],"5":[{"teacher":"外師群","subject":"閱讀心力量ESL"}],"6":[{"teacher":"外師群","subject":"視覺藝術-ESL"}]},"星期三":{"7":[{"teacher":"莊/邱/羅","subject":"英語文"}],"8":[{"teacher":"莊旭惠","subject":"英語文(輔)"}],"1":[{"teacher":"王世宗","subject":"生物"}],"2":[{"teacher":"蔡/桂/陳","subject":"數學"}],"6":[{"teacher":"呂宜霖","subject":"國語文"}],"9":[{"teacher":"呂宜霖","subject":"國文寫作"}],"5":[{"teacher":"江霂歖","subject":"體育"}],"4":[{"teacher":"何文達","subject":"地理"}],"3":[{"teacher":"外師群","subject":"表演藝術-ESL"}]},"星期四":{"2":[{"teacher":"莊/邱/羅","subject":"英語文"}],"9":[{"teacher":"莊/邱/羅","subject":"英文素養"}],"3":[{"teacher":"蔡/桂/陳","subject":"數學"}],"6":[{"teacher":"孔令堅","subject":"生命教育"}],"1":[{"teacher":"呂宜霖","subject":"國語文"}],"4":[{"teacher":"江霂歖","subject":"體育"}],"7":[{"teacher":"外師群","subject":"家政-ESL"}],"8":[{"teacher":"外師群","subject":"ESL(輔)"}],"5":[{"teacher":"翟洛嫻","subject":"音樂"}]},"星期五":{"3":[{"teacher":"王世宗","subject":"生物"}],"5":[{"teacher":"蔡佳玲","subject":"班會"}],"6":[{"teacher":"蔡佳玲","subject":"週會/社團"}],"7":[{"teacher":"蔡佳玲","subject":"週會/社團"}],"8":[{"teacher":"蔡/桂/陳","subject":"數學(輔)"}],"9":[{"teacher":"蔡佳玲","subject":"數學探究"}],"4":[{"teacher":"吳雯菁","subject":"公民與社會"}],"1":[{"teacher":"呂宜霖","subject":"國語文"}],"2":[{"teacher":"曾淑汝/古靜宜","subject":"本土語言"}]}},
+        "國七B": {"星期一":{"1":[{"teacher":"莊/邱/羅","subject":"英語文"}],"4":[{"teacher":"陳瑋筠","subject":"歷史"}],"5":[{"teacher":"王世宗","subject":"生物"}],"2":[{"teacher":"蔡/桂/陳","subject":"數學"}],"6":[{"teacher":"吳雯菁","subject":"童軍"}],"3":[{"teacher":"呂宜霖","subject":"國語文"}],"7":[{"teacher":"江霂歖","subject":"體育"}],"8":[{"teacher":"羅雅苓","subject":"英語文(輔)"}],"9":[{"teacher":"外師群","subject":"英文素養"}]},"星期二":{"4":[{"teacher":"王世宗","subject":"生物"}],"8":[{"teacher":"王世宗","subject":"生物(輔)"}],"2":[{"teacher":"蔡/桂/陳","subject":"數學"}],"7":[{"teacher":"孔令堅","subject":"生命教育"}],"9":[{"teacher":"桂松山","subject":"數學探究"}],"1":[{"teacher":"呂宜霖","subject":"國語文"}],"3":[{"teacher":"何文達","subject":"地理"}],"5":[{"teacher":"外師群","subject":"閱讀心力量ESL"}],"6":[{"teacher":"外師群","subject":"視覺藝術-ESL"}]},"星期三":{"7":[{"teacher":"莊/邱/羅","subject":"英語文"}],"2":[{"teacher":"蔡/桂/陳","subject":"數學"}],"9":[{"teacher":"吳雯菁","subject":"公民與社會(輔)"}],"4":[{"teacher":"呂宜霖","subject":"國語文"}],"8":[{"teacher":"呂宜霖","subject":"國語文(輔)"}],"1":[{"teacher":"江霂歖","subject":"體育"}],"5":[{"teacher":"陳昱澐","subject":"生活科技"}],"6":[{"teacher":"陳昱澐","subject":"資訊科技"}],"3":[{"teacher":"外師群","subject":"表演藝術-ESL"}]},"星期四":{"2":[{"teacher":"莊/邱/羅","subject":"英語文"}],"9":[{"teacher":"莊/邱/羅","subject":"英文素養"}],"5":[{"teacher":"王世宗","subject":"生物"}],"3":[{"teacher":"蔡/桂/陳","subject":"數學"}],"1":[{"teacher":"簡珮瑜","subject":"輔導活動"}],"4":[{"teacher":"呂宜霖","subject":"國語文"}],"7":[{"teacher":"外師群","subject":"家政-ESL"}],"8":[{"teacher":"外師群","subject":"ESL(輔)"}],"6":[{"teacher":"翟洛嫻","subject":"音樂"}]},"星期五":{"2":[{"teacher":"張/廖/古","subject":"本土語言"}],"1":[{"teacher":"王世宗","subject":"健康教育"}],"8":[{"teacher":"蔡/桂/陳","subject":"數學(輔)"}],"3":[{"teacher":"吳雯菁","subject":"公民與社會"}],"5":[{"teacher":"吳雯菁","subject":"班會"}],"6":[{"teacher":"吳雯菁","subject":"週會/社團"}],"7":[{"teacher":"吳雯菁","subject":"週會/社團"}],"4":[{"teacher":"呂宜霖","subject":"國語文"}],"9":[{"teacher":"呂宜霖","subject":"國文寫作"}]}},
+        "國八A": {"星期一":{"3":[{"teacher":"劉玉華","subject":"國語文"}],"7":[{"teacher":"劉玉華","subject":"國語文"}],"1":[{"teacher":"吳雯菁","subject":"公民與社會"}],"5":[{"teacher":"吳雯菁","subject":"彈性學習-生命教育"}],"2":[{"teacher":"簡珮瑜","subject":"輔導活動"}],"8":[{"teacher":"陳/蘇/吳","subject":"數學(輔)"}],"9":[{"teacher":"陳/蘇/吳","subject":"數學探究"}],"4":[{"teacher":"外師群","subject":"視覺藝術-ESL"}],"6":[{"teacher":"外師群","subject":"表演藝術-ESL"}]},"星期二":{"2":[{"teacher":"倪世斌","subject":"生活科技"}],"5":[{"teacher":"莊/羅/鄒","subject":"英語文"}],"6":[{"teacher":"莊/羅/鄒","subject":"英語文"}],"3":[{"teacher":"蔡佳玲","subject":"理化"}],"1":[{"teacher":"劉玉華","subject":"國語文"}],"8":[{"teacher":"吳雯菁","subject":"公民與社會(輔)"}],"4":[{"teacher":"何文達","subject":"地理"}],"7":[{"teacher":"外師群","subject":"健康教育-ESL"}],"9":[{"teacher":"吳宇綸","subject":"數學探究"}]},"星期三":{"1":[{"teacher":"蔡佳玲","subject":"理化"}],"5":[{"teacher":"劉玉華","subject":"國語文"}],"9":[{"teacher":"劉玉華","subject":"語文閱讀策略"}],"6":[{"teacher":"吳雯菁","subject":"童軍"}],"7":[{"teacher":"江霂歖","subject":"體育"}],"3":[{"teacher":"陳/蘇/吳","subject":"數學"}],"4":[{"teacher":"陳/蘇/吳","subject":"數學"}],"2":[{"teacher":"翟洛嫻","subject":"音樂"}]},"星期四":{"2":[{"teacher":"倪世斌","subject":"資訊科技"}],"8":[{"teacher":"莊旭惠","subject":"英文(輔)"}],"9":[{"teacher":"陳瑋筠","subject":"社會探究"}],"7":[{"teacher":"蔡佳玲","subject":"理化"}],"4":[{"teacher":"劉玉華","subject":"國語文"}],"1":[{"teacher":"江霂歖","subject":"體育"}],"5":[{"teacher":"陳/蘇/吳","subject":"數學"}],"6":[{"teacher":"陳/蘇/吳","subject":"數學"}],"3":[{"teacher":"外師群","subject":"探索樂園ESL"}]},"星期五":{"2":[{"teacher":"莊/羅/鄒","subject":"英語文"}],"4":[{"teacher":"陳瑋筠","subject":"歷史"}],"5":[{"teacher":"王世宗","subject":"班會"}],"6":[{"teacher":"王世宗","subject":"週會/社團"}],"7":[{"teacher":"王世宗","subject":"週會/社團"}],"8":[{"teacher":"外師群","subject":"ESL(輔)"}],"9":[{"teacher":"外師群","subject":"英文素養-ESL"}],"3":[{"teacher":"王淑華","subject":"家政"}],"1":[{"teacher":"曾/林/古","subject":"本土語言"}]}},
+        "國八B": {"星期一":{"7":[{"teacher":"蔡佳玲","subject":"理化"}],"3":[{"teacher":"吳雯菁","subject":"公民與社會"}],"1":[{"teacher":"呂宜霖","subject":"國語文"}],"2":[{"teacher":"呂宜霖","subject":"國語文"}],"5":[{"teacher":"江霂歖","subject":"體育"}],"8":[{"teacher":"陳/蘇/吳","subject":"數學(輔)"}],"9":[{"teacher":"陳/蘇/吳","subject":"數學探究"}],"4":[{"teacher":"外師群","subject":"視覺藝術-ESL"}],"6":[{"teacher":"外師群","subject":"表演藝術-ESL"}]},"星期二":{"5":[{"teacher":"莊/羅/鄒","subject":"英語文"}],"6":[{"teacher":"莊/羅/鄒","subject":"英語文"}],"2":[{"teacher":"陳瑋筠","subject":"歷史"}],"1":[{"teacher":"簡珮瑜","subject":"輔導活動"}],"4":[{"teacher":"呂宜霖","subject":"國語文"}],"9":[{"teacher":"呂宜霖","subject":"語文閱讀策略"}],"3":[{"teacher":"江霂歖","subject":"體育"}],"8":[{"teacher":"羅雅苓","subject":"英文(輔)"}],"7":[{"teacher":"外師群","subject":"健康教育-ESL"}]},"星期三":{"6":[{"teacher":"倪世斌","subject":"生活科技"}],"5":[{"teacher":"蔡佳玲","subject":"理化"}],"9":[{"teacher":"蔡佳玲","subject":"自然科學探究"}],"7":[{"teacher":"吳雯菁","subject":"童軍"}],"8":[{"teacher":"吳雯菁","subject":"公民與社會(輔)"}],"1":[{"teacher":"呂宜霖","subject":"國語文"}],"3":[{"teacher":"陳/蘇/吳","subject":"數學"}],"4":[{"teacher":"陳/蘇/吳","subject":"數學"}],"2":[{"teacher":"何文達","subject":"地理"}]},"星期四":{"4":[{"teacher":"倪世斌","subject":"資訊科技"}],"1":[{"teacher":"蔡佳玲","subject":"理化"}],"7":[{"teacher":"吳雯菁","subject":"彈性學習-生命教育"}],"8":[{"teacher":"呂宜霖","subject":"國語文(輔)"}],"5":[{"teacher":"陳/蘇/吳","subject":"數學"}],"6":[{"teacher":"陳/蘇/吳","subject":"數學"}],"9":[{"teacher":"陳昱澐","subject":"數學探究"}],"3":[{"teacher":"外師群","subject":"探索樂園ESL"}],"2":[{"teacher":"翟洛嫻","subject":"音樂"}]},"星期五":{"1":[{"teacher":"張/廖/古","subject":"本土語言"}],"2":[{"teacher":"莊/羅/鄒","subject":"英語文"}],"3":[{"teacher":"呂宜霖","subject":"國語文"}],"5":[{"teacher":"羅雅苓","subject":"班會"}],"6":[{"teacher":"羅雅苓","subject":"週會/社團"}],"7":[{"teacher":"羅雅苓","subject":"週會/社團"}],"8":[{"teacher":"外師群","subject":"ESL(輔)"}],"9":[{"teacher":"外師群","subject":"英文素養-ESL"}],"4":[{"teacher":"王淑華","subject":"家政"}]}},
+        "國九A": {"星期一":{"7":[{"teacher":"倪世斌","subject":"資訊科技"}],"5":[{"teacher":"曾/桂/吳","subject":"數學"}],"6":[{"teacher":"曾/桂/吳","subject":"數學"}],"2":[{"teacher":"莊/羅/王","subject":"英語文"}],"3":[{"teacher":"蔡佳玲","subject":"理化"}],"4":[{"teacher":"劉玉華","subject":"國語文"}],"9":[{"teacher":"劉玉華","subject":"國文寫作"}],"1":[{"teacher":"江霂歖","subject":"體育"}]},"星期二":{"6":[{"teacher":"曾/桂/吳","subject":"數學"}],"7":[{"teacher":"曾/桂/吳","subject":"數學"}],"1":[{"teacher":"王世宗","subject":"健康教育"}],"2":[{"teacher":"劉玉華","subject":"國語文"}],"5":[{"teacher":"江霂歖","subject":"體育"}],"9":[{"teacher":"何文達","subject":"社會探究"}],"3":[{"teacher":"外師群","subject":"閱讀與寫作"}],"4":[{"teacher":"蔡玉良","subject":"地球科學"}]},"星期三":{"7":[{"teacher":"倪世斌","subject":"生活科技"}],"4":[{"teacher":"莊/羅/王","subject":"英語文"}],"9":[{"teacher":"王世宗","subject":"自然探究"}],"8":[{"teacher":"蔡佳玲","subject":"理化(輔)"}],"2":[{"teacher":"劉玉華","subject":"國語文"}],"1":[{"teacher":"吳雯菁","subject":"童軍"}],"6":[{"teacher":"簡珮瑜","subject":"輔導活動"}],"5":[{"teacher":"外師群","subject":"表演藝術-ESL"}],"3":[{"teacher":"翟洛嫻","subject":"音樂"}]},"星期四":{"8":[{"teacher":"曾/桂/吳","subject":"數學(輔)"}],"9":[{"teacher":"曾/桂/吳","subject":"數學探究"}],"6":[{"teacher":"莊/羅/王","subject":"英語文"}],"5":[{"teacher":"陳瑋筠","subject":"歷史"}],"1":[{"teacher":"劉玉華","subject":"國語文"}],"3":[{"teacher":"吳雯菁","subject":"公民與社會"}],"7":[{"teacher":"簡珮瑜","subject":"彈性學習-生命教育"}],"2":[{"teacher":"何文達","subject":"地理"}],"4":[{"teacher":"外師群","subject":"視覺藝術-ESL"}]},"星期五":{"5":[{"teacher":"莊旭惠","subject":"班會"}],"6":[{"teacher":"莊旭惠","subject":"週會/社團"}],"7":[{"teacher":"莊旭惠","subject":"週會/社團"}],"8":[{"teacher":"莊/羅/王","subject":"英語文(輔)"}],"9":[{"teacher":"莊旭惠","subject":"英文素養"}],"3":[{"teacher":"蔡佳玲","subject":"理化"}],"2":[{"teacher":"劉玉華","subject":"國語文"}],"4":[{"teacher":"外師群","subject":"生活玩家ESL"}],"1":[{"teacher":"王淑華","subject":"家政"}]}},
+        "國九B": {"星期一":{"3":[{"teacher":"張秀玫","subject":"國語文"}],"5":[{"teacher":"曾/桂/吳","subject":"數學"}],"6":[{"teacher":"曾/桂/吳","subject":"數學"}],"2":[{"teacher":"莊/羅/王","subject":"英語文"}],"7":[{"teacher":"王世宗","subject":"健康教育"}],"9":[{"teacher":"王世宗","subject":"自然探究"}],"4":[{"teacher":"蔡佳玲","subject":"理化"}],"8":[{"teacher":"蔡佳玲","subject":"理化(輔)"}],"1":[{"teacher":"何文達","subject":"地理"}]},"星期二":{"2":[{"teacher":"張秀玫","subject":"國語文"}],"8":[{"teacher":"張秀玫","subject":"國語文(輔)"}],"5":[{"teacher":"倪世斌","subject":"生活科技"}],"6":[{"teacher":"曾/桂/吳","subject":"數學"}],"7":[{"teacher":"曾/桂/吳","subject":"數學"}],"1":[{"teacher":"吳雯菁","subject":"公民與社會"}],"4":[{"teacher":"吳雯菁","subject":"童軍"}],"9":[{"teacher":"羅雅苓","subject":"英文素養"}],"3":[{"teacher":"外師群","subject":"閱讀與寫作"}]},"星期三":{"1":[{"teacher":"張秀玫","subject":"國語文"}],"6":[{"teacher":"張秀玫","subject":"國語文"}],"4":[{"teacher":"莊/羅/王","subject":"英語文"}],"7":[{"teacher":"陳瑋筠","subject":"歷史"}],"2":[{"teacher":"簡珮瑜","subject":"輔導活動"}],"3":[{"teacher":"江霂歖","subject":"體育"}],"9":[{"teacher":"何文達","subject":"社會探究"}],"5":[{"teacher":"外師群","subject":"表演藝術-ESL"}],"8":[{"teacher":"蔡玉良","subject":"空堂"}]},"星期四":{"1":[{"teacher":"張秀玫","subject":"國語文"}],"8":[{"teacher":"曾/桂/吳","subject":"數學(輔)"}],"9":[{"teacher":"曾/桂/吳","subject":"數學探究"}],"6":[{"teacher":"莊/羅/王","subject":"英語文"}],"2":[{"teacher":"簡珮瑜","subject":"生命教育"}],"7":[{"teacher":"江霂歖","subject":"體育"}],"4":[{"teacher":"外師群","subject":"視覺藝術-ESL"}],"5":[{"teacher":"蔡玉良","subject":"地球科學"}],"3":[{"teacher":"翟洛嫻","subject":"音樂"}]},"星期五":{"9":[{"teacher":"張秀玫","subject":"國文寫作"}],"3":[{"teacher":"倪世斌","subject":"資訊科技"}],"8":[{"teacher":"莊/羅/王","subject":"英語文(輔)"}],"5":[{"teacher":"陳瑋筠","subject":"班會"}],"6":[{"teacher":"陳瑋筠","subject":"週會/社團"}],"7":[{"teacher":"陳瑋筠","subject":"週會/社團"}],"1":[{"teacher":"蔡佳玲","subject":"理化"}],"4":[{"teacher":"外師群","subject":"生活玩家ESL"}],"2":[{"teacher":"王淑華","subject":"家政"}]}}
+    }
+};
+
+const mascotMapping = {
+    'mascot-h1': ['高一'],
+    'mascot-h2': ['高二理組', '高二文組'],
+    'mascot-h3': ['高三理組', '高三文組'],
+    'mascot-j9a': ['國九A'],
+    'mascot-j9b': ['國九B'],
+    'mascot-j8a': ['國八A'],
+    'mascot-j8b': ['國八B'],
+    'mascot-j7a': ['國七A'],
+    'mascot-j7b': ['國七B']
+};
+
+function getTaipeiDatePartsForMap() {
+    const now = new Date();
+    const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Taipei',
+        hour: '2-digit', minute: '2-digit', hour12: false, weekday: 'long'
+    }).formatToParts(now);
+    const obj = Object.fromEntries(parts.map(p => [p.type, p.value]));
+    const weekMap = { "Monday":"星期一","Tuesday":"星期二","Wednesday":"星期三","Thursday":"星期四","Friday":"星期五" };
+    const day = weekMap[obj.weekday] || obj.weekday;
+    
+    const hm = Number(obj.hour)*60 + Number(obj.minute);
+    let currentPeriod = null;
+    for (const p of SCHOOL_DATA.periods) {
+        const [sh, sm] = p.start.split(':').map(Number);
+        const [eh, em] = p.end.split(':').map(Number);
+        if (hm >= sh * 60 + sm && hm <= eh * 60 + em) {
+            currentPeriod = p.period;
+            break;
+        }
+    }
+    return { day, currentPeriod };
+}
+
+function formatScheduleText(classes) {
+    const info = getTaipeiDatePartsForMap();
+    if (!["星期一","星期二","星期三","星期四","星期五"].includes(info.day) || !info.currentPeriod) {
+        if(classes.length > 1) return `<div class="z-class">${classes[0].substring(0,2)}</div><div class="z-sub">全下課 / 休息</div>`;
+        return `<div class="z-class">${classes[0]}</div><div class="z-sub">下課 / 休息</div>`;
+    }
+
+    let html = '';
+    if (classes.length > 1) {
+        html += `<div class="z-class">${classes[0].substring(0,2)}</div><div class="z-sub">`;
+        classes.forEach(cls => {
+            const entries = (((SCHOOL_DATA.classSchedule[cls] || {})[info.day] || {})[String(info.currentPeriod)] || []);
+            const groupName = cls.includes("理") ? "[理]" : "[文]";
+            if (entries.length === 0) html += `${groupName} 空堂<br>`;
+            else html += `${groupName} ${entries[0].subject} / ${entries[0].teacher}<br>`;
+        });
+        html += `</div>`;
+    } else {
+        const cls = classes[0];
+        const entries = (((SCHOOL_DATA.classSchedule[cls] || {})[info.day] || {})[String(info.currentPeriod)] || []);
+        if (entries.length === 0) {
+            html += `<div class="z-class">${cls}</div><div class="z-sub">自習 / 空堂</div>`;
+        } else {
+            const subject = entries.map(e => e.subject).join(' / ');
+            const teacher = entries.map(e => e.teacher).join(' / ');
+            html += `<div class="z-class">${cls}</div><div class="z-sub">${subject}<br><span style="font-size:0.85em; color:#a2c4d2;">${teacher}</span></div>`;
+        }
+    }
+    return html;
+}
+
+// 點擊單一精靈：切換顯示並觸發專屬動畫
+Object.keys(mascotMapping).forEach(id => {
+    const container = document.getElementById(id);
+    if (!container) return;
+
+    container.addEventListener('pointerdown', (e) => {
+        e.stopPropagation(); 
+        const svg = container.querySelector('.mascot-svg');
+        const bubble = container.querySelector('.speech-bubble');
+
+        // 點擊Ｑ彈
+        if(svg) {
+            svg.classList.add('mascot-click');
+            setTimeout(() => svg.classList.remove('mascot-click'), 150);
+        }
+
+        if (bubble.classList.contains('active')) {
+            // 再次點擊：關閉對話框，移除所有動作狀態
+            bubble.classList.remove('active');
+            if(svg) {
+                svg.classList.remove('chest-open', 'seaweed-active', 'mascot-inflate');
+            }
+        } else {
+            // 首次點擊：開啟對話框，觸發特定動畫
+            bubble.innerHTML = formatScheduleText(mascotMapping[id]);
+            bubble.classList.add('active');
+
+            if(svg) {
+                if (id === 'mascot-h3') {
+                    svg.classList.add('chest-open');
+                } else if (id.includes('j7')) {
+                    svg.classList.add('seaweed-active');
+                } else {
+                    // h1(烏賊), h2(章魚), j8(河豚), j9(海星) 全部使用膨脹效果
+                    svg.classList.add('mascot-inflate');
+                }
+            }
+        }
+    });
+});
+
+// 火山一鍵總開關：點擊強制全開或全關
+let isAllOpen = false;
+const godLightBtn = document.getElementById('god-light-btn');
+
+if (godLightBtn) {
+    godLightBtn.addEventListener('pointerdown', (e) => {
+        e.stopPropagation(); 
+        isAllOpen = !isAllOpen;
+        
+        godLightBtn.style.transform = "translate(-50%, -50%) scale(0.85)";
+        setTimeout(() => godLightBtn.style.transform = "translate(-50%, -50%) scale(1)", 150);
+        
+        Object.keys(mascotMapping).forEach(id => {
+            const container = document.getElementById(id);
+            if (!container) return;
+            const svg = container.querySelector('.mascot-svg');
+            const bubble = container.querySelector('.speech-bubble');
+            
+            if (isAllOpen) {
+                bubble.innerHTML = formatScheduleText(mascotMapping[id]);
+                bubble.classList.add('active');
+                if(svg) {
+                    if (id === 'mascot-h3') {
+                        svg.classList.add('chest-open');
+                    } else if (id.includes('j7')) {
+                        svg.classList.add('seaweed-active');
+                    } else {
+                        svg.classList.add('mascot-inflate');
+                    }
+                }
+            } else {
+                bubble.classList.remove('active');
+                if(svg) {
+                    svg.classList.remove('chest-open', 'seaweed-active', 'mascot-inflate');
+                }
+            }
+        });
+    });
+}
