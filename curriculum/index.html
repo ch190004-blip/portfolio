@@ -1,7 +1,36 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
+  
 <head>
 
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>你的網站</title>
+
+<style>
+/* Mobile App Optimizations */
+html,body{overscroll-behavior:none;}
+
+@media (max-width:768px){
+  body{font-size:16px;-webkit-text-size-adjust:100%;}
+  header{position:sticky;top:0;z-index:10;}
+  main{padding:14px;}
+  .card{padding:14px;border-radius:14px;}
+  .controls{flex-direction:column;align-items:stretch;}
+  .controls select,.controls input,.controls button{width:100%;font-size:16px;}
+  .tabs{overflow-x:auto;flex-wrap:nowrap;}
+  .tab-btn{white-space:nowrap;}
+  .display-time{font-size:2rem;}
+}
+</style>
+
+</head>
+  
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0f172a">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -278,9 +307,8 @@ th {
 </head>
 <body>
 <header>
-  <h1>聖心高中課表查詢系統 Final</h1>
-  <div class="subtitle">保留 v1 / v2 的整體排版，融入舒適年級配色、教室查詢與即時上課顯示；並補強教師本節無課時的下一次上課資訊。</div>
-  <div class="topbar">
+  <h1>聖心高中課表查詢系統</h1>
+   <div class="topbar">
     <div class="badge" id="nowBadge">讀取目前時間中…</div>
     <div class="badge ok" id="teacherBadge"></div>
     <div class="badge ok" id="classBadge"></div>
@@ -850,6 +878,24 @@ if ("serviceWorker" in navigator) {
 </script>
 
   
+
+<script>
+// Swipe tab navigation
+let startX=0;
+document.addEventListener("touchstart",e=>{
+ startX=e.touches[0].clientX;
+});
+document.addEventListener("touchend",e=>{
+ const endX=e.changedTouches[0].clientX;
+ const diff=endX-startX;
+ if(Math.abs(diff)<60) return;
+ const tabs=[...document.querySelectorAll(".tab-btn")];
+ const activeIndex=tabs.findIndex(t=>t.classList.contains("active"));
+ if(diff<0 && activeIndex<tabs.length-1){tabs[activeIndex+1].click();}
+ if(diff>0 && activeIndex>0){tabs[activeIndex-1].click();}
+});
+</script>
+
 </body>
 </html>
 
