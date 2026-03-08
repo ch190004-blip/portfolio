@@ -8,49 +8,55 @@
 
 <style>
 /* ===== Mobile readable schedule layout (no horizontal scroll) ===== */
-@media (max-width:768px){
 
-  table{
-    width:100%;
-    border-collapse:collapse;
+@media (max-width: 768px) {
+  /* ... (保留你原本的 table 相關設定) ... */
+
+  /* 1. Header 與標題縮小 */
+  header {
+    padding: 16px 16px 12px;
+  }
+  h1 {
+    font-size: 1.3rem; /* 標題稍微縮小 */
+  }
+  .topbar {
+    gap: 8px; /* 縮小 badge 之間的間距 */
+  }
+  .badge {
+    padding: 6px 10px;
+    font-size: 0.85rem; /* 縮小字體 */
   }
 
-  thead{
-    display:none;
+  /* 2. Tabs 改為橫向滾動 */
+  .tabs {
+    flex-wrap: nowrap; /* 強制不換行 */
+    overflow-x: auto;  /* 允許橫向滾動 */
+    overflow-y: hidden;
+    padding-bottom: 8px; /* 留一點空間給滾動條 (如果有的話) */
+    -webkit-overflow-scrolling: touch; /* 讓 iOS 滾動更順暢 */
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  
+  /* 隱藏滾動條使其更美觀 (可選) */
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .tab-btn {
+    white-space: nowrap; /* 按鈕文字不換行 */
+    flex-shrink: 0;      /* 防止按鈕被壓縮 */
+    padding: 8px 12px;
+    font-size: 0.9rem;
   }
 
-  table, tbody, tr, td{
-    display:block;
-    width:100%;
+  /* 3. Main 內容區塊邊距調整 */
+  main {
+    padding: 16px 16px 32px;
   }
-
-  tr{
-    margin-bottom:14px;
-    background:rgba(255,255,255,.04);
-    border:1px solid rgba(255,255,255,.08);
-    border-radius:12px;
-    overflow:hidden;
-  }
-
-  td{
-    display:flex;
-    justify-content:space-between;
-    padding:10px 12px;
-    border-bottom:1px solid rgba(255,255,255,.05);
-    font-size:14px;
-  }
-
-  td:last-child{
-    border-bottom:none;
-  }
-
-  td::before{
-    content:attr(data-label);
-    font-weight:600;
-    color:#8fb6ff;
-  }
-
 }
+
+  
 </style>
 
 </head>
