@@ -54,6 +54,44 @@
   main {
     padding: 16px 16px 32px;
   }
+
+/* 4. 優化表格轉卡片後的細部排版 */
+  td {
+    align-items: flex-start; /* 讓左右兩側文字靠上對齊，避免多行時跑版 */
+    gap: 12px;               /* 確保標籤與內容有呼吸空間 */
+    padding: 12px 14px;
+  }
+
+  td::before {
+    flex-shrink: 0;          /* 防止標題太長被擠壓 */
+    width: 35%;              /* 給左側標題一個固定比例 */
+    margin-top: 2px;
+  }
+
+  /* 讓右側的課程內容容器靠右對齊，且把空間撐滿 */
+  td > div, td > span {
+    width: 65%;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;   /* 讓裡面的文字都靠右排列 */
+  }
+
+  /* 在手機版卡片中，把 .cell-box 的框線與背景拿掉，視覺會清爽很多 */
+  .cell-box {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  /* 手機版空堂的字體稍微縮小 */
+  .cell-empty {
+    font-size: 0.85rem;
+    color: #647b9c;
+  }
+
+  
 }
 
   
@@ -682,6 +720,7 @@ function renderTeacher() {
     const entries = slotTeacherEntries(teacher, day, period);
     return buildCell(entries, 'teacher', '—');
   });
+convertTables();  
 }
 
 function renderClass() {
@@ -699,6 +738,8 @@ function renderClass() {
     const entries = slotClassEntries(className, day, period).map(e => ({...e, rawClass: className}));
     return buildCell(entries, 'class', '—');
   });
+
+convertTables();  
 }
 
 function renderRoom() {
@@ -717,6 +758,8 @@ function renderRoom() {
     return buildCell(entries, 'room', '空教室');
   });
   renderRoomEmptyPanel();
+
+convertTables();  
 }
 
 function renderRoomEmptyPanel() {
@@ -744,6 +787,8 @@ function renderDayTable() {
     html += `</tr>`;
   }
   document.getElementById('dayTable').innerHTML = html + '</tbody>';
+
+convertTables();  
 }
 
 function renderDisplay() {
@@ -909,24 +954,36 @@ if ("serviceWorker" in navigator) {
 
   
 
-<script>
-/* Convert tables to mobile cards */
-function convertTables(){
-  document.querySelectorAll("table").forEach(table=>{
-    const headers=[...table.querySelectorAll("thead th")].map(th=>th.innerText.trim())
-    table.querySelectorAll("tbody tr").forEach(row=>{
-      [...row.children].forEach((cell,i)=>{
-        if(headers[i]){
-          cell.setAttribute("data-label",headers[i])
+/* Convert tables to mobile cards (支援動態表格) */
+function convertTables() {
+  document.querySelectorAll("table").forEach(table => {
+    // 確保有抓到 thead 裡面的標題
+    const thead = table.querySelector("thead");
+    if (!thead) return; 
+    
+    const headers = [...thead.querySelectorAll("th")].map(th => th.innerText.trim());
+    
+    table.querySelectorAll("tbody tr").forEach(row => {
+      [...row.children].forEach((cell, i) => {
+        if(headers[i]) {
+          cell.setAttribute("data-label", headers[i]);
         }
-      })
-    })
-  })
+      });
+    });
+  });
 }
 
-window.addEventListener("load",convertTables)
-</script>
+// 首次載入時執行一次
+window.addEventListener("load", convertTables);
 
+// 【重要修改】覆寫原有的 refreshAll，讓每次更新資料後都重新綁定標籤
+const originalRefreshAll = refreshAll;
+refreshAll = function() {
+  originalRefreshAll();
+  convertTables(); // 重整後重新綁定
+}
+
+  
 </body>
 </html>
 
