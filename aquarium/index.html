@@ -13,7 +13,10 @@
   <header id="hud">
     <div class="hud-left">
       <div class="hud-header">
-        <div id="clock" class="clock" style="cursor: pointer;" title="點擊召喚大鯨魚！"></div>
+        <div class="time-group">
+          <div id="clock" class="clock" style="cursor: pointer;" title="點擊召喚大鯨魚！"></div>
+          <div id="weekday-badge" class="weekday-badge">讀取中</div>
+        </div>
         <div class="mode-buttons">
           <button id="btn-chienyun" class="mode-btn">千芸主任</button>
           <button id="btn-yuyun" class="mode-btn active">昱澐組長</button>
@@ -26,7 +29,7 @@
     </div>
     
     <div class="hud-right" id="eventPanel">
-      <div id="dailyMessage" class="daily-msg"></div>
+      <div id="quoteMessage" class="daily-msg"></div>
       <div id="eventList" class="event-list"></div>
     </div>
   </header>
