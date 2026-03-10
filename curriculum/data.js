@@ -740,20 +740,20 @@ const DATA = {
     },
     "蔡玉良": {
       "星期一": {
-        "5": [{"subject": "現象一", "classes": ["高三理組"], "rooms": ["5F 自主學習教室(一)"]}],
-        "6": [{"subject": "現象一", "classes": ["高三理組"], "rooms": ["5F 自主學習教室(一)"]}],
-        "8": [{"subject": "", "classes": ["國九A"], "rooms": []}],
+        "5": [{"subject": "選修物理-電磁現象一", "classes": ["高三理組"], "rooms": ["5F 自主學習教室(一)"]}],
+        "6": [{"subject": "選修物理-電磁現象一", "classes": ["高三理組"], "rooms": ["5F 自主學習教室(一)"]}],
+        "8": [{"subject": "地球科學(輔)", "classes": ["國九A"], "rooms": []}],
         "9": [{"subject": "自然探究", "classes": ["高一"], "rooms": []}]
       },
       "星期二": {
-        "3": [{"subject": "一", "classes": ["高二理組"], "rooms": ["5F 自主學習教室(二)"]}],
+        "3": [{"subject": "選修物理-力學一", "classes": ["高二理組"], "rooms": ["5F 自主學習教室(二)"]}],
         "4": [{"subject": "地球科學", "classes": ["國九A"], "rooms": []}],
         "5": [{"subject": "現象二與量子", "classes": ["高三理組"], "rooms": ["5F 自主學習教室(一)"]}],
         "6": [{"subject": "現象二與量子", "classes": ["高三理組"], "rooms": ["5F 自主學習教室(一)"]}]
       },
       "星期三": {
-        "7": [{"subject": "一", "classes": ["高二理組"], "rooms": ["5F 自主學習教室(二)"]}],
-        "8": [{"subject": "", "classes": ["國九B"], "rooms": []}]
+        "7": [{"subject": "選修物理-力學一", "classes": ["高二理組"], "rooms": ["5F 自主學習教室(二)"]}],
+        "8": [{"subject": "地球科學(輔)", "classes": ["國九B"], "rooms": []}]
       },
       "星期四": {
         "3": [{"subject": "地球科學", "classes": ["高一"], "rooms": []}],
@@ -1055,7 +1055,7 @@ const DATA = {
         "3": [{"teacher": "江霂歖", "subject": "體育", "rooms": []}],
         "9": [{"teacher": "何文達", "subject": "社會探究", "rooms": []}],
         "5": [{"teacher": "王妤文", "subject": "表演藝術-ESL", "rooms": []}, {"teacher": "Roja", "subject": "表演藝術-ESL", "rooms": ["4F 分組教室(二)"]}, {"teacher": "Chad", "subject": "表演藝術-ESL", "rooms": ["3F 多功能 e 化教室 (VR Room)"]}, {"teacher": "Gina", "subject": "表演藝術-ESL", "rooms": ["4F 美術教室"]}],
-        "8": [{"teacher": "蔡玉良", "subject": "", "rooms": []}]
+        "8": [{"teacher": "蔡玉良", "subject": "地球科學(輔)", "rooms": []}]
       },
       "星期四": {
         "1": [{"teacher": "張秀玫", "subject": "國語文", "rooms": []}],
@@ -1375,7 +1375,7 @@ const DATA = {
         "4": [{"teacher": "劉玉華", "subject": "國語文", "rooms": []}],
         "9": [{"teacher": "劉玉華", "subject": "國文寫作", "rooms": []}],
         "1": [{"teacher": "江霂歖", "subject": "體育", "rooms": []}],
-        "8": [{"teacher": "蔡玉良", "subject": "", "rooms": []}]
+        "8": [{"teacher": "蔡玉良", "subject": "地球科學(輔)", "rooms": []}]
       },
       "星期三": {
         "7": [{"teacher": "倪世斌", "subject": "生活科技", "rooms": ["6F 電腦教室"]}],
@@ -1393,7 +1393,7 @@ const DATA = {
         "7": [{"teacher": "曾美芝", "subject": "數學", "rooms": []}, {"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "吳宇綸", "subject": "數學", "rooms": ["4F 分組教室(一)"]}],
         "1": [{"teacher": "王世宗", "subject": "健康教育", "rooms": []}],
         "2": [{"teacher": "劉玉華", "subject": "國語文", "rooms": []}],
-        "8": [{"teacher": "劉玉華", "subject": "", "rooms": []}],
+        "8": [{"teacher": "劉玉華", "subject": "國語文(輔)", "rooms": []}],
         "5": [{"teacher": "江霂歖", "subject": "體育", "rooms": []}],
         "9": [{"teacher": "何文達", "subject": "社會探究", "rooms": []}],
         "3": [{"teacher": "Roja", "subject": "彈性學習-閱讀與寫作", "rooms": ["4F 分組教室(二)"]}, {"teacher": "Chad", "subject": "彈性學習-閱讀與寫作", "rooms": ["3F 多功能 e 化教室 (VR Room)"]}, {"teacher": "Gina", "subject": "彈性學習-閱讀與寫作", "rooms": ["4F 美術教室"]}],
@@ -1459,7 +1459,7 @@ const DATA = {
       "星期三": {
         "1": [{"teacher": "蔡佳玲", "subject": "理化", "rooms": []}],
         "5": [{"teacher": "劉玉華", "subject": "國語文", "rooms": []}],
-        "8": [{"teacher": "劉玉華", "subject": "", "rooms": []}],
+        "8": [{"teacher": "劉玉華", "subject": "國語文(輔)", "rooms": []}],
         "9": [{"teacher": "劉玉華", "subject": "語文閱讀策略", "rooms": []}],
         "6": [{"teacher": "吳雯菁", "subject": "童軍", "rooms": []}],
         "7": [{"teacher": "江霂歖", "subject": "體育", "rooms": []}],
@@ -1691,109 +1691,109 @@ const DATA = {
     },
     "4F 分組教室(二)": {
       "星期二": {
-        "3": [{"teacher": "Roja", "rawClass": "J3AB A+", "subject": ""}],
-        "4": [{"teacher": "Roja", "rawClass": "S3AB A", "subject": ""}],
-        "5": [{"teacher": "Roja", "rawClass": "J1AB A2", "subject": ""}],
-        "6": [{"teacher": "Roja", "rawClass": "J1AB A2", "subject": ""}],
-        "7": [{"teacher": "Roja", "rawClass": "J2AB A", "subject": ""}],
-        "9": [{"teacher": "Roja", "rawClass": "S1 A", "subject": ""}]
+        "3": [{"teacher": "Roja", "rawClass": "J3AB A+", "subject": "ESL"}],
+        "4": [{"teacher": "Roja", "rawClass": "S3AB A", "subject": "ESL"}],
+        "5": [{"teacher": "Roja", "rawClass": "J1AB A2", "subject": "ESL"}],
+        "6": [{"teacher": "Roja", "rawClass": "J1AB A2", "subject": "ESL"}],
+        "7": [{"teacher": "Roja", "rawClass": "J2AB A", "subject": "ESL"}],
+        "9": [{"teacher": "Roja", "rawClass": "S1 A", "subject": "ESL"}]
       },
       "星期三": {
-        "3": [{"teacher": "Roja", "rawClass": "J1AB A2", "subject": ""}],
-        "5": [{"teacher": "Roja", "rawClass": "J3AB A+", "subject": ""}],
-        "7": [{"teacher": "Roja", "rawClass": "S1 A", "subject": ""}],
-        "8": [{"teacher": "Roja", "rawClass": "S1 A", "subject": ""}]
+        "3": [{"teacher": "Roja", "rawClass": "J1AB A2", "subject": "ESL"}],
+        "5": [{"teacher": "Roja", "rawClass": "J3AB A+", "subject": "ESL"}],
+        "7": [{"teacher": "Roja", "rawClass": "S1 A", "subject": "ESL"}],
+        "8": [{"teacher": "Roja", "rawClass": "S1 A", "subject": "ESL"}]
       },
       "星期四": {
-        "3": [{"teacher": "Roja", "rawClass": "J2AB A", "subject": ""}],
-        "4": [{"teacher": "Roja", "rawClass": "J3AB A+", "subject": ""}],
-        "7": [{"teacher": "Roja", "rawClass": "J1AB A2", "subject": ""}],
-        "8": [{"teacher": "Roja", "rawClass": "J1AB A2", "subject": ""}],
-        "9": [{"teacher": "Roja", "rawClass": "S3AB A", "subject": ""}]
+        "3": [{"teacher": "Roja", "rawClass": "J2AB A", "subject": "ESL"}],
+        "4": [{"teacher": "Roja", "rawClass": "J3AB A+", "subject": "ESL"}],
+        "7": [{"teacher": "Roja", "rawClass": "J1AB A2", "subject": "ESL"}],
+        "8": [{"teacher": "Roja", "rawClass": "J1AB A2", "subject": "ESL"}],
+        "9": [{"teacher": "Roja", "rawClass": "S3AB A", "subject": "ESL"}]
       },
       "星期一": {
-        "4": [{"teacher": "Roja", "rawClass": "J2AB A", "subject": ""}],
-        "5": [{"teacher": "Roja", "rawClass": "S1 A", "subject": ""}],
-        "6": [{"teacher": "Roja", "rawClass": "J2AB A", "subject": ""}],
-        "9": [{"teacher": "Roja", "rawClass": "J1AB A2", "subject": ""}]
+        "4": [{"teacher": "Roja", "rawClass": "J2AB A", "subject": "ESL"}],
+        "5": [{"teacher": "Roja", "rawClass": "S1 A", "subject": "ESL"}],
+        "6": [{"teacher": "Roja", "rawClass": "J2AB A", "subject": "ESL"}],
+        "9": [{"teacher": "Roja", "rawClass": "J1AB A2", "subject": "ESL"}]
       },
       "星期五": {
-        "4": [{"teacher": "Roja", "rawClass": "J3AB A+", "subject": ""}],
-        "8": [{"teacher": "Roja", "rawClass": "J2AB A", "subject": ""}],
-        "9": [{"teacher": "Roja", "rawClass": "J2AB A", "subject": ""}]
+        "4": [{"teacher": "Roja", "rawClass": "J3AB A+", "subject": "ESL"}],
+        "8": [{"teacher": "Roja", "rawClass": "J2AB A", "subject": "ESL"}],
+        "9": [{"teacher": "Roja", "rawClass": "J2AB A", "subject": "ESL"}]
       }
     },
     "4F 美術教室": {
       "星期一": {
-        "3": [{"teacher": "Gina", "rawClass": "S2B", "subject": ""}],
-        "4": [{"teacher": "Gina", "rawClass": "J2AB B", "subject": ""}],
-        "6": [{"teacher": "Gina", "rawClass": "J2AB B", "subject": ""}],
-        "7": [{"teacher": "Gina", "rawClass": "S2B", "subject": ""}],
-        "9": [{"teacher": "Gina", "rawClass": "J1AB A+", "subject": ""}]
+        "3": [{"teacher": "Gina", "rawClass": "S2B", "subject": "ESL"}],
+        "4": [{"teacher": "Gina", "rawClass": "J2AB B", "subject": "ESL"}],
+        "6": [{"teacher": "Gina", "rawClass": "J2AB B", "subject": "ESL"}],
+        "7": [{"teacher": "Gina", "rawClass": "S2B", "subject": "ESL"}],
+        "9": [{"teacher": "Gina", "rawClass": "J1AB A+", "subject": "ESL"}]
       },
       "星期二": {
-        "3": [{"teacher": "Gina", "rawClass": "J3AB A", "subject": ""}],
-        "4": [{"teacher": "Gina", "rawClass": "S3AB B", "subject": ""}],
-        "5": [{"teacher": "Gina", "rawClass": "J1AB A+", "subject": ""}],
-        "6": [{"teacher": "Gina", "rawClass": "J1AB A+", "subject": ""}],
-        "7": [{"teacher": "Gina", "rawClass": "J2AB B", "subject": ""}]
+        "3": [{"teacher": "Gina", "rawClass": "J3AB A", "subject": "ESL"}],
+        "4": [{"teacher": "Gina", "rawClass": "S3AB B", "subject": "ESL"}],
+        "5": [{"teacher": "Gina", "rawClass": "J1AB A+", "subject": "ESL"}],
+        "6": [{"teacher": "Gina", "rawClass": "J1AB A+", "subject": "ESL"}],
+        "7": [{"teacher": "Gina", "rawClass": "J2AB B", "subject": "ESL"}]
       },
       "星期三": {
-        "3": [{"teacher": "Gina", "rawClass": "J1AB A+", "subject": ""}],
-        "4": [{"teacher": "Gina", "rawClass": "S2B", "subject": ""}],
-        "5": [{"teacher": "Gina", "rawClass": "J3AB A", "subject": ""}],
-        "9": [{"teacher": "Gina", "rawClass": "S2B", "subject": ""}]
+        "3": [{"teacher": "Gina", "rawClass": "J1AB A+", "subject": "ESL"}],
+        "4": [{"teacher": "Gina", "rawClass": "S2B", "subject": "ESL"}],
+        "5": [{"teacher": "Gina", "rawClass": "J3AB A", "subject": "ESL"}],
+        "9": [{"teacher": "Gina", "rawClass": "S2B", "subject": "ESL"}]
       },
       "星期四": {
-        "3": [{"teacher": "Gina", "rawClass": "J2AB B", "subject": ""}],
-        "4": [{"teacher": "Gina", "rawClass": "J3AB A", "subject": ""}],
-        "7": [{"teacher": "Gina", "rawClass": "J1AB A+", "subject": ""}],
-        "8": [{"teacher": "Gina", "rawClass": "J1AB A+", "subject": ""}],
-        "9": [{"teacher": "Gina", "rawClass": "S3AB B", "subject": ""}]
+        "3": [{"teacher": "Gina", "rawClass": "J2AB B", "subject": "ESL"}],
+        "4": [{"teacher": "Gina", "rawClass": "J3AB A", "subject": "ESL"}],
+        "7": [{"teacher": "Gina", "rawClass": "J1AB A+", "subject": "ESL"}],
+        "8": [{"teacher": "Gina", "rawClass": "J1AB A+", "subject": "ESL"}],
+        "9": [{"teacher": "Gina", "rawClass": "S3AB B", "subject": "ESL"}]
       },
       "星期五": {
-        "4": [{"teacher": "Gina", "rawClass": "J3AB A", "subject": ""}],
-        "8": [{"teacher": "Gina", "rawClass": "J2AB B", "subject": ""}],
-        "9": [{"teacher": "Gina", "rawClass": "J2AB B", "subject": ""}]
+        "4": [{"teacher": "Gina", "rawClass": "J3AB A", "subject": "ESL"}],
+        "8": [{"teacher": "Gina", "rawClass": "J2AB B", "subject": "ESL"}],
+        "9": [{"teacher": "Gina", "rawClass": "J2AB B", "subject": "ESL"}]
       }
     },
     "3F 多功能 e 化教室 (VR Room)": {
       "星期五": {
         "1": [{"teacher": "古靜宜", "rawClass": "國八AB", "subject": "本土語-手語"}],
         "2": [{"teacher": "古靜宜", "rawClass": "國七AB", "subject": "本土語-手語"}],
-        "4": [{"teacher": "Chad", "rawClass": "J3AB B", "subject": ""}],
-        "8": [{"teacher": "Chad", "rawClass": "J2AB A+", "subject": ""}],
-        "9": [{"teacher": "Chad", "rawClass": "J2AB A+", "subject": ""}]
+        "4": [{"teacher": "Chad", "rawClass": "J3AB B", "subject": "ESL"}],
+        "8": [{"teacher": "Chad", "rawClass": "J2AB A+", "subject": "ESL"}],
+        "9": [{"teacher": "Chad", "rawClass": "J2AB A+", "subject": "ESL"}]
       },
       "星期一": {
-        "3": [{"teacher": "Chad", "rawClass": "S2A", "subject": ""}],
-        "4": [{"teacher": "Chad", "rawClass": "J2AB A+", "subject": ""}],
-        "5": [{"teacher": "Chad", "rawClass": "S1 A+", "subject": ""}],
-        "6": [{"teacher": "Chad", "rawClass": "J2AB A+", "subject": ""}],
-        "7": [{"teacher": "Chad", "rawClass": "S2A", "subject": ""}],
-        "9": [{"teacher": "Chad", "rawClass": "J1AB A1", "subject": ""}]
+        "3": [{"teacher": "Chad", "rawClass": "S2A", "subject": "ESL"}],
+        "4": [{"teacher": "Chad", "rawClass": "J2AB A+", "subject": "ESL"}],
+        "5": [{"teacher": "Chad", "rawClass": "S1 A+", "subject": "ESL"}],
+        "6": [{"teacher": "Chad", "rawClass": "J2AB A+", "subject": "ESL"}],
+        "7": [{"teacher": "Chad", "rawClass": "S2A", "subject": "ESL"}],
+        "9": [{"teacher": "Chad", "rawClass": "J1AB A1", "subject": "ESL"}]
       },
       "星期二": {
-        "3": [{"teacher": "Chad", "rawClass": "J3AB B", "subject": ""}],
-        "4": [{"teacher": "Chad", "rawClass": "S3AB A+", "subject": ""}],
-        "5": [{"teacher": "Chad", "rawClass": "J1AB A1", "subject": ""}],
-        "6": [{"teacher": "Chad", "rawClass": "J1AB A1", "subject": ""}],
-        "7": [{"teacher": "Chad", "rawClass": "J2AB A+", "subject": ""}],
-        "9": [{"teacher": "Chad", "rawClass": "S1 A+", "subject": ""}]
+        "3": [{"teacher": "Chad", "rawClass": "J3AB B", "subject": "ESL"}],
+        "4": [{"teacher": "Chad", "rawClass": "S3AB A+", "subject": "ESL"}],
+        "5": [{"teacher": "Chad", "rawClass": "J1AB A1", "subject": "ESL"}],
+        "6": [{"teacher": "Chad", "rawClass": "J1AB A1", "subject": "ESL"}],
+        "7": [{"teacher": "Chad", "rawClass": "J2AB A+", "subject": "ESL"}],
+        "9": [{"teacher": "Chad", "rawClass": "S1 A+", "subject": "ESL"}]
       },
       "星期三": {
-        "3": [{"teacher": "Chad", "rawClass": "J1AB A1", "subject": ""}],
-        "4": [{"teacher": "Chad", "rawClass": "S2A", "subject": ""}],
-        "5": [{"teacher": "Chad", "rawClass": "J3AB B", "subject": ""}],
-        "7": [{"teacher": "Chad", "rawClass": "S1 A+", "subject": ""}],
-        "8": [{"teacher": "Chad", "rawClass": "S1 A+", "subject": ""}]
+        "3": [{"teacher": "Chad", "rawClass": "J1AB A1", "subject": "ESL"}],
+        "4": [{"teacher": "Chad", "rawClass": "S2A", "subject": "ESL"}],
+        "5": [{"teacher": "Chad", "rawClass": "J3AB B", "subject": "ESL"}],
+        "7": [{"teacher": "Chad", "rawClass": "S1 A+", "subject": "ESL"}],
+        "8": [{"teacher": "Chad", "rawClass": "S1 A+", "subject": "ESL"}]
       },
       "星期四": {
-        "3": [{"teacher": "Chad", "rawClass": "J2AB A+", "subject": ""}],
-        "4": [{"teacher": "Chad", "rawClass": "J3AB B", "subject": ""}],
-        "7": [{"teacher": "Chad", "rawClass": "J1AB A1", "subject": ""}],
-        "8": [{"teacher": "Chad", "rawClass": "J1AB A1", "subject": ""}],
-        "9": [{"teacher": "Chad", "rawClass": "S3AB A+", "subject": ""}]
+        "3": [{"teacher": "Chad", "rawClass": "J2AB A+", "subject": "ESL"}],
+        "4": [{"teacher": "Chad", "rawClass": "J3AB B", "subject": "ESL"}],
+        "7": [{"teacher": "Chad", "rawClass": "J1AB A1", "subject": "ESL"}],
+        "8": [{"teacher": "Chad", "rawClass": "J1AB A1", "subject": "ESL"}],
+        "9": [{"teacher": "Chad", "rawClass": "S3AB A+", "subject": "ESL"}]
       }
     },
     "5F 語言教室 (iPad Room)": {
