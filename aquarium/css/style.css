@@ -38,21 +38,45 @@ body{
 #tank{ position:fixed; inset:0; width: 100vw; height: 100vh; z-index:10; pointer-events: none; overflow: hidden; }
 
 /* =========================
-   HUD 面板佈局
+   HUD 面板佈局 (優化左上方時鐘與每日金句)
 ========================= */
 #hud{ position:fixed; top:14px; left:14px; right:14px; display:flex; justify-content:space-between; z-index:20; pointer-events:none; }
 .hud-left{ pointer-events:auto; background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.15); border-radius:14px; padding:12px 16px; min-width:280px; color:#fff; backdrop-filter: blur(6px); box-shadow:0 10px 25px rgba(0,0,0,.35); height: fit-content; }
 .hud-header { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+
+/* 時鐘與星期徽章群組 */
+.time-group { display: flex; align-items: baseline; gap: 12px; margin-bottom: 2px; }
+.clock{ font-size:20px; font-weight:700; letter-spacing:.5px; }
+.weekday-badge { 
+  background: linear-gradient(135deg, #ffb74d, #ff9800); 
+  color: #121c2f; 
+  padding: 2px 8px; 
+  border-radius: 6px; 
+  font-size: 14px; 
+  font-weight: 800; 
+  box-shadow: 0 2px 8px rgba(255,183,77,0.3); 
+}
+
 .mode-buttons { display: flex; gap: 6px; flex-wrap: wrap; }
 .mode-btn { background: rgba(255, 183, 77, 0.15); border: 1px solid rgba(255, 183, 77, 0.6); color: #ffb74d; border-radius: 6px; padding: 5px 10px; font-size: 13px; cursor: pointer; transition: all 0.2s; font-weight: bold; }
 .mode-btn:hover { background: rgba(255, 183, 77, 0.4); color: #fff; }
 .mode-btn.active { background: #ffb74d; border-color: #ffb74d; color: #000; box-shadow: 0 0 8px rgba(255, 183, 77, 0.5); }
-.clock{ font-size:20px; font-weight:700; letter-spacing:.5px; }
 .period{ margin-top:6px; font-size:18px; font-weight:700; color:#ffd56a; }
 .next{ margin-top:6px; font-size:14px; color:#e9e9e9; line-height:1.4; }
 
 .hud-right { pointer-events:auto; background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.15); border-radius:14px; padding:12px 16px; min-width:280px; max-width:320px; color:#fff; backdrop-filter: blur(6px); box-shadow:0 10px 25px rgba(0,0,0,.35); display: flex; flex-direction: column; height: fit-content; }
-.daily-msg { font-size:15px; font-weight:700; color:#a2c4d2; padding-bottom:8px; margin-bottom:8px; border-bottom:1px dashed rgba(255,255,255,0.3); line-height:1.4; }
+
+/* 每日金句樣式 */
+.daily-msg { 
+  font-size:14px; 
+  font-style: italic; 
+  color:#eef4ff; 
+  padding-bottom:10px; 
+  margin-bottom:10px; 
+  border-bottom:1px dashed rgba(255,255,255,0.3); 
+  line-height:1.5; 
+}
+
 .event-list { font-size:14px; line-height:1.6; padding-right:4px; }
 .event-item { margin-bottom:6px; }
 .event-date { color:#ffd56a; margin-right:6px; font-family: monospace; font-size: 13px; }
@@ -109,7 +133,7 @@ body{
 .big-bubble { position: absolute; top: 0; left: 0; border-radius: 50%; border: 2px solid rgba(255,255,255,0.7); background: rgba(255,255,255,0.2); backdrop-filter: blur(2px); z-index: 4; pointer-events: auto; cursor: pointer; transition: transform 0.15s ease-out, opacity 0.15s ease-out; }
 
 /* =========================
-   完美版：無透明巨鯨史詩巡遊動畫 (修復卡住問題)
+   完美版：無透明巨鯨史詩巡遊動畫
 ========================= */
 .whale-container { 
   position: absolute; top: 15%; left: 100vw; 
@@ -166,7 +190,7 @@ body{
   opacity: 0.8; 
   filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5)) drop-shadow(0 0 16px rgba(160, 235, 255, 0.7));
   transition: transform 0.4s cubic-bezier(0.2, 1.5, 0.8, 1);
-  transform-origin: center;
+  transform-origin: center; 
 }
 
 /* 點擊Ｑ彈效果 */
