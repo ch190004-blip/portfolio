@@ -365,15 +365,14 @@ function updateEventPanel() {
 updateEventPanel(); setInterval(updateEventPanel, 60000);
 
 /* =========================================================
-   【終極強化版】Google 試算表調代課陣列抓取
+   Google 試算表調代課陣列抓取 (強化防呆與日期解析版)
 ========================================================= */
 const RAW_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTMAfnrLA8lnVeikakXNnsJ0gh-tJP3PHkX1vd5hlhGU9BjbP7KgTQ-divWsg7NQCdb1BaGq6OOrJpC/pubhtml";
-// 加入 gid=0 確保抓到第一頁(總表)，並轉換為 CSV 輸出
-const SHEET_CSV_URL = RAW_URL.replace(/\/pubhtml.*/, '/pub?output=csv&gid=0');
+const SHEET_CSV_URL = RAW_URL.replace(/\/pubhtml.*/, '/pub?output=csv');
 
 let substituteData = [];
 
-// 專業的 CSV 解析器：能完美處理欄位內容中包含「逗號」或「雙引號」的情況
+// 專業 CSV 解析器：避免儲存格內有逗號造成錯位
 function parseCSV(text) {
     const result = [];
     let row = [];
@@ -383,7 +382,7 @@ function parseCSV(text) {
         let c = text[i];
         if (inQuotes) {
             if (c === '"') {
-                if (text[i + 1] === '"') { col += '"'; i++; } // 處理雙引號跳脫
+                if (text[i + 1] === '"') { col += '"'; i++; } 
                 else { inQuotes = false; }
             } else { col += c; }
         } else {
@@ -399,71 +398,59 @@ function parseCSV(text) {
 
 async function loadSubstituteData() {
     try {
-        // 加入 timestamp (時間戳) 徹底擊碎 Google 試算表的快取機制，保證每次都抓最新
+        // 加入時間戳強制清除暫存，保證抓到最新
         const fetchUrl = SHEET_CSV_URL + "&t=" + new Date().getTime();
         const res = await fetch(fetchUrl);
         const text = await res.text();
         
-        // 防呆：如果抓下來的是網頁 HTML，代表網址有誤
-        if (text.trim().startsWith("<")) {
-            console.error("❌ 抓取失敗：回傳的是網頁而不是 CSV，請確認發布設定！");
-            return;
-        }
-
         const rows = parseCSV(text);
         let parsed = [];
         
-        // i=1 從第二行開始讀取 (跳過標題)
         for (let i = 1; i < rows.length; i++) {
             const cols = rows[i];
-            
-            // 確保欄位長度足夠，且 F欄(節次, index 5) 真的有內容
             if(cols.length >= 8 && cols[5]) {
                 let rawDate = cols[0];
-                if(!rawDate) continue; // 沒寫日期跳過
+                if(!rawDate) continue;
                 
-                // 智慧日期清洗：統一轉為 "M/D" (例如 "3/2")
+                // 終極日期解析：完美應對 YYYY/M/D 或 M/D/YYYY 或 M/D
                 let cleanDate = rawDate;
-                if (cleanDate.includes('202')) {
-                    const parts = cleanDate.split(/[-/]/);
-                    if (parts.length >= 3) cleanDate = `${parseInt(parts[1], 10)}/${parseInt(parts[2], 10)}`;
-                } else {
-                    const parts = cleanDate.split(/[-/]/);
-                    if (parts.length === 2) cleanDate = `${parseInt(parts[0], 10)}/${parseInt(parts[1], 10)}`;
+                const parts = cleanDate.split(/[-/]/);
+                if (parts.length >= 3) {
+                    if (parseInt(parts[0], 10) > 1000) {
+                        cleanDate = `${parseInt(parts[1], 10)}/${parseInt(parts[2], 10)}`;
+                    } else {
+                        cleanDate = `${parseInt(parts[0], 10)}/${parseInt(parts[1], 10)}`;
+                    }
+                } else if (parts.length === 2) {
+                    cleanDate = `${parseInt(parts[0], 10)}/${parseInt(parts[1], 10)}`;
                 }
                 
-                // 確保節次是正確的數字
                 let periodVal = parseInt(cols[5], 10);
-                if(isNaN(periodVal)) continue; 
+                if(isNaN(periodVal)) continue;
                 
                 parsed.push({
                     date: cleanDate,              
-                    origTeacher: cols[2],  
-                    className: cols[3],    
+                    origTeacher: cols[2] || "",  
+                    className: cols[3] || "",    
                     period: periodVal, 
-                    type: cols[6],         
-                    subTeacher: cols[7]    
+                    type: cols[6] || "",         
+                    subTeacher: cols[7] || ""    
                 });
             }
         }
         substituteData = parsed;
         console.log("✅ 調代課資料載入成功！目前共有 " + substituteData.length + " 筆變動。");
-        console.log("🔍 前三筆資料預覽:", substituteData.slice(0, 3));
         
-        // 抓取完畢後，安全觸發畫面更新
-        if (typeof updateHUD === "function") updateHUD(); // 水族箱專案的更新函數
-        if (typeof refreshAll === "function") refreshAll(); // 排課系統的更新函數
-        
+        // 自動刷新畫面 (這行代碼讓水族箱和排課系統都能共用)
+        if (typeof updateHUD === "function") updateHUD(); 
+        if (typeof refreshAll === "function") refreshAll(); 
     } catch(e) {
-        console.error("❌ 調代課資料載入發生錯誤：", e);
+        console.error("❌ 調代課資料載入失敗：", e);
     }
 }
-
-// 網頁載入時抓取一次，之後每 15 分鐘自動更新
 loadSubstituteData();
 setInterval(loadSubstituteData, 900000); 
 
-// === 模糊比對班級函式 ===
 function isClassMatch(sheetClass, systemClass) {
     if (!sheetClass || !systemClass) return false;
     if (sheetClass === systemClass) return true;
