@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>聖心高中數位專案作品集</title>
+<title>數位專案作品集</title>
 
 <style>
 
 body{
-font-family:system-ui,-apple-system,Segoe UI,Roboto;
+font-family:system-ui;
 background:#0f172a;
 color:white;
 margin:0;
@@ -17,13 +19,13 @@ margin:0;
 
 header{
 text-align:center;
-padding:40px 20px;
+padding:50px 20px;
 background:#020617;
 }
 
 h1{
 margin:0;
-font-size:32px;
+font-size:34px;
 }
 
 .subtitle{
@@ -40,33 +42,34 @@ padding:30px;
 .grid{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-gap:20px;
+gap:22px;
 }
 
 .card{
+
 background:#1e293b;
 padding:25px;
 border-radius:14px;
+
 box-shadow:0 10px 30px rgba(0,0,0,0.4);
-transition:0.2s;
+
+transition:0.25s;
+
 }
 
 .card:hover{
-transform:translateY(-4px);
+transform:translateY(-6px);
 }
 
 .card h2{
 margin-top:0;
-}
-
-.desc{
-opacity:0.7;
-margin-bottom:20px;
+font-size:20px;
 }
 
 .buttons{
 display:flex;
 gap:10px;
+margin-top:15px;
 }
 
 button{
@@ -94,33 +97,54 @@ opacity:0.6;
 }
 
 </style>
+
 </head>
+
 
 <body>
 
 <header>
 
-<h1>聖心高中數位專案作品集</h1>
+<h1>數位專案作品集</h1>
 
 <div class="subtitle">
-互動網頁 / 教學工具 / 校園系統
+Interactive Web Projects
 </div>
 
 </header>
+
 
 <div class="container">
 
 <div class="grid">
 
-<!-- Aquarium -->
+<!-- 課表 -->
 
 <div class="card">
 
-<h2>🐠 Aquarium</h2>
+<h2>全校即時課表查詢系統</h2>
 
-<div class="desc">
-互動式桌面水族箱
+<div class="buttons">
+
+<button class="open"
+onclick="openProject('curriculum')">
+開啟作品
+</button>
+
+<button class="download"
+onclick="downloadProject('curriculum')">
+下載
+</button>
+
 </div>
+
+</div>
+
+<!-- aquarium -->
+
+<div class="card">
+
+<h2>教務處水族箱互動網頁</h2>
 
 <div class="buttons">
 
@@ -131,48 +155,18 @@ onclick="openProject('aquarium')">
 
 <button class="download"
 onclick="downloadProject('aquarium')">
-下載ZIP
+下載
 </button>
 
 </div>
 
 </div>
 
-<!-- 課表系統 -->
+<!-- wave research -->
 
 <div class="card">
 
-<h2>📚 課表查詢系統</h2>
-
-<div class="desc">
-全校教師 / 班級 / 教室即時查詢
-</div>
-
-<div class="buttons">
-
-<button class="open"
-onclick="openProject('schoolday')">
-開啟作品
-</button>
-
-<button class="download"
-onclick="downloadProject('schoolday')">
-下載ZIP
-</button>
-
-</div>
-
-</div>
-
-<!-- wave -->
-
-<div class="card">
-
-<h2>🌊 Eco Wave Power</h2>
-
-<div class="desc">
-波浪能量互動展示
-</div>
+<h2>海洋波浪能源研究專案</h2>
 
 <div class="buttons">
 
@@ -183,7 +177,29 @@ onclick="openProject('eco-wave-power')">
 
 <button class="download"
 onclick="downloadProject('eco-wave-power')">
-下載ZIP
+下載
+</button>
+
+</div>
+
+</div>
+
+<!-- wave -->
+
+<div class="card">
+
+<h2>波浪發電互動網頁</h2>
+
+<div class="buttons">
+
+<button class="open"
+onclick="openProject('wave')">
+開啟作品
+</button>
+
+<button class="download"
+onclick="downloadProject('wave')">
+下載
 </button>
 
 </div>
@@ -194,11 +210,7 @@ onclick="downloadProject('eco-wave-power')">
 
 <div class="card">
 
-<h2>🧪 Interactive Desktop</h2>
-
-<div class="desc">
-互動式桌面工具
-</div>
+<h2>神奇的互動餵食網頁</h2>
 
 <div class="buttons">
 
@@ -209,16 +221,62 @@ onclick="openProject('interactive-desktop')">
 
 <button class="download"
 onclick="downloadProject('interactive-desktop')">
-下載ZIP
+下載
 </button>
 
 </div>
 
 </div>
 
+<!-- schoolday -->
+
+<div class="card">
+
+<h2>114-2 家長日簡報</h2>
+
+<div class="buttons">
+
+<button class="open"
+onclick="openProject('schoolday')">
+開啟作品
+</button>
+
+<button class="download"
+onclick="downloadProject('schoolday')">
+下載
+</button>
+
 </div>
 
 </div>
+
+<!-- test -->
+
+<div class="card">
+
+<h2>沉浸式網頁測試</h2>
+
+<div class="buttons">
+
+<button class="open"
+onclick="openProject('test')">
+開啟作品
+</button>
+
+<button class="download"
+onclick="downloadProject('test')">
+下載
+</button>
+
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
 
 <footer>
 
@@ -227,14 +285,12 @@ ch190004-blip
 
 </footer>
 
+
 <script>
 
 function openProject(folder){
 
-window.open(
-"./"+folder+"/",
-"_blank"
-)
+window.open("./"+folder+"/")
 
 }
 
@@ -242,15 +298,16 @@ function downloadProject(folder){
 
 const repo="ch190004-blip/portfolio"
 
-const url=
+window.open(
 
 `https://download-directory.github.io/?url=https://github.com/${repo}/tree/main/${folder}`
 
-window.open(url)
+)
 
 }
 
 </script>
 
 </body>
+
 </html>
