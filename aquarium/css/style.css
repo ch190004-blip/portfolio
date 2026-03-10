@@ -74,7 +74,7 @@ body{
   padding: 10px 14px; /* 縮小內距 */
   min-width: 280px; 
   max-width: 380px; /* 放寬一點讓金句能塞進單行 */
-  max-height: 48vh; /* 絕對不超過螢幕一半高度 */
+  max-height: 32vh; /* 絕對不超過螢幕三分之一高度 */
   overflow-y: auto; /* 超出高度自動產生滾動條 */
   color: #fff; 
   backdrop-filter: blur(6px); 
@@ -265,3 +265,4 @@ body{
 .speech-bubble.active { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
 .speech-bubble .z-class { font-size: 1.15rem; font-weight: 900; color: #7bc8ff; border-bottom: 1px dashed rgba(255,255,255,0.3); padding-bottom: 4px; margin-bottom: 6px; }
 .speech-bubble .z-sub { font-size: 0.95rem; line-height: 1.5; color: #eef4ff; }
+
