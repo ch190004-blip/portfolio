@@ -34,7 +34,31 @@ modes.forEach(mode => {
     }
 });
 
-// 此處依賴外部 data.js 中的 SCHOOL_DATA
+/* =========================
+   行政輪值課表系統 (供左上角教師狀態使用)
+========================= */
+const schedules = {
+    chienyun: {
+        1: { 1: {class:"國七A3組", subject:"英語文"} },
+        3: { 7: {class:"國七A3組", subject:"英語文"} },
+        4: { 2: {class:"國七A3組", subject:"英語文"}, 9: {class:"國七A3組", subject:"英文素養"} }
+    },
+    yuyun: {
+        1: { 2: {class:"國七A+組", subject:"數學"}, 5: {class:"國七A班", subject:"生活科技"}, 6: {class:"國七A班", subject:"資訊科技"}, 8: {class:"國八B組", subject:"數學"}, 9: {class:"國八B組", subject:"數學"} },
+        2: { 2: {class:"國七A+組", subject:"數學"}, 5: {class:"高一班", subject:"多元選修"}, 6: {class:"高一班", subject:"多元選修"} },
+        3: { 2: {class:"國七A+組", subject:"數學"}, 3: {class:"國八B組", subject:"數學"}, 4: {class:"國八B組", subject:"數學"}, 5: {class:"國七B班", subject:"生活科技"}, 6: {class:"國七B班", subject:"資訊科技"}, 9: {class:"高三理組", subject:"自然探究"}, 10: {class:"辦公室", subject:"行政輪值"} },
+        4: { 3: {class:"國七A+組", subject:"數學"}, 5: {class:"國八B組", subject:"數學"}, 6: {class:"國八B組", subject:"數學"}, 9: {class:"國八B班", subject:"數學"} },
+        5: { 8: {class:"國七A+組", subject:"數學"} }
+    },
+    yuwen: {
+        1: { 2: {class:"國九A2組", subject:"英語文"}, 5: {class:"高一A2組", subject:"ESL"}, 9: {class:"國七B組", subject:"ESL"} },
+        2: { 5: {class:"國七B組", subject:"ESL"}, 6: {class:"國七B組", subject:"ESL"}, 9: {class:"高一A2組", subject:"ESL"} },
+        3: { 3: {class:"國七B組", subject:"ESL"}, 4: {class:"國九A2組", subject:"英語文"}, 7: {class:"高一A2組", subject:"ESL"}, 8: {class:"高一A2組", subject:"ESL"}, 9: {class:"高二A+組", subject:"ESL"} },
+        4: { 6: {class:"國九A2組", subject:"英語文"}, 7: {class:"國七B組", subject:"ESL"}, 8: {class:"國七B組", subject:"ESL"} },
+        5: { 8: {class:"國九A2組", subject:"英語文"} }
+    }
+};
+
 function isTuesdayElectiveDay(d) {
     const validDates = ["3/10", "3/17", "3/24", "5/19", "5/26", "6/2"];
     return validDates.includes(`${d.getMonth() + 1}/${d.getDate()}`);
@@ -43,21 +67,19 @@ function isTuesdayElectiveDay(d) {
 function nowMinutes(d=new Date()){ return d.getHours()*60 + d.getMinutes(); }
 
 function getCurrentPeriodStatus(d = new Date()) {
-    const wd = d.getDay(); const m = nowMinutes(d); 
-    // 使用外部的 SCHOOL_DATA
-    const activeSchedule = SCHOOL_DATA.teacherSchedule[window.currentMode === 'chienyun' ? '邱千芸' : window.currentMode === 'yuyun' ? '陳昱澐' : '王妤文'];
-    const days = ["星期日","星期一","星期二","星期三","星期四","星期五","星期六"];
+    const wd = d.getDay(); const m = nowMinutes(d); const activeSchedule = schedules[window.currentMode];
     for(let i=0; i<SCHOOL_DATA.periods.length; i++){
+        const index = i+1; 
         const p = SCHOOL_DATA.periods[i];
         const start = parseInt(p.start.split(':')[0])*60 + parseInt(p.start.split(':')[1]);
         const end = parseInt(p.end.split(':')[0])*60 + parseInt(p.end.split(':')[1]);
         if(m >= start && m <= end){
             let lessonInfo = null;
-            if(activeSchedule && activeSchedule[days[wd]] && activeSchedule[days[wd]][p.period]){
-                lessonInfo = activeSchedule[days[wd]][p.period][0];
-                if(window.currentMode === 'yuyun' && wd === 2 && (p.period === 5 || p.period === 6) && !isTuesdayElectiveDay(d)) lessonInfo = null;
+            if(activeSchedule && activeSchedule[wd] && activeSchedule[wd][index]){
+                lessonInfo = activeSchedule[wd][index];
+                if(window.currentMode === 'yuyun' && wd === 2 && (index === 5 || index === 6) && !isTuesdayElectiveDay(d)) lessonInfo = null;
             }
-            if(lessonInfo) return { type: "class", periodName: `第${p.period}節`, class: lessonInfo.classes.join(' '), subject: lessonInfo.subject };
+            if(lessonInfo) return { type: "class", periodName: `第${p.period}節`, ...lessonInfo };
             else return { type: "empty", periodName: `第${p.period}節` };
         }
     }
@@ -65,16 +87,16 @@ function getCurrentPeriodStatus(d = new Date()) {
 }
 
 function getNextLesson(d=new Date()){
-    const wd=d.getDay(); const activeSchedule = SCHOOL_DATA.teacherSchedule[window.currentMode === 'chienyun' ? '邱千芸' : window.currentMode === 'yuyun' ? '陳昱澐' : '王妤文'];
-    const days = ["星期日","星期一","星期二","星期三","星期四","星期五","星期六"];
-    if(!activeSchedule || !activeSchedule[days[wd]]) return null;
+    const wd=d.getDay(); const activeSchedule = schedules[window.currentMode];
+    if(!activeSchedule || !activeSchedule[wd]) return null;
     const m=nowMinutes(d); let list=[];
-    for(let i=0; i<SCHOOL_DATA.periods.length; i++){
+    for(let i=0;i<SCHOOL_DATA.periods.length;i++){
+        const index=i+1;
         const p = SCHOOL_DATA.periods[i];
         const start = parseInt(p.start.split(':')[0])*60 + parseInt(p.start.split(':')[1]);
-        if(activeSchedule[days[wd]][p.period] && m < start){
-            if(window.currentMode === 'yuyun' && wd === 2 && (p.period === 5 || p.period === 6) && !isTuesdayElectiveDay(d)) continue;
-            list.push({ class: activeSchedule[days[wd]][p.period][0].classes.join(' '), subject: activeSchedule[days[wd]][p.period][0].subject, period: `第${p.period}節`, start: start });
+        if(activeSchedule[wd][index] && m<start){
+            if(window.currentMode === 'yuyun' && wd === 2 && (index === 5 || index === 6) && !isTuesdayElectiveDay(d)) continue;
+            list.push({ ...activeSchedule[wd][index], period:`第${p.period}節`, start:start });
         }
     }
     if(list.length===0) return null;
@@ -85,6 +107,12 @@ function getNextLesson(d=new Date()){
 function updateHUD(){
     try {
         const d=new Date(); clockEl.textContent=d.toLocaleTimeString();
+        
+        // 更新左上角星期幾徽章
+        const daysTw = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+        const weekdayBadge = document.getElementById("weekday-badge");
+        if (weekdayBadge) weekdayBadge.textContent = daysTw[d.getDay()];
+
         if (window.currentMode === 'exam') {
             const dateStr = `${d.getMonth() + 1}/${d.getDate()}`;
             const bellsToday = examBells[dateStr];
@@ -125,7 +153,7 @@ function updateHUD(){
 setInterval(updateHUD,500); updateHUD();
 
 /* =========================
-   丟飼料互動 (滿版視窗精準對位)
+   丟飼料互動
 ========================= */
 window.addEventListener("pointerdown", (e) => {
     if(e.target.closest("#hud") || e.target.closest(".jellyfish-svg") || e.target.closest(".big-bubble") || e.target.closest(".mascot-container") || e.target.closest("#god-light-btn")) return;
@@ -145,17 +173,10 @@ window.addEventListener("pointerdown", (e) => {
 });
 
 /* =========================
-   3D 魚群系統
+   3D 魚群系統 
 ========================= */
 const fishes=[]; const foods=[];
-const fish3DPalette = [
-    { c1: '#ffcf6a', c2: '#ff7a45', c3: '#ff3d7b' }, 
-    { c1: '#7bf7ff', c2: '#1dd6c2', c3: '#0b7cff' }, 
-    { c1: '#b4ff7b', c2: '#47d61d', c3: '#0b9cff' }, 
-    { c1: '#ffb47b', c2: '#d6471d', c3: '#ff0b9c' }, 
-    { c1: '#e0c3fc', c2: '#8ec5fc', c3: '#4facfe' }  
-];
-
+const fish3DPalette = [ { c1: '#ffcf6a', c2: '#ff7a45', c3: '#ff3d7b' }, { c1: '#7bf7ff', c2: '#1dd6c2', c3: '#0b7cff' }, { c1: '#b4ff7b', c2: '#47d61d', c3: '#0b9cff' }, { c1: '#ffb47b', c2: '#d6471d', c3: '#ff0b9c' }, { c1: '#e0c3fc', c2: '#8ec5fc', c3: '#4facfe' } ];
 let fishCount = 0;
 function createFish(index){
     const fish = document.createElement("div"); fish.className = "fish-svg";
@@ -163,7 +184,6 @@ function createFish(index){
     const hueShift = Math.floor(Math.random() * 60 - 30); 
     const baseScale = Math.random() * 0.25 + 0.35; 
     const uid = fishCount++;
-
     fish.innerHTML=`<svg viewBox="0 0 220 120" width="100%" height="100%" style="overflow:visible;"><defs><linearGradient id="bodyGrad${uid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${color.c1}"/><stop offset="0.55" stop-color="${color.c2}"/><stop offset="1" stop-color="${color.c3}"/></linearGradient><linearGradient id="shineGrad${uid}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="rgba(255,255,255,.75)"/><stop offset="0.6" stop-color="rgba(255,255,255,0)"/></linearGradient></defs><g style="transform-origin: center; filter: hue-rotate(${hueShift}deg);"><g class="wiggle"><path class="tail-anim" d="M35,60 C8,40 6,24 10,16 C26,22 48,36 58,52 C50,44 46,76 56,84 C46,86 22,100 10,104 C6,96 10,78 35,60Z" fill="rgba(255,255,255,.20)"/><path d="M55,60 C70,20 140,10 180,35 C205,50 205,70 180,85 C140,110 70,100 55,60Z" fill="url(#bodyGrad${uid})"/><path d="M68,68 C90,95 140,98 168,82 C150,103 95,104 70,80Z" fill="rgba(0,0,0,.14)"/><path class="fin-anim" d="M120,62 C110,45 122,35 140,36 C132,44 132,58 140,70 C128,70 122,68 120,62Z" fill="rgba(255,255,255,.25)"/><path class="gill-anim" d="M140,58 C132,52 132,68 140,62" stroke="rgba(0,0,0,.25)" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M75,48 C95,28 135,24 165,38 C135,36 110,42 90,56 C82,58 74,56 75,48Z" fill="url(#shineGrad${uid})" opacity=".55"/><circle cx="162" cy="56" r="9" fill="rgba(255,255,255,.88)"/><circle cx="165" cy="58" r="4.5" fill="#10202b"/><circle cx="167" cy="56" r="1.6" fill="rgba(255,255,255,.85)"/></g></g></svg>`;
     fish.style.filter = "saturate(0.3) brightness(0.7)";
     tank.appendChild(fish);
@@ -246,14 +266,118 @@ if(myClock) myClock.addEventListener("click", summonWhale);
 
 
 /* =========================================================
-   【升級】Google 試算表調代課陣列抓取 (自動轉譯正確格式)
+   行事曆與【每日金句】系統
+========================================================= */
+
+// 您可以把波浪發電專案的那 100 句貼在這裡替換
+// 目前先為您準備 30 句經典教育與勵志金句作為範例
+const waveQuotes = [
+    "教育不是注滿一桶水，而是點燃一把火。",
+    "每一天都是一個讓自己變得更好的機會。",
+    "用生命影響生命，用真心看見真心。",
+    "相信學生的無限可能，就是給他們最好的禮物。",
+    "即使是最微小的進步，也值得被慶祝。",
+    "不要害怕犯錯，錯誤是學習的最佳養分。",
+    "溫柔而堅定，是教育最美的姿態。",
+    "今天的努力，是為了明天更多的選擇。",
+    "把平凡的日常，過出不平凡的價值。",
+    "教育是一場溫暖的修行，陪伴孩子慢慢長大。",
+    "不求做到完美，但求每天進步一點點。",
+    "耐心傾聽，是打開學生心門的鑰匙。",
+    "保持熱情，讓每一堂課都充滿期待。",
+    "用微笑迎接早晨，用感恩結束一天。",
+    "每一次的挫折，都是通往成功的階梯。",
+    "教育的本質，是教會孩子如何去愛與被愛。",
+    "成為孩子生命中的那道光。",
+    "與其給答案，不如引導他們去思考。",
+    "靜下心來，欣賞沿途的風景。",
+    "不要讓昨天的雨，淋濕今天的太陽。",
+    "每一個孩子都像一朵花，只是花期不同。",
+    "越努力，越幸運。",
+    "用平靜的心，面對不平靜的挑戰。",
+    "教育是喚醒，是啟發，是點亮。",
+    "做自己喜歡的事，讓自己發光發熱。",
+    "跌倒了沒關係，重要的是有站起來的勇氣。",
+    "把時間花在值得的人事物上。",
+    "感謝每一個挑戰，它們讓我們更強大。",
+    "生活不是等待暴風雨過去，而是學會在雨中跳舞。",
+    "用最大的善意去理解世界，用最堅定的心去走每一步。"
+];
+
+const schoolEvents = [
+    { name: "228連假", start: "02/27", end: "03/01", type: "holiday" }, { name: "全校複習考", start: "03/02", end: "03/04" },
+    { name: "國語文競賽", start: "03/05", end: "03/05" }, { name: "學校日", start: "03/07", end: "03/07" },
+    { name: "新生獎學金甄試", start: "03/08", end: "03/08" }, { name: "英語文競賽", start: "03/12", end: "03/12" },
+    { name: "雞籠任我行外出踏查", start: "03/17", end: "03/17" }, { name: "假日營隊(五)", start: "03/21", end: "03/21" },
+    { name: "第一次段考", start: "03/31", end: "04/01", display: "03/31~04/01" }, { name: "清明連假", start: "04/03", end: "04/06", type: "holiday" },
+    { name: "國八教育旅行", start: "04/07", end: "04/10" }, { name: "高三重補修", start: "04/07", end: "04/30" },
+    { name: "貓咪盃全國賽", start: "04/09", end: "04/11" }, { name: "第一次作業普查/抽查", start: "04/13", end: "04/17" },
+    { name: "假日營隊(六)", start: "04/18", end: "04/18" }, { name: "國九模擬考", start: "04/21", end: "04/22", display: "04/21.22" },
+    { name: "國九.高三畢業考", start: "04/29", end: "04/30", display: "04/29.30" }, { name: "勞動節連假", start: "05/01", end: "05/03", type: "holiday" },
+    { name: "第二次段考", start: "05/13", end: "05/14", display: "05/13.14" }, { name: "國中教育會考", start: "05/16", end: "05/17", display: "05/16.17" },
+    { name: "假日營隊(七)", start: "05/16", end: "05/16" }, { name: "校慶", start: "05/23", end: "05/23" },
+    { name: "校慶補假", start: "05/25", end: "05/25", type: "holiday" }, { name: "第二次作業普查/抽查", start: "05/25", end: "05/29" },
+    { name: "一二年級田野日", start: "05/29", end: "05/29" }, { name: "畢業典禮", start: "06/02", end: "06/02" },
+    { name: "自主學習&多元選修發表", start: "06/05", end: "06/05" }, { name: "本土語發表", start: "06/12", end: "06/12" },
+    { name: "假日營隊(八)", start: "06/13", end: "06/13" }, { name: "升高一銜接", start: "06/15", end: "06/25" },
+    { name: "升國七銜接", start: "06/17", end: "06/24" }, { name: "國七新生報到", start: "06/17", end: "06/17" },
+    { name: "端午連假", start: "06/19", end: "06/21", type: "holiday" }, { name: "期末考", start: "06/26", end: "06/30", display: "06/26, 29, 30" },
+    { name: "暑假開始", start: "07/01", end: "07/01", type: "holiday" }, { name: "中文檢定", start: "07/02", end: "07/02" },
+    { name: "補考", start: "07/07", end: "07/07" }, { name: "分科測驗", start: "07/11", end: "07/12", display: "07/11.12" },
+    { name: "重補修", start: "07/20", end: "07/20" }
+];
+
+function updateEventPanel() {
+    const panelMsg = document.getElementById("quoteMessage"); 
+    const panelList = document.getElementById("eventList");
+    if (!panelMsg || !panelList) return;
+    
+    const now = new Date(); 
+    const currentYear = now.getFullYear();
+    const today = new Date(currentYear, now.getMonth(), now.getDate());
+
+    // 計算今天是今年的第幾天，以此來決定每日金句 (每天換一句)
+    const startOfYear = new Date(currentYear, 0, 0);
+    const diffTime = now - startOfYear;
+    const dayOfYear = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    const quote = waveQuotes[dayOfYear % waveQuotes.length];
+    panelMsg.innerHTML = `✨ 每日金句：<br>"${quote}"`;
+
+    let eventHTML = ""; let upcomingHolidayMsg = "";
+
+    schoolEvents.forEach(ev => {
+        const [sm, sd] = ev.start.split('/').map(Number); const [em, ed] = ev.end.split('/').map(Number);
+        const startDate = new Date(currentYear, sm - 1, sd); const endDate = new Date(currentYear, em - 1, ed);
+        if (endDate < today) return;
+        const diffDays = Math.ceil((startDate - today) / (1000 * 60 * 60 * 24));
+
+        if (diffDays <= 30) {
+            let countdownStr = ""; let itemStyle = "";
+            if (diffDays < 0 && endDate >= today) countdownStr = "<span class='event-countdown' style='color:#a2c4d2;'>(進行中)</span>";
+            else if (diffDays === 0) { countdownStr = "<span class='event-countdown' style='color:#ff6b6b;'>(就是今天！)</span>"; itemStyle = "font-weight: bold; color: #fff;"; }
+            else if (diffDays > 0 && diffDays <= 14) {
+                countdownStr = `<span class='event-countdown'>(還有 ${diffDays} 天)</span>`;
+                if (ev.type === "holiday" && !upcomingHolidayMsg) upcomingHolidayMsg = `<div style="color:#ff8a65; font-size:0.95em; margin-top:6px; border-top:1px dashed rgba(255,255,255,0.3); padding-top:6px;">🌴 溫馨提醒：再撐 ${diffDays} 天就放【${ev.name}】啦！</div>`;
+            }
+            const finalDateDisplay = ev.display || (ev.start === ev.end ? ev.start : `${ev.start}~${ev.end}`);
+            eventHTML += `<div class="event-item" style="${itemStyle}"><span class="event-date">${finalDateDisplay}</span><span>${ev.name}</span>${countdownStr}</div>`;
+        }
+    });
+
+    if (eventHTML === "") eventHTML = "<div class='event-item'>近期 30 天內無重大活動</div>";
+    panelList.innerHTML = eventHTML + upcomingHolidayMsg;
+}
+updateEventPanel(); setInterval(updateEventPanel, 60000);
+
+/* =========================================================
+   【升級】Google 試算表調代課陣列抓取
 ========================================================= */
 const RAW_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTMAfnrLA8lnVeikakXNnsJ0gh-tJP3PHkX1vd5hlhGU9BjbP7KgTQ-divWsg7NQCdb1BaGq6OOrJpC/pubhtml";
 const SHEET_CSV_URL = RAW_URL.replace(/\/pubhtml.*/, '/pub?output=csv');
 
 let substituteData = [];
 
-// 抓取與解析 CSV 資料
 async function loadSubstituteData() {
     try {
         const res = await fetch(SHEET_CSV_URL);
@@ -263,10 +387,8 @@ async function loadSubstituteData() {
         
         for (let i = 1; i < rows.length; i++) {
             const cols = rows[i].split(',');
-            // A=日期(0), B=星期(1), C=原老師(2), D=班級(3), E=假別(4), F=節數(5), G=代課類型(6), H=代課老師(7)
             if(cols.length >= 8) {
                 let cleanDate = cols[0].trim();
-                // 智慧日期清洗
                 if (cleanDate.includes('202')) {
                     const parts = cleanDate.split(/[-/]/);
                     if (parts.length >= 3) cleanDate = `${parseInt(parts[1], 10)}/${parseInt(parts[2], 10)}`;
@@ -291,12 +413,9 @@ async function loadSubstituteData() {
         console.error("❌ 調代課資料載入失敗：", e);
     }
 }
-
-// 網頁載入時先抓一次，之後每 15 分鐘自動更新
 loadSubstituteData();
 setInterval(loadSubstituteData, 900000); 
 
-// 模糊比對班級
 function isClassMatch(sheetClass, systemClass) {
     if (!sheetClass || !systemClass) return false;
     if (sheetClass === systemClass) return true;
@@ -316,7 +435,6 @@ function isClassMatch(sheetClass, systemClass) {
     return false;
 }
 
-// 尋找符合日期、節次、班級的調代課紀錄
 function findSubstitute(dateStr, period, targetClass) {
     return substituteData.find(sub => sub.date === dateStr && sub.period === period && isClassMatch(sub.className, targetClass));
 }
