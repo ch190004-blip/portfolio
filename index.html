@@ -1,13 +1,256 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<title>Aquarium Redirect</title>
-<script>
-window.location.replace("aquarium/");
-</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>聖心高中數位專案作品集</title>
+
+<style>
+
+body{
+font-family:system-ui,-apple-system,Segoe UI,Roboto;
+background:#0f172a;
+color:white;
+margin:0;
+}
+
+header{
+text-align:center;
+padding:40px 20px;
+background:#020617;
+}
+
+h1{
+margin:0;
+font-size:32px;
+}
+
+.subtitle{
+opacity:0.7;
+margin-top:10px;
+}
+
+.container{
+max-width:1100px;
+margin:auto;
+padding:30px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:20px;
+}
+
+.card{
+background:#1e293b;
+padding:25px;
+border-radius:14px;
+box-shadow:0 10px 30px rgba(0,0,0,0.4);
+transition:0.2s;
+}
+
+.card:hover{
+transform:translateY(-4px);
+}
+
+.card h2{
+margin-top:0;
+}
+
+.desc{
+opacity:0.7;
+margin-bottom:20px;
+}
+
+.buttons{
+display:flex;
+gap:10px;
+}
+
+button{
+border:none;
+padding:10px 16px;
+border-radius:8px;
+cursor:pointer;
+font-size:14px;
+}
+
+.open{
+background:#38bdf8;
+color:black;
+}
+
+.download{
+background:#22c55e;
+color:black;
+}
+
+footer{
+text-align:center;
+padding:30px;
+opacity:0.6;
+}
+
+</style>
 </head>
-<body style="background:black;color:white;font-family:sans-serif;">
-Loading Aquarium...
+
+<body>
+
+<header>
+
+<h1>聖心高中數位專案作品集</h1>
+
+<div class="subtitle">
+互動網頁 / 教學工具 / 校園系統
+</div>
+
+</header>
+
+<div class="container">
+
+<div class="grid">
+
+<!-- Aquarium -->
+
+<div class="card">
+
+<h2>🐠 Aquarium</h2>
+
+<div class="desc">
+互動式桌面水族箱
+</div>
+
+<div class="buttons">
+
+<button class="open"
+onclick="openProject('aquarium')">
+開啟作品
+</button>
+
+<button class="download"
+onclick="downloadProject('aquarium')">
+下載ZIP
+</button>
+
+</div>
+
+</div>
+
+<!-- 課表系統 -->
+
+<div class="card">
+
+<h2>📚 課表查詢系統</h2>
+
+<div class="desc">
+全校教師 / 班級 / 教室即時查詢
+</div>
+
+<div class="buttons">
+
+<button class="open"
+onclick="openProject('schoolday')">
+開啟作品
+</button>
+
+<button class="download"
+onclick="downloadProject('schoolday')">
+下載ZIP
+</button>
+
+</div>
+
+</div>
+
+<!-- wave -->
+
+<div class="card">
+
+<h2>🌊 Eco Wave Power</h2>
+
+<div class="desc">
+波浪能量互動展示
+</div>
+
+<div class="buttons">
+
+<button class="open"
+onclick="openProject('eco-wave-power')">
+開啟作品
+</button>
+
+<button class="download"
+onclick="downloadProject('eco-wave-power')">
+下載ZIP
+</button>
+
+</div>
+
+</div>
+
+<!-- interactive -->
+
+<div class="card">
+
+<h2>🧪 Interactive Desktop</h2>
+
+<div class="desc">
+互動式桌面工具
+</div>
+
+<div class="buttons">
+
+<button class="open"
+onclick="openProject('interactive-desktop')">
+開啟作品
+</button>
+
+<button class="download"
+onclick="downloadProject('interactive-desktop')">
+下載ZIP
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<footer>
+
+GitHub Portfolio  
+ch190004-blip
+
+</footer>
+
+<script>
+
+function openProject(folder){
+
+window.open(
+"./"+folder+"/",
+"_blank"
+)
+
+}
+
+function downloadProject(folder){
+
+const repo="ch190004-blip/portfolio"
+
+const url=
+
+`https://download-directory.github.io/?url=https://github.com/${repo}/tree/main/${folder}`
+
+window.open(url)
+
+}
+
+</script>
+
 </body>
 </html>
