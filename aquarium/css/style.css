@@ -30,7 +30,7 @@ body{
 ========================= */
 #bg{ 
   position:fixed; inset:0; 
-  /* 關鍵！強制背景無縫拉伸至 100%，完美鎖定座標 */
+  /* 強制背景無縫拉伸至 100%，完美鎖定座標 */
   background:url("../assets/sea.jpg") center/100% 100% no-repeat; 
   filter:brightness(.95); z-index:0; 
 }
@@ -129,7 +129,7 @@ body{
 @keyframes wPectoral { 0%,100%{ transform: rotate(5deg); } 50%{ transform: rotate(-15deg); } }
 
 /* =========================
-   火山總開關按鈕 (座標釘死在 -1.5%, 74%)
+   火山總開關按鈕 (座標釘死在 13%, 74%)
 ========================= */
 .volcano-eruption {
   position: absolute;
@@ -166,7 +166,7 @@ body{
   opacity: 0.8; 
   filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5)) drop-shadow(0 0 16px rgba(160, 235, 255, 0.7));
   transition: transform 0.4s cubic-bezier(0.2, 1.5, 0.8, 1);
-  transform-origin: center; /* 確保所有精靈(包含海星)都是從正中心膨脹 */
+  transform-origin: center;
 }
 
 /* 點擊Ｑ彈效果 */
@@ -179,7 +179,7 @@ body{
 .chest-open .chest-lid-group { transform: rotate(-50deg); }
 .seaweed-active { animation: seaweedSwayFast 0.4s ease-in-out infinite alternate !important; }
 
-/* 平常極小幅度的微微漂移 (針對章魚、烏賊、河豚) */
+/* 平常極小幅度的微微漂移 */
 .micro-roam { animation: microRoam 6s ease-in-out infinite alternate; }
 @keyframes microRoam {
   0% { transform: translate(0, 0); }
@@ -203,7 +203,7 @@ body{
 .star-breathe { transform-origin: center; animation: starPulse 2.6s ease-in-out infinite; }
 @keyframes starPulse { 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.03); } }
 
-/* 講話對話框 (保持完全不透明 100% 清晰) */
+/* 講話對話框 */
 .speech-bubble {
   position: absolute;
   bottom: 110%; 
