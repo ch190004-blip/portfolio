@@ -34,31 +34,6 @@ modes.forEach(mode => {
     }
 });
 
-/* =========================
-   行政輪值課表系統 (供左上角教師狀態使用)
-========================= */
-const schedules = {
-    chienyun: {
-        1: { 1: {class:"國七A3組", subject:"英語文"} },
-        3: { 7: {class:"國七A3組", subject:"英語文"} },
-        4: { 2: {class:"國七A3組", subject:"英語文"}, 9: {class:"國七A3組", subject:"英文素養"} }
-    },
-    yuyun: {
-        1: { 2: {class:"國七A+組", subject:"數學"}, 5: {class:"國七A班", subject:"生活科技"}, 6: {class:"國七A班", subject:"資訊科技"}, 8: {class:"國八B組", subject:"數學"}, 9: {class:"國八B組", subject:"數學"} },
-        2: { 2: {class:"國七A+組", subject:"數學"}, 5: {class:"高一班", subject:"多元選修"}, 6: {class:"高一班", subject:"多元選修"} },
-        3: { 2: {class:"國七A+組", subject:"數學"}, 3: {class:"國八B組", subject:"數學"}, 4: {class:"國八B組", subject:"數學"}, 5: {class:"國七B班", subject:"生活科技"}, 6: {class:"國七B班", subject:"資訊科技"}, 9: {class:"高三理組", subject:"自然探究"}, 10: {class:"辦公室", subject:"行政輪值"} },
-        4: { 3: {class:"國七A+組", subject:"數學"}, 5: {class:"國八B組", subject:"數學"}, 6: {class:"國八B組", subject:"數學"}, 9: {class:"國八B班", subject:"數學"} },
-        5: { 8: {class:"國七A+組", subject:"數學"} }
-    },
-    yuwen: {
-        1: { 2: {class:"國九A2組", subject:"英語文"}, 5: {class:"高一A2組", subject:"ESL"}, 9: {class:"國七B組", subject:"ESL"} },
-        2: { 5: {class:"國七B組", subject:"ESL"}, 6: {class:"國七B組", subject:"ESL"}, 9: {class:"高一A2組", subject:"ESL"} },
-        3: { 3: {class:"國七B組", subject:"ESL"}, 4: {class:"國九A2組", subject:"英語文"}, 7: {class:"高一A2組", subject:"ESL"}, 8: {class:"高一A2組", subject:"ESL"}, 9: {class:"高二A+組", subject:"ESL"} },
-        4: { 6: {class:"國九A2組", subject:"英語文"}, 7: {class:"國七B組", subject:"ESL"}, 8: {class:"國七B組", subject:"ESL"} },
-        5: { 8: {class:"國九A2組", subject:"英語文"} }
-    }
-};
-
 function isTuesdayElectiveDay(d) {
     const validDates = ["3/10", "3/17", "3/24", "5/19", "5/26", "6/2"];
     return validDates.includes(`${d.getMonth() + 1}/${d.getDate()}`);
@@ -67,19 +42,20 @@ function isTuesdayElectiveDay(d) {
 function nowMinutes(d=new Date()){ return d.getHours()*60 + d.getMinutes(); }
 
 function getCurrentPeriodStatus(d = new Date()) {
-    const wd = d.getDay(); const m = nowMinutes(d); const activeSchedule = schedules[window.currentMode];
+    const wd = d.getDay(); const m = nowMinutes(d); 
+    const activeSchedule = SCHOOL_DATA.teacherSchedule[window.currentMode === 'chienyun' ? '邱千芸' : window.currentMode === 'yuyun' ? '陳昱澐' : '王妤文'];
+    const days = ["星期日","星期一","星期二","星期三","星期四","星期五","星期六"];
     for(let i=0; i<SCHOOL_DATA.periods.length; i++){
-        const index = i+1; 
         const p = SCHOOL_DATA.periods[i];
         const start = parseInt(p.start.split(':')[0])*60 + parseInt(p.start.split(':')[1]);
         const end = parseInt(p.end.split(':')[0])*60 + parseInt(p.end.split(':')[1]);
         if(m >= start && m <= end){
             let lessonInfo = null;
-            if(activeSchedule && activeSchedule[wd] && activeSchedule[wd][index]){
-                lessonInfo = activeSchedule[wd][index];
-                if(window.currentMode === 'yuyun' && wd === 2 && (index === 5 || index === 6) && !isTuesdayElectiveDay(d)) lessonInfo = null;
+            if(activeSchedule && activeSchedule[days[wd]] && activeSchedule[days[wd]][p.period]){
+                lessonInfo = activeSchedule[days[wd]][p.period][0];
+                if(window.currentMode === 'yuyun' && wd === 2 && (p.period === 5 || p.period === 6) && !isTuesdayElectiveDay(d)) lessonInfo = null;
             }
-            if(lessonInfo) return { type: "class", periodName: `第${p.period}節`, ...lessonInfo };
+            if(lessonInfo) return { type: "class", periodName: `第${p.period}節`, class: lessonInfo.classes.join(' '), subject: lessonInfo.subject };
             else return { type: "empty", periodName: `第${p.period}節` };
         }
     }
@@ -87,16 +63,17 @@ function getCurrentPeriodStatus(d = new Date()) {
 }
 
 function getNextLesson(d=new Date()){
-    const wd=d.getDay(); const activeSchedule = schedules[window.currentMode];
-    if(!activeSchedule || !activeSchedule[wd]) return null;
+    const wd=d.getDay(); 
+    const activeSchedule = SCHOOL_DATA.teacherSchedule[window.currentMode === 'chienyun' ? '邱千芸' : window.currentMode === 'yuyun' ? '陳昱澐' : '王妤文'];
+    const days = ["星期日","星期一","星期二","星期三","星期四","星期五","星期六"];
+    if(!activeSchedule || !activeSchedule[days[wd]]) return null;
     const m=nowMinutes(d); let list=[];
-    for(let i=0;i<SCHOOL_DATA.periods.length;i++){
-        const index=i+1;
+    for(let i=0; i<SCHOOL_DATA.periods.length; i++){
         const p = SCHOOL_DATA.periods[i];
         const start = parseInt(p.start.split(':')[0])*60 + parseInt(p.start.split(':')[1]);
-        if(activeSchedule[wd][index] && m<start){
-            if(window.currentMode === 'yuyun' && wd === 2 && (index === 5 || index === 6) && !isTuesdayElectiveDay(d)) continue;
-            list.push({ ...activeSchedule[wd][index], period:`第${p.period}節`, start:start });
+        if(activeSchedule[days[wd]][p.period] && m < start){
+            if(window.currentMode === 'yuyun' && wd === 2 && (p.period === 5 || p.period === 6) && !isTuesdayElectiveDay(d)) continue;
+            list.push({ class: activeSchedule[days[wd]][p.period][0].classes.join(' '), subject: activeSchedule[days[wd]][p.period][0].subject, period: `第${p.period}節`, start: start });
         }
     }
     if(list.length===0) return null;
@@ -153,21 +130,17 @@ function updateHUD(){
 setInterval(updateHUD,500); updateHUD();
 
 /* =========================
-   丟飼料互動
+   丟飼料互動 (滿版視窗精準對位)
 ========================= */
 window.addEventListener("pointerdown", (e) => {
     if(e.target.closest("#hud") || e.target.closest(".jellyfish-svg") || e.target.closest(".big-bubble") || e.target.closest(".mascot-container") || e.target.closest("#god-light-btn")) return;
-    
-    let cx = e.clientX; 
-    let cy = e.clientY;
+    let cx = e.clientX; let cy = e.clientY;
     if(cx === undefined || cy === undefined) return;
 
     for(let i=0;i<5;i++){
         const foodEl = document.createElement("div"); foodEl.className = "food-dot";
-        const startX = cx + (Math.random()*40-20); 
-        const startY = cy + (Math.random()*40-20);
-        foodEl.style.left = startX + "px"; 
-        foodEl.style.top = startY + "px";
+        const startX = cx + (Math.random()*40-20); const startY = cy + (Math.random()*40-20);
+        foodEl.style.left = startX + "px"; foodEl.style.top = startY + "px";
         tank.appendChild(foodEl); foods.push({ el: foodEl, x: startX, y: startY });
     }
 });
@@ -190,6 +163,7 @@ function createFish(index){
     fishes.push({ el:fish, x: (Math.random()* window.innerWidth), y: (Math.random()* window.innerHeight), vx:(Math.random()-0.5)*1.5, vy:(Math.random()-0.5)*1.5, baseScale: baseScale, currentScale: baseScale, foodEaten: 0, isFull: false });
 }
 for(let i=0;i<7;i++) createFish(i);
+
 function updateFish(){
     const W = window.innerWidth; const H = window.innerHeight;
     for(let i=foods.length-1; i>=0; i--){ let food = foods[i]; food.y += 0.8; food.el.style.top = food.y + "px"; if(food.y > H){ food.el.remove(); foods.splice(i, 1); } }
@@ -268,9 +242,6 @@ if(myClock) myClock.addEventListener("click", summonWhale);
 /* =========================================================
    行事曆與【每日金句】系統
 ========================================================= */
-
-// 您可以把波浪發電專案的那 100 句貼在這裡替換
-// 目前先為您準備 30 句經典教育與勵志金句作為範例
 const waveQuotes = [
     "教育不是注滿一桶水，而是點燃一把火。",
     "每一天都是一個讓自己變得更好的機會。",
@@ -307,9 +278,8 @@ const waveQuotes = [
 const schoolEvents = [
     { name: "228連假", start: "02/27", end: "03/01", type: "holiday" }, { name: "全校複習考", start: "03/02", end: "03/04" },
     { name: "國語文競賽", start: "03/05", end: "03/05" }, { name: "學校日", start: "03/07", end: "03/07" },
-    { name: "新生入學獎學金甄試PART II", start: "03/14", end: "03/14" }, { name: "面試共談PART I", start: "03/15", end: "03/15" }, 
-    { name: "雞籠任我行外出踏查", start: "03/17", end: "03/17" }, { name: "繁星放榜", start: "03/18", end: "03/18" },
-    { name: "面試共談PART II", start: "03/21", end: "03/21" },  { name: "假日營隊(五)", start: "03/21", end: "03/21" },
+    { name: "新生獎學金甄試", start: "03/08", end: "03/08" }, { name: "英語文競賽", start: "03/12", end: "03/12" },
+    { name: "雞籠任我行外出踏查", start: "03/17", end: "03/17" }, { name: "假日營隊(五)", start: "03/21", end: "03/21" },
     { name: "第一次段考", start: "03/31", end: "04/01", display: "03/31~04/01" }, { name: "清明連假", start: "04/03", end: "04/06", type: "holiday" },
     { name: "國八教育旅行", start: "04/07", end: "04/10" }, { name: "高三重補修", start: "04/07", end: "04/30" },
     { name: "貓咪盃全國賽", start: "04/09", end: "04/11" }, { name: "第一次作業普查/抽查", start: "04/13", end: "04/17" },
@@ -337,13 +307,13 @@ function updateEventPanel() {
     const currentYear = now.getFullYear();
     const today = new Date(currentYear, now.getMonth(), now.getDate());
 
-    // 計算今天是今年的第幾天，以此來決定每日金句 (每天換一句)
     const startOfYear = new Date(currentYear, 0, 0);
     const diffTime = now - startOfYear;
     const dayOfYear = Math.floor(diffTime / (1000 * 60 * 60 * 24));
     
     const quote = waveQuotes[dayOfYear % waveQuotes.length];
-    panelMsg.innerHTML = `✨ 每日金句：<br>"${quote}"`;
+    // 移除 <br> 讓金句保持單行
+    panelMsg.innerHTML = `✨ 每日金句："${quote}"`;
 
     let eventHTML = ""; let upcomingHolidayMsg = "";
 
@@ -362,7 +332,8 @@ function updateEventPanel() {
                 if (ev.type === "holiday" && !upcomingHolidayMsg) upcomingHolidayMsg = `<div style="color:#ff8a65; font-size:0.95em; margin-top:6px; border-top:1px dashed rgba(255,255,255,0.3); padding-top:6px;">🌴 溫馨提醒：再撐 ${diffDays} 天就放【${ev.name}】啦！</div>`;
             }
             const finalDateDisplay = ev.display || (ev.start === ev.end ? ev.start : `${ev.start}~${ev.end}`);
-            eventHTML += `<div class="event-item" style="${itemStyle}"><span class="event-date">${finalDateDisplay}</span><span>${ev.name}</span>${countdownStr}</div>`;
+            // 加上 span 標籤控制換行
+            eventHTML += `<div class="event-item" style="${itemStyle}"><span class="event-date">${finalDateDisplay}</span><span class="event-name">${ev.name}</span>${countdownStr}</div>`;
         }
     });
 
@@ -372,7 +343,7 @@ function updateEventPanel() {
 updateEventPanel(); setInterval(updateEventPanel, 60000);
 
 /* =========================================================
-   【升級】Google 試算表調代課陣列抓取
+   Google 試算表調代課陣列抓取 (自動轉譯正確格式)
 ========================================================= */
 const RAW_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTMAfnrLA8lnVeikakXNnsJ0gh-tJP3PHkX1vd5hlhGU9BjbP7KgTQ-divWsg7NQCdb1BaGq6OOrJpC/pubhtml";
 const SHEET_CSV_URL = RAW_URL.replace(/\/pubhtml.*/, '/pub?output=csv');
@@ -468,7 +439,6 @@ function getTaipeiDatePartsForMap() {
     const hm = Number(obj.hour)*60 + Number(obj.minute);
     let currentPeriod = null;
     
-    // 從外部 data.js 讀取 SCHOOL_DATA
     for (const p of SCHOOL_DATA.periods) {
         const [sh, sm] = p.start.split(':').map(Number);
         const [eh, em] = p.end.split(':').map(Number);
@@ -526,7 +496,6 @@ function formatScheduleText(classes) {
     return html;
 }
 
-// 點擊單一精靈
 Object.keys(mascotMapping).forEach(id => {
     const container = document.getElementById(id);
     if (!container) return;
@@ -556,7 +525,6 @@ Object.keys(mascotMapping).forEach(id => {
     });
 });
 
-// 火山一鍵總開關
 let isAllOpen = false;
 const godLightBtn = document.getElementById('god-light-btn');
 
