@@ -34,35 +34,6 @@ modes.forEach(mode => {
     }
 });
 
-/* =========================
-   行政輪值課表系統 (供左上角教師狀態使用)
-========================= */
-const periods = [
-    { name:"第一節", start:490, end:540 }, { name:"第二節", start:550, end:600 }, { name:"第三節", start:610, end:660 }, { name:"第四節", start:665, end:715 }, { name:"第五節", start:775, end:825 }, { name:"第六節", start:835, end:885 }, { name:"第七節", start:890, end:940 }, { name:"第八節", start:950, end:1000 }, { name:"第九節", start:1005, end:1050 }, { name:"行政輪值", start:1050, end:1200 } 
-];
-
-const schedules = {
-    chienyun: {
-        1: { 1: {class:"國七A3組", subject:"英語文"} },
-        3: { 7: {class:"國七A3組", subject:"英語文"} },
-        4: { 2: {class:"國七A3組", subject:"英語文"}, 9: {class:"國七A3組", subject:"英文素養"} }
-    },
-    yuyun: {
-        1: { 2: {class:"國七A+組", subject:"數學"}, 5: {class:"國七A班", subject:"生活科技"}, 6: {class:"國七A班", subject:"資訊科技"}, 8: {class:"國八B組", subject:"數學"}, 9: {class:"國八B組", subject:"數學"} },
-        2: { 2: {class:"國七A+組", subject:"數學"}, 5: {class:"高一班", subject:"多元選修"}, 6: {class:"高一班", subject:"多元選修"} },
-        3: { 2: {class:"國七A+組", subject:"數學"}, 3: {class:"國八B組", subject:"數學"}, 4: {class:"國八B組", subject:"數學"}, 5: {class:"國七B班", subject:"生活科技"}, 6: {class:"國七B班", subject:"資訊科技"}, 9: {class:"高三理組", subject:"自然探究"}, 10: {class:"辦公室", subject:"行政輪值"} },
-        4: { 3: {class:"國七A+組", subject:"數學"}, 5: {class:"國八B組", subject:"數學"}, 6: {class:"國八B組", subject:"數學"}, 9: {class:"國八B班", subject:"數學"} },
-        5: { 8: {class:"國七A+組", subject:"數學"} }
-    },
-    yuwen: {
-        1: { 2: {class:"國九A2組", subject:"英語文"}, 5: {class:"高一A2組", subject:"ESL"}, 9: {class:"國七B組", subject:"ESL"} },
-        2: { 5: {class:"國七B組", subject:"ESL"}, 6: {class:"國七B組", subject:"ESL"}, 9: {class:"高一A2組", subject:"ESL"} },
-        3: { 3: {class:"國七B組", subject:"ESL"}, 4: {class:"國九A2組", subject:"英語文"}, 7: {class:"高一A2組", subject:"ESL"}, 8: {class:"高一A2組", subject:"ESL"}, 9: {class:"高二A+組", subject:"ESL"} },
-        4: { 6: {class:"國九A2組", subject:"英語文"}, 7: {class:"國七B組", subject:"ESL"}, 8: {class:"國七B組", subject:"ESL"} },
-        5: { 8: {class:"國九A2組", subject:"英語文"} }
-    }
-};
-
 function isTuesdayElectiveDay(d) {
     const validDates = ["3/10", "3/17", "3/24", "5/19", "5/26", "6/2"];
     return validDates.includes(`${d.getMonth() + 1}/${d.getDate()}`);
@@ -71,31 +42,38 @@ function isTuesdayElectiveDay(d) {
 function nowMinutes(d=new Date()){ return d.getHours()*60 + d.getMinutes(); }
 
 function getCurrentPeriodStatus(d = new Date()) {
-    const wd = d.getDay(); const m = nowMinutes(d); const activeSchedule = schedules[window.currentMode];
-    for(let i=0; i<periods.length; i++){
-        const index = i+1; 
-        if(m >= periods[i].start && m <= periods[i].end){
+    const wd = d.getDay(); const m = nowMinutes(d); 
+    const activeSchedule = SCHOOL_DATA.teacherSchedule[window.currentMode === 'chienyun' ? '邱千芸' : window.currentMode === 'yuyun' ? '陳昱澐' : '王妤文'];
+    const days = ["星期日","星期一","星期二","星期三","星期四","星期五","星期六"];
+    for(let i=0; i<SCHOOL_DATA.periods.length; i++){
+        const p = SCHOOL_DATA.periods[i];
+        const start = parseInt(p.start.split(':')[0])*60 + parseInt(p.start.split(':')[1]);
+        const end = parseInt(p.end.split(':')[0])*60 + parseInt(p.end.split(':')[1]);
+        if(m >= start && m <= end){
             let lessonInfo = null;
-            if(activeSchedule && activeSchedule[wd] && activeSchedule[wd][index]){
-                lessonInfo = activeSchedule[wd][index];
-                if(window.currentMode === 'yuyun' && wd === 2 && (index === 5 || index === 6) && !isTuesdayElectiveDay(d)) lessonInfo = null;
+            if(activeSchedule && activeSchedule[days[wd]] && activeSchedule[days[wd]][p.period]){
+                lessonInfo = activeSchedule[days[wd]][p.period][0];
+                if(window.currentMode === 'yuyun' && wd === 2 && (p.period === 5 || p.period === 6) && !isTuesdayElectiveDay(d)) lessonInfo = null;
             }
-            if(lessonInfo) return { type: "class", periodName: periods[i].name, ...lessonInfo };
-            else return { type: "empty", periodName: periods[i].name };
+            if(lessonInfo) return { type: "class", periodName: `第${p.period}節`, class: lessonInfo.classes.join(' '), subject: lessonInfo.subject };
+            else return { type: "empty", periodName: `第${p.period}節` };
         }
     }
     return { type: "break" }; 
 }
 
 function getNextLesson(d=new Date()){
-    const wd=d.getDay(); const activeSchedule = schedules[window.currentMode];
-    if(!activeSchedule || !activeSchedule[wd]) return null;
+    const wd=d.getDay(); 
+    const activeSchedule = SCHOOL_DATA.teacherSchedule[window.currentMode === 'chienyun' ? '邱千芸' : window.currentMode === 'yuyun' ? '陳昱澐' : '王妤文'];
+    const days = ["星期日","星期一","星期二","星期三","星期四","星期五","星期六"];
+    if(!activeSchedule || !activeSchedule[days[wd]]) return null;
     const m=nowMinutes(d); let list=[];
-    for(let i=0;i<periods.length;i++){
-        const index=i+1;
-        if(activeSchedule[wd][index] && m<periods[i].start){
-            if(window.currentMode === 'yuyun' && wd === 2 && (index === 5 || index === 6) && !isTuesdayElectiveDay(d)) continue;
-            list.push({ ...activeSchedule[wd][index], period:periods[i].name, start:periods[i].start });
+    for(let i=0; i<SCHOOL_DATA.periods.length; i++){
+        const p = SCHOOL_DATA.periods[i];
+        const start = parseInt(p.start.split(':')[0])*60 + parseInt(p.start.split(':')[1]);
+        if(activeSchedule[days[wd]][p.period] && m < start){
+            if(window.currentMode === 'yuyun' && wd === 2 && (p.period === 5 || p.period === 6) && !isTuesdayElectiveDay(d)) continue;
+            list.push({ class: activeSchedule[days[wd]][p.period][0].classes.join(' '), subject: activeSchedule[days[wd]][p.period][0].subject, period: `第${p.period}節`, start: start });
         }
     }
     if(list.length===0) return null;
@@ -107,7 +85,6 @@ function updateHUD(){
     try {
         const d=new Date(); clockEl.textContent=d.toLocaleTimeString();
         
-        // 更新左上角星期幾徽章
         const daysTw = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
         const weekdayBadge = document.getElementById("weekday-badge");
         if (weekdayBadge) weekdayBadge.textContent = daysTw[d.getDay()];
@@ -152,13 +129,12 @@ function updateHUD(){
 setInterval(updateHUD,500); updateHUD();
 
 /* =========================
-   丟飼料互動 (滿版視窗精準對位)
+   丟飼料互動
 ========================= */
 window.addEventListener("pointerdown", (e) => {
     if(e.target.closest("#hud") || e.target.closest(".jellyfish-svg") || e.target.closest(".big-bubble") || e.target.closest(".mascot-container") || e.target.closest("#god-light-btn")) return;
     let cx = e.clientX; let cy = e.clientY;
     if(cx === undefined || cy === undefined) return;
-
     for(let i=0;i<5;i++){
         const foodEl = document.createElement("div"); foodEl.className = "food-dot";
         const startX = cx + (Math.random()*40-20); const startY = cy + (Math.random()*40-20);
@@ -185,7 +161,6 @@ function createFish(index){
     fishes.push({ el:fish, x: (Math.random()* window.innerWidth), y: (Math.random()* window.innerHeight), vx:(Math.random()-0.5)*1.5, vy:(Math.random()-0.5)*1.5, baseScale: baseScale, currentScale: baseScale, foodEaten: 0, isFull: false });
 }
 for(let i=0;i<7;i++) createFish(i);
-
 function updateFish(){
     const W = window.innerWidth; const H = window.innerHeight;
     for(let i=foods.length-1; i>=0; i--){ let food = foods[i]; food.y += 0.8; food.el.style.top = food.y + "px"; if(food.y > H){ food.el.remove(); foods.splice(i, 1); } }
@@ -372,7 +347,6 @@ const SHEET_CSV_URL = RAW_URL.replace(/\/pubhtml.*/, '/pub?output=csv');
 
 let substituteData = [];
 
-// 專業 CSV 解析器：避免儲存格內有逗號造成錯位
 function parseCSV(text) {
     const result = [];
     let row = [];
@@ -398,7 +372,6 @@ function parseCSV(text) {
 
 async function loadSubstituteData() {
     try {
-        // 加入時間戳強制清除暫存，保證抓到最新
         const fetchUrl = SHEET_CSV_URL + "&t=" + new Date().getTime();
         const res = await fetch(fetchUrl);
         const text = await res.text();
@@ -412,7 +385,6 @@ async function loadSubstituteData() {
                 let rawDate = cols[0];
                 if(!rawDate) continue;
                 
-                // 終極日期解析：完美應對 YYYY/M/D 或 M/D/YYYY 或 M/D
                 let cleanDate = rawDate;
                 const parts = cleanDate.split(/[-/]/);
                 if (parts.length >= 3) {
@@ -441,9 +413,7 @@ async function loadSubstituteData() {
         substituteData = parsed;
         console.log("✅ 調代課資料載入成功！目前共有 " + substituteData.length + " 筆變動。");
         
-        // 自動刷新畫面 (這行代碼讓水族箱和排課系統都能共用)
         if (typeof updateHUD === "function") updateHUD(); 
-        if (typeof refreshAll === "function") refreshAll(); 
     } catch(e) {
         console.error("❌ 調代課資料載入失敗：", e);
     }
@@ -491,10 +461,13 @@ const mascotMapping = {
 
 function getTaipeiDatePartsForMap() {
     const now = new Date();
+    // 【完美修復】這裡加入了 year, month, day 讓精靈有日期感知能力！
     const parts = new Intl.DateTimeFormat('en-CA', {
         timeZone: 'Asia/Taipei',
+        year: 'numeric', month: '2-digit', day: '2-digit',
         hour: '2-digit', minute: '2-digit', hour12: false, weekday: 'long'
     }).formatToParts(now);
+    
     const obj = Object.fromEntries(parts.map(p => [p.type, p.value]));
     const weekMap = { "Monday":"星期一","Tuesday":"星期二","Wednesday":"星期三","Thursday":"星期四","Friday":"星期五" };
     const day = weekMap[obj.weekday] || obj.weekday;
@@ -532,7 +505,7 @@ function formatScheduleText(classes) {
             const subInfo = findSubstitute(info.todayStr, info.currentPeriod, cls);
             
             if (subInfo) {
-                html += `${groupName} <span style="color:#ffb74d; font-weight:bold;">[${subInfo.type}] ${subInfo.subTeacher}</span> <br>`;
+                html += `${groupName} <span style="color:#ffb74d; font-weight:bold;">[${subInfo.type}] ${subInfo.subTeacher}</span> <span style="font-size:0.85em; opacity:0.8;">(原:${subInfo.origTeacher})</span><br>`;
             } else if (entries.length === 0) {
                 html += `${groupName} 空堂<br>`;
             } else {
@@ -547,7 +520,7 @@ function formatScheduleText(classes) {
         const subInfo = findSubstitute(info.todayStr, info.currentPeriod, cls);
         
         if (subInfo) {
-             html += `<div class="z-class">${cls}</div><div class="z-sub" style="color:#ffb74d; font-weight:bold;">[${subInfo.type}] ${subInfo.subTeacher}</div>`;
+             html += `<div class="z-class">${cls}</div><div class="z-sub"><span style="color:#ffb74d; font-weight:bold;">[${subInfo.type}] ${subInfo.subTeacher}</span><br><span style="font-size:0.85em; color:#a2c4d2;">(原:${subInfo.origTeacher})</span></div>`;
         } else if (entries.length === 0) {
             html += `<div class="z-class">${cls}</div><div class="z-sub">自習 / 空堂</div>`;
         } else {
