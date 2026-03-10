@@ -278,8 +278,10 @@ const waveQuotes = [
 const schoolEvents = [
     { name: "228連假", start: "02/27", end: "03/01", type: "holiday" }, { name: "全校複習考", start: "03/02", end: "03/04" },
     { name: "國語文競賽", start: "03/05", end: "03/05" }, { name: "學校日", start: "03/07", end: "03/07" },
-    { name: "新生獎學金甄試", start: "03/08", end: "03/08" }, { name: "英語文競賽", start: "03/12", end: "03/12" },
-    { name: "雞籠任我行外出踏查", start: "03/17", end: "03/17" }, { name: "假日營隊(五)", start: "03/21", end: "03/21" },
+    { name: "新生獎學金甄試PART I", start: "03/08", end: "03/08" }, { name: "英語文競賽", start: "03/12", end: "03/12" },
+    { name: "新生獎學金甄試PART II", start: "03/14", end: "03/14" }, { name: "面試共談PART I", start: "03/15", end: "03/15" },
+    { name: "雞籠任我行外出踏查", start: "03/17", end: "03/17" }, { name: "繁星放榜", start: "03/18", end: "03/18" },
+    { name: "面試共談PART II", start: "03/21", end: "03/21" }, { name: "假日營隊(五)", start: "03/21", end: "03/21" },
     { name: "第一次段考", start: "03/31", end: "04/01", display: "03/31~04/01" }, { name: "清明連假", start: "04/03", end: "04/06", type: "holiday" },
     { name: "國八教育旅行", start: "04/07", end: "04/10" }, { name: "高三重補修", start: "04/07", end: "04/30" },
     { name: "貓咪盃全國賽", start: "04/09", end: "04/11" }, { name: "第一次作業普查/抽查", start: "04/13", end: "04/17" },
