@@ -30,7 +30,6 @@ body{
 ========================= */
 #bg{ 
   position:fixed; inset:0; 
-  /* 強制背景無縫拉伸至 100%，完美鎖定座標 */
   background:url("../assets/sea.jpg") center/100% 100% no-repeat; 
   filter:brightness(.95); z-index:0; 
 }
@@ -38,7 +37,7 @@ body{
 #tank{ position:fixed; inset:0; width: 100vw; height: 100vh; z-index:10; pointer-events: none; overflow: hidden; }
 
 /* =========================
-   HUD 面板佈局 (優化左上方時鐘與每日金句)
+   HUD 面板佈局 (優化左上與右上)
 ========================= */
 #hud{ position:fixed; top:14px; left:14px; right:14px; display:flex; justify-content:space-between; z-index:20; pointer-events:none; }
 .hud-left{ pointer-events:auto; background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.15); border-radius:14px; padding:12px 16px; min-width:280px; color:#fff; backdrop-filter: blur(6px); box-shadow:0 10px 25px rgba(0,0,0,.35); height: fit-content; }
@@ -64,23 +63,50 @@ body{
 .period{ margin-top:6px; font-size:18px; font-weight:700; color:#ffd56a; }
 .next{ margin-top:6px; font-size:14px; color:#e9e9e9; line-height:1.4; }
 
-.hud-right { pointer-events:auto; background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.15); border-radius:14px; padding:12px 16px; min-width:280px; max-width:320px; color:#fff; backdrop-filter: blur(6px); box-shadow:0 10px 25px rgba(0,0,0,.35); display: flex; flex-direction: column; height: fit-content; }
-
-/* 每日金句樣式 */
-.daily-msg { 
-  font-size:14px; 
-  font-style: italic; 
-  color:#eef4ff; 
-  padding-bottom:10px; 
-  margin-bottom:10px; 
-  border-bottom:1px dashed rgba(255,255,255,0.3); 
-  line-height:1.5; 
+/* =========================
+   右側面板：極致瘦身與高度限制
+========================= */
+.hud-right { 
+  pointer-events: auto; 
+  background: rgba(0,0,0,.55); 
+  border: 1px solid rgba(255,255,255,.15); 
+  border-radius: 14px; 
+  padding: 10px 14px; /* 縮小內距 */
+  min-width: 280px; 
+  max-width: 380px; /* 放寬一點讓金句能塞進單行 */
+  max-height: 48vh; /* 絕對不超過螢幕一半高度 */
+  overflow-y: auto; /* 超出高度自動產生滾動條 */
+  color: #fff; 
+  backdrop-filter: blur(6px); 
+  box-shadow: 0 10px 25px rgba(0,0,0,.35); 
+  display: flex; 
+  flex-direction: column; 
 }
 
-.event-list { font-size:14px; line-height:1.6; padding-right:4px; }
-.event-item { margin-bottom:6px; }
-.event-date { color:#ffd56a; margin-right:6px; font-family: monospace; font-size: 13px; }
-.event-countdown { color:#ffb74d; font-size:0.9em; margin-left:4px; font-weight: bold; }
+/* 隱藏式質感滾動條 */
+.hud-right::-webkit-scrollbar { width: 4px; }
+.hud-right::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 4px; }
+
+/* 每日金句樣式：單行、超出變刪節號 */
+.daily-msg { 
+  font-size: 13px; /* 縮小字體 */
+  font-style: italic; 
+  color: #eef4ff; 
+  padding-bottom: 6px; /* 縮小底部間距 */
+  margin-bottom: 6px; 
+  border-bottom: 1px dashed rgba(255,255,255,0.3); 
+  line-height: 1.3; 
+  white-space: nowrap; /* 強制單行 */
+  overflow: hidden; 
+  text-overflow: ellipsis; /* 超出顯示 ... */
+}
+
+/* 行事曆列表：緊湊排版 */
+.event-list { font-size: 12.5px; line-height: 1.3; padding-right: 4px; }
+.event-item { margin-bottom: 4px; display: flex; align-items: baseline; flex-wrap: nowrap; }
+.event-date { color: #ffd56a; margin-right: 6px; font-family: monospace; font-size: 12px; flex-shrink: 0; }
+.event-name { flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.event-countdown { color: #ffb74d; font-size: 0.85em; margin-left: 4px; font-weight: bold; flex-shrink: 0; }
 
 /* =========================
    共通陰影與魚隻樣式
@@ -135,12 +161,7 @@ body{
 /* =========================
    完美版：無透明巨鯨史詩巡遊動畫
 ========================= */
-.whale-container { 
-  position: absolute; top: 15%; left: 100vw; 
-  width: 800px; height: auto; z-index: 2; 
-  filter: brightness(0.65) blur(1px) drop-shadow(0 20px 30px rgba(0,0,0,0.6)); 
-  transform: scaleX(-1); pointer-events: none; visibility: hidden; 
-}
+.whale-container { position: absolute; top: 15%; left: 100vw; width: 800px; height: auto; z-index: 2; filter: brightness(0.65) blur(1px) drop-shadow(0 20px 30px rgba(0,0,0,0.6)); transform: scaleX(-1); pointer-events: none; visibility: hidden; }
 .whale-container.swim-across { visibility: visible; animation: whalePassBy 60s linear forwards; }
 @keyframes whalePassBy { 0% { transform: scaleX(-1) translateX(0); } 100% { transform: scaleX(-1) translateX(calc(100vw + 1200px)); } }
 .w-breath { transform-origin: 50% 50%; animation: wBreathe 4s ease-in-out infinite; }
@@ -183,7 +204,6 @@ body{
   transform-origin: bottom center;
 }
 
-/* 精靈本體 80% 透明度 + 仙氣微光 */
 .mascot-svg {
   width: 100%;
   height: 100%;
@@ -193,17 +213,11 @@ body{
   transform-origin: center; 
 }
 
-/* 點擊Ｑ彈效果 */
 .mascot-click { transform: scale(0.75) translateY(-10px) !important; }
-
-/* 統一膨脹特效 (河豚、海星、烏賊、章魚共用) */
 .mascot-inflate { transform: scale(1.35) !important; }
-
-/* 寶箱掀蓋與海草快搖 */
 .chest-open .chest-lid-group { transform: rotate(-50deg); }
 .seaweed-active { animation: seaweedSwayFast 0.4s ease-in-out infinite alternate !important; }
 
-/* 平常極小幅度的微微漂移 */
 .micro-roam { animation: microRoam 6s ease-in-out infinite alternate; }
 @keyframes microRoam {
   0% { transform: translate(0, 0); }
@@ -212,7 +226,6 @@ body{
   100% { transform: translate(-2px, -2px); }
 }
 
-/* 各角色專屬待機動畫 */
 .tentacle-wave { animation: tentacleWave 3s ease-in-out infinite alternate; }
 @keyframes tentacleWave { 0% { transform: rotate(-5deg); } 100% { transform: rotate(5deg); } }
 .squid-float { animation: squidFloat 4s ease-in-out infinite; }
@@ -222,8 +235,6 @@ body{
 .seaweed-sway { transform-origin: 50% 100%; animation: seaweedSway 4s ease-in-out infinite; }
 @keyframes seaweedSway { 0%,100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
 @keyframes seaweedSwayFast { 0%,100% { transform: rotate(-15deg); } 50% { transform: rotate(15deg); } } 
-
-/* 修復海星的呼吸原點 */
 .star-breathe { transform-origin: center; animation: starPulse 2.6s ease-in-out infinite; }
 @keyframes starPulse { 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.03); } }
 
