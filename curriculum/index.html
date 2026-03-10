@@ -508,30 +508,139 @@ th {
 <script src="data.js"></script>
 
 <script>
+/* =========================================================
+   1. Google 試算表調代課陣列抓取系統 (終極強化版)
+========================================================= */
+const RAW_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTMAfnrLA8lnVeikakXNnsJ0gh-tJP3PHkX1vd5hlhGU9BjbP7KgTQ-divWsg7NQCdb1BaGq6OOrJpC/pubhtml";
+const SHEET_CSV_URL = RAW_URL.replace(/\/pubhtml.*/, '/pub?output=csv&gid=0');
+
+let substituteData = [];
+let currentWeekDates = {}; // 存放本週的實際日期 (例如 "星期一": "3/10")
+
+function parseCSV(text) {
+    const result = [];
+    let row = [];
+    let col = '';
+    let inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+        let c = text[i];
+        if (inQuotes) {
+            if (c === '"') {
+                if (text[i + 1] === '"') { col += '"'; i++; } 
+                else { inQuotes = false; }
+            } else { col += c; }
+        } else {
+            if (c === '"') { inQuotes = true; }
+            else if (c === ',') { row.push(col.trim()); col = ''; }
+            else if (c === '\n') { row.push(col.trim()); result.push(row); col = ''; row = []; }
+            else if (c !== '\r') { col += c; }
+        }
+    }
+    if (col || row.length) { row.push(col.trim()); result.push(row); }
+    return result;
+}
+
+async function loadSubstituteData() {
+    try {
+        const fetchUrl = SHEET_CSV_URL + "&t=" + new Date().getTime();
+        const res = await fetch(fetchUrl);
+        const text = await res.text();
+        if (text.trim().startsWith("<")) return;
+
+        const rows = parseCSV(text);
+        let parsed = [];
+        
+        for (let i = 1; i < rows.length; i++) {
+            const cols = rows[i];
+            if(cols.length >= 8 && cols[5]) {
+                let rawDate = cols[0];
+                if(!rawDate) continue;
+                
+                let cleanDate = rawDate;
+                const parts = cleanDate.split(/[-/]/);
+                if (parts.length >= 3) {
+                    if (parseInt(parts[0], 10) > 1000) cleanDate = `${parseInt(parts[1], 10)}/${parseInt(parts[2], 10)}`;
+                    else cleanDate = `${parseInt(parts[0], 10)}/${parseInt(parts[1], 10)}`;
+                } else if (parts.length === 2) {
+                    cleanDate = `${parseInt(parts[0], 10)}/${parseInt(parts[1], 10)}`;
+                }
+                
+                let periodVal = parseInt(cols[5], 10);
+                if(isNaN(periodVal)) continue;
+                
+                parsed.push({
+                    date: cleanDate,              
+                    origTeacher: cols[2] || "",  
+                    className: cols[3] || "",    
+                    period: periodVal, 
+                    type: cols[6] || "",         
+                    subTeacher: cols[7] || ""    
+                });
+            }
+        }
+        substituteData = parsed;
+        console.log("✅ 調代課資料載入成功！目前共有 " + substituteData.length + " 筆變動。");
+        refreshAll();
+    } catch(e) {
+        console.error("❌ 調代課資料載入失敗：", e);
+    }
+}
+
+function updateWeekDates() {
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const distToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const monday = new Date(now);
+    monday.setDate(now.getDate() + distToMonday);
+    const days = ["星期一", "星期二", "星期三", "星期四", "星期五"];
+    for (let i = 0; i < 5; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        currentWeekDates[days[i]] = `${d.getMonth() + 1}/${d.getDate()}`;
+    }
+}
+
+function isClassMatch(sheetClass, systemClass) {
+    if (!sheetClass || !systemClass) return false;
+    if (sheetClass === systemClass) return true;
+    if (sheetClass.includes(systemClass)) return true;
+    if (systemClass.includes(sheetClass)) return true;
+    const gradeMatch = systemClass.substring(0, 2); 
+    const cleanSheetClass = sheetClass.replace(/組/g, '').replace(/班/g, '');
+    if (cleanSheetClass.includes(gradeMatch)) {
+        if (systemClass === "高一") return true;
+        if (systemClass.includes("A") && (cleanSheetClass.includes("A") || cleanSheetClass.includes("Ａ"))) return true;
+        if (systemClass.includes("B") && (cleanSheetClass.includes("B") || cleanSheetClass.includes("Ｂ"))) return true;
+        if (systemClass.includes("理") && cleanSheetClass.includes("理")) return true;
+        if (systemClass.includes("文") && cleanSheetClass.includes("文")) return true;
+    }
+    return false;
+}
+
+function findSubForClass(dateStr, period, className) { return substituteData.find(sub => sub.date === dateStr && sub.period === period && isClassMatch(sub.className, className)); }
+function findSubForTeacherLeave(dateStr, period, teacher) { return substituteData.find(sub => sub.date === dateStr && sub.period === period && sub.origTeacher === teacher); }
+function findSubForTeacherSubbing(dateStr, period, teacher) { return substituteData.find(sub => sub.date === dateStr && sub.period === period && sub.subTeacher === teacher); }
+
+
+/* =========================================================
+   2. 課表核心系統與渲染邏輯
+========================================================= */
 const TEACHERS = DATA.teachers;
 const CLASSES = DATA.classes;
 const ROOMS = DATA.rooms;
 const DAYS = ["星期一","星期二","星期三","星期四","星期五"];
 const PERIODS = DATA.periods;
 
-function parseHM(hm) {
-  const [h,m] = hm.split(':').map(Number);
-  return h * 60 + m;
-}
+function parseHM(hm) { const [h,m] = hm.split(':').map(Number); return h * 60 + m; }
 
 function getTaipeiDateParts() {
   const now = new Date();
   const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Taipei',
-    year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', second: '2-digit',
-    hour12: false, weekday: 'long'
+    timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, weekday: 'long'
   }).formatToParts(now);
   const obj = Object.fromEntries(parts.map(p => [p.type, p.value]));
-  const weekMap = {
-    "Monday":"星期一","Tuesday":"星期二","Wednesday":"星期三","Thursday":"星期四","Friday":"星期五",
-    "週一":"星期一","週二":"星期二","週三":"星期三","週四":"星期四","週五":"星期五"
-  };
+  const weekMap = { "Monday":"星期一","Tuesday":"星期二","Wednesday":"星期三","Thursday":"星期四","Friday":"星期五" };
   const day = weekMap[obj.weekday] || obj.weekday;
   const hm = Number(obj.hour)*60 + Number(obj.minute);
   let current = null, next = null;
@@ -540,11 +649,8 @@ function getTaipeiDateParts() {
     if (hm >= start && hm <= end) { current = p; break; }
     if (!current && hm < start && !next) next = p;
   }
-  return {
-    date:`${obj.year}/${obj.month}/${obj.day}`,
-    time:`${obj.hour}:${obj.minute}:${obj.second}`,
-    day, current, next
-  };
+  const todayStr = `${parseInt(obj.month, 10)}/${parseInt(obj.day, 10)}`;
+  return { date:`${obj.year}/${obj.month}/${obj.day}`, time:`${obj.hour}:${obj.minute}:${obj.second}`, day, current, next, todayStr };
 }
 
 function currentLabel(info) {
@@ -553,18 +659,10 @@ function currentLabel(info) {
   return `${info.day} 今日課程已結束`;
 }
 
-function slotClassEntries(className, day, period) {
-  return (((DATA.classSchedule[className] || {})[day] || {})[String(period)] || []);
-}
-function slotTeacherEntries(teacher, day, period) {
-  return (((DATA.teacherSchedule[teacher] || {})[day] || {})[String(period)] || []);
-}
-function slotRoomEntries(room, day, period) {
-  return (((DATA.roomSchedule[room] || {})[day] || {})[String(period)] || []);
-}
-function roomText(rooms) {
-  return rooms && rooms.length ? rooms.join('、') : '班級教室 / 未指定';
-}
+function slotClassEntries(className, day, period) { return (((DATA.classSchedule[className] || {})[day] || {})[String(period)] || []); }
+function slotTeacherEntries(teacher, day, period) { return (((DATA.teacherSchedule[teacher] || {})[day] || {})[String(period)] || []); }
+function slotRoomEntries(room, day, period) { return (((DATA.roomSchedule[room] || {})[day] || {})[String(period)] || []); }
+function roomText(rooms) { return rooms && rooms.length ? rooms.join('、') : '班級教室 / 未指定'; }
 
 function gradeClass(name) {
   if (!name) return '';
@@ -576,46 +674,58 @@ function gradeClass(name) {
   if (name.includes('高三')) return 'grade-h3';
   return '';
 }
-
 function tagClassForClasses(classes) {
   const text = Array.isArray(classes) ? classes.join(' ') : (classes || '');
   return gradeClass(text);
 }
 
-function formatTeacherEntries(entries) {
-  if (!entries.length) return '本節無課';
-  return entries.map(e => `${e.subject} / ${e.classes.join('、')} / 教室：${roomText(e.rooms)}`).join('；');
-}
-function formatClassEntries(entries) {
-  if (!entries.length) return '本節無課';
-  return entries.map(e => `${e.subject} / ${e.teacher} / 教室：${roomText(e.rooms)}`).join('；');
+// 產生帶有調代課刪除線特效的 Cell (教師版)
+function buildCellForTeacher(entries, day, period, teacher) {
+    const dateStr = currentWeekDates[day] || "";
+    const leaveInfo = findSubForTeacherLeave(dateStr, period, teacher);
+    const subInfo = findSubForTeacherSubbing(dateStr, period, teacher);
+
+    let html = "";
+    if (leaveInfo) {
+        let origSubject = entries.length ? entries[0].subject : "課程";
+        let classes = entries.length ? entries[0].classes.join('、') : leaveInfo.className;
+        html += `<div class="cell-box">
+            <div class="cell-main"><span style="text-decoration:line-through; opacity:0.5">${origSubject}</span> <span style="color:var(--danger)">[請假]</span></div>
+            <div class="cell-sub">原班級：${classes}<br><span style="color:var(--warn)">代課：${leaveInfo.subTeacher}</span></div>
+        </div>`;
+    } else if (entries && entries.length) {
+        html += entries.map(e => `<div class="cell-box ${tagClassForClasses(e.classes)}">
+            <div class="cell-main">${e.subject}</div>
+            <div class="cell-sub">班級：${e.classes.join('、')}<br>教室：${roomText(e.rooms)}</div>
+        </div>`).join('');
+    }
+
+    if (subInfo) {
+        html += `<div class="cell-box ${gradeClass(subInfo.className)}" style="border: 1px dashed var(--warn);">
+            <div class="cell-main" style="color:var(--warn)">[${subInfo.type}] ${subInfo.className}</div>
+            <div class="cell-sub" style="color:var(--danger)">原教師：${subInfo.origTeacher}</div>
+        </div>`;
+    }
+    if (!html) return `<span class="cell-empty">—</span>`;
+    return html;
 }
 
-function buildCell(entries, kind, fallback='-') {
-  if (!entries.length) return `<span class="cell-empty">${fallback}</span>`;
-  return entries.map(e => {
-    let cls = '';
-    let main = '';
-    let sub = '';
-    if (kind === 'teacher') {
-      cls = tagClassForClasses(e.classes);
-      main = e.subject;
-      sub = `班級：${e.classes.join('、')}<br>教室：${roomText(e.rooms)}`;
-    } else if (kind === 'class') {
-      cls = gradeClass(e.rawClass || e.className || '');
-      main = e.subject;
-      sub = `教師：${e.teacher}<br>教室：${roomText(e.rooms)}`;
-    } else if (kind === 'room') {
-      cls = gradeClass(e.rawClass || '');
-      main = e.rawClass || '未標示';
-      sub = `${e.subject || '分組課'}<br>${e.teacher || ''}`;
-    } else if (kind === 'day') {
-      cls = gradeClass(e.rawClass || '');
-      main = e.subject;
-      sub = `${e.teacher}<br>${roomText(e.rooms)}`;
+// 產生帶有調代課刪除線特效的 Cell (班級/總表版)
+function buildCellForClass(entries, day, period, className) {
+    const dateStr = currentWeekDates[day] || "";
+    const subInfo = findSubForClass(dateStr, period, className);
+
+    if (subInfo) {
+        let origSubject = entries.length ? entries[0].subject : "原課程";
+        let origTeacher = entries.length ? entries[0].teacher : subInfo.origTeacher;
+        let rooms = entries.length ? roomText(entries[0].rooms) : "未指定";
+        return `<div class="cell-box ${gradeClass(className)}" style="border-color:var(--warn);">
+            <div class="cell-main"><span style="text-decoration:line-through; opacity:0.5">${origSubject}</span> <span style="color:var(--warn)">[${subInfo.type}]</span></div>
+            <div class="cell-sub">教師：<span style="text-decoration:line-through; opacity:0.5">${origTeacher}</span> <span style="color:var(--warn); font-weight:bold;">${subInfo.subTeacher}</span><br>教室：${rooms}</div>
+        </div>`;
     }
-    return `<div class="cell-box ${cls}"><div class="cell-main">${main}</div><div class="cell-sub">${sub}</div></div>`;
-  }).join('');
+    if (!entries || !entries.length) return `<span class="cell-empty">—</span>`;
+    return entries.map(e => `<div class="cell-box ${gradeClass(className)}"><div class="cell-main">${e.subject}</div><div class="cell-sub">教師：${e.teacher}<br>教室：${roomText(e.rooms)}</div></div>`).join('');
 }
 
 function buildWeeklyTable(headLabel, rowsBuilder) {
@@ -632,115 +742,75 @@ function getEmptyRooms(day, period) {
   if (!period) return ROOMS.slice();
   return ROOMS.filter(r => !slotRoomEntries(r, day, period).length);
 }
-function getIdleTeachers(day, period) {
+
+// 改良版：判斷老師是否真的空堂 (扣除調代課)
+function getIdleTeachers(dateStr, day, period) {
   if (!period) return TEACHERS.slice();
-  return TEACHERS.filter(t => !slotTeacherEntries(t, day, period).length);
-}
-
-function findNextTeacherLesson(teacher, info) {
-  const schedule = DATA.teacherSchedule[teacher] || {};
-  if (!info.day) return null;
-  const startDayIndex = DAYS.indexOf(info.day);
-  if (startDayIndex < 0) return null;
-  const currentEntries = info.current ? (((schedule[info.day] || {})[String(info.current.period)]) || []) : [];
-
-  for (let di = startDayIndex; di < DAYS.length; di++) {
-    const day = DAYS[di];
-    const daySlots = schedule[day] || {};
-    const sortedPeriods = PERIODS.map(p => p.period);
-    for (const p of sortedPeriods) {
-      const afterCurrentDay = di > startDayIndex;
-      const afterCurrentPeriod = !info.current ? (info.next ? p >= info.next.period : true) : p > info.current.period;
-      if ((afterCurrentDay || afterCurrentPeriod) && (daySlots[String(p)] || []).length) {
-        return {
-          day,
-          period: p,
-          time: PERIODS.find(x => x.period === p),
-          entries: daySlots[String(p)],
-          nextWeek: false
-        };
-      }
-    }
-  }
-
-  for (let di = 0; di < startDayIndex; di++) {
-    const day = DAYS[di];
-    const daySlots = schedule[day] || {};
-    const sortedPeriods = PERIODS.map(p => p.period);
-    for (const p of sortedPeriods) {
-      if ((daySlots[String(p)] || []).length) {
-        return {
-          day,
-          period: p,
-          time: PERIODS.find(x => x.period === p),
-          entries: daySlots[String(p)],
-          nextWeek: true
-        };
-      }
-    }
-  }
-
-  if (info.current && currentEntries.length) {
-    return {
-      day: info.day,
-      period: info.current.period,
-      time: PERIODS.find(x => x.period === info.current.period),
-      entries: currentEntries,
-      nextWeek: true
-    };
-  }
-
-  return null;
+  return TEACHERS.filter(t => {
+      const hasClass = slotTeacherEntries(t, day, period).length > 0;
+      const isSubbing = !!findSubForTeacherSubbing(dateStr, period, t);
+      const isLeave = !!findSubForTeacherLeave(dateStr, period, t);
+      if (hasClass || isSubbing || isLeave) return false;
+      return true;
+  });
 }
 
 function renderTeacher() {
   const teacher = document.getElementById('teacherSelect').value;
   const info = getTaipeiDateParts();
   const box = document.getElementById('teacherCurrent');
-  const currentEntries = info.current ? slotTeacherEntries(teacher, info.day, info.current.period) : [];
-  let html = `<div class="lesson-item"><div class="main">${teacher}｜${currentLabel(info)}</div><div class="sub">${info.current ? formatTeacherEntries(currentEntries) : '目前非上課時段'}</div></div>`;
-
-  const nextLesson = findNextTeacherLesson(teacher, info);
-  if (info.current && !currentEntries.length) {
-    html += nextLesson
-      ? `<div class="lesson-item"><div class="main">下一次上課：${nextLesson.nextWeek ? '下週 ' : ''}${nextLesson.day} 第${nextLesson.period}節 (${nextLesson.time.start}-${nextLesson.time.end})</div><div class="sub">${formatTeacherEntries(nextLesson.entries)}</div></div>`
-      : `<div class="lesson-item"><div class="main">接下來暫無課程</div><div class="sub">在目前資料中找不到之後的排課。</div></div>`;
-  } else if (!info.current) {
-    html += nextLesson
-      ? `<div class="lesson-item"><div class="main">下一次上課：${nextLesson.nextWeek ? '下週 ' : ''}${nextLesson.day} 第${nextLesson.period}節 (${nextLesson.time.start}-${nextLesson.time.end})</div><div class="sub">${formatTeacherEntries(nextLesson.entries)}</div></div>`
-      : `<div class="lesson-item"><div class="main">接下來暫無課程</div><div class="sub">在目前資料中找不到之後的排課。</div></div>`;
-  } else if (info.current && currentEntries.length) {
-    html += nextLesson
-      ? `<div class="lesson-item"><div class="main">下一次上課：${nextLesson.nextWeek ? '下週 ' : ''}${nextLesson.day} 第${nextLesson.period}節 (${nextLesson.time.start}-${nextLesson.time.end})</div><div class="sub">${formatTeacherEntries(nextLesson.entries)}</div></div>`
-      : '';
+  
+  let html = `<div class="lesson-item"><div class="main">${teacher}｜${currentLabel(info)}</div><div class="sub">`;
+  if (info.current) {
+      const leaveInfo = findSubForTeacherLeave(info.todayStr, info.current.period, teacher);
+      const subInfo = findSubForTeacherSubbing(info.todayStr, info.current.period, teacher);
+      const currentEntries = slotTeacherEntries(teacher, info.day, info.current.period);
+      let res = "";
+      if (leaveInfo) res += `<span style="color:var(--danger)">[請假]</span> 原班級：${leaveInfo.className} (代課：${leaveInfo.subTeacher})<br>`;
+      else if (currentEntries.length) res += currentEntries.map(e => `${e.subject} / ${e.classes.join('、')} / 教室：${roomText(e.rooms)}`).join('；') + "<br>";
+      if (subInfo) res += `<span style="color:var(--warn)">[${subInfo.type}] ${subInfo.className} (原:${subInfo.origTeacher})</span>`;
+      html += res ? res : "本節無課";
+  } else {
+      html += "目前非上課時段";
   }
-
+  html += `</div></div>`;
   box.innerHTML = html;
 
   document.getElementById('teacherTable').innerHTML = buildWeeklyTable('節次', (day, period) => {
     const entries = slotTeacherEntries(teacher, day, period);
-    return buildCell(entries, 'teacher', '—');
+    return buildCellForTeacher(entries, day, period, teacher);
   });
-convertTables();  
+  convertTables();  
 }
 
 function renderClass() {
   const className = document.getElementById('classSelect').value;
   const info = getTaipeiDateParts();
   const box = document.getElementById('classCurrent');
-  const currentEntries = info.current ? slotClassEntries(className, info.day, info.current.period) : [];
-  let html = `<div class="lesson-item ${gradeClass(className)}"><div class="main">${className}｜${currentLabel(info)}</div><div class="sub">${info.current ? formatClassEntries(currentEntries) : '目前非上課時段'}</div></div>`;
-  if (!info.current && info.next) {
-    const nextEntries = slotClassEntries(className, info.day, info.next.period);
-    html += `<div class="lesson-item ${gradeClass(className)}"><div class="main">下一節：第${info.next.period}節</div><div class="sub">${formatClassEntries(nextEntries)}</div></div>`;
+  
+  let html = `<div class="lesson-item ${gradeClass(className)}"><div class="main">${className}｜${currentLabel(info)}</div><div class="sub">`;
+  if (info.current) {
+      const subInfo = findSubForClass(info.todayStr, info.current.period, className);
+      const currentEntries = slotClassEntries(className, info.day, info.current.period);
+      if (subInfo) {
+          let oSubj = currentEntries.length ? currentEntries[0].subject : "原課程";
+          html += `<span style="text-decoration:line-through; opacity:0.5">${oSubj} / ${subInfo.origTeacher}</span> <span style="color:var(--warn); font-weight:bold;">[${subInfo.type}] ${subInfo.subTeacher}</span>`;
+      } else if (currentEntries.length) {
+          html += currentEntries.map(e => `${e.subject} / ${e.teacher} / 教室：${roomText(e.rooms)}`).join('；');
+      } else {
+          html += "本節無課";
+      }
+  } else {
+      html += "目前非上課時段";
   }
+  html += `</div></div>`;
   box.innerHTML = html;
+
   document.getElementById('classTable').innerHTML = buildWeeklyTable('節次', (day, period) => {
     const entries = slotClassEntries(className, day, period).map(e => ({...e, rawClass: className}));
-    return buildCell(entries, 'class', '—');
+    return buildCellForClass(entries, day, period, className);
   });
-
-convertTables();  
+  convertTables();  
 }
 
 function renderRoom() {
@@ -749,18 +819,21 @@ function renderRoom() {
   const box = document.getElementById('roomCurrent');
   const nowEntries = info.current ? slotRoomEntries(room, info.day, info.current.period) : [];
   let html = `<div class="lesson-item"><div class="main">${room}｜${currentLabel(info)}</div><div class="sub">${info.current ? (nowEntries.length ? nowEntries.map(e => `${e.rawClass} / ${e.subject || '分組課'} / ${e.teacher}`).join('；') : '本節空教室') : '目前非上課時段'}</div></div>`;
-  if (!info.current && info.next) {
-    const nextEntries = slotRoomEntries(room, info.day, info.next.period);
-    html += `<div class="lesson-item"><div class="main">下一節：第${info.next.period}節</div><div class="sub">${nextEntries.length ? nextEntries.map(e => `${e.rawClass} / ${e.subject || '分組課'} / ${e.teacher}`).join('；') : '下一節仍空教室'}</div></div>`;
-  }
   box.innerHTML = html;
+
   document.getElementById('roomTable').innerHTML = buildWeeklyTable('節次', (day, period) => {
     const entries = slotRoomEntries(room, day, period);
-    return buildCell(entries, 'room', '空教室');
+    if (!entries || !entries.length) return `<span class="cell-empty">空教室</span>`;
+    return entries.map(e => {
+        const cName = e.rawClass || '';
+        const subInfo = findSubForClass(currentWeekDates[day], period, cName);
+        let tStr = e.teacher;
+        if (subInfo) tStr = `<span style="text-decoration:line-through; opacity:0.5">${e.teacher}</span> <span style="color:var(--warn); font-weight:bold;">${subInfo.subTeacher}</span>`;
+        return `<div class="cell-box ${gradeClass(cName)}"><div class="cell-main">${cName || '未標示'}</div><div class="cell-sub">${e.subject || '分組課'}<br>${tStr}</div></div>`;
+    }).join('');
   });
   renderRoomEmptyPanel();
-
-convertTables();  
+  convertTables();  
 }
 
 function renderRoomEmptyPanel() {
@@ -783,27 +856,41 @@ function renderDayTable() {
     html += `<tr><td>第${p.period}節<br><span class="cell-sub">${p.start}-${p.end}</span></td>`;
     for (const cls of CLASSES) {
       const entries = slotClassEntries(cls, day, p.period).map(e => ({...e, rawClass: cls}));
-      html += `<td class="${gradeClass(cls)}">${buildCell(entries, 'day', '—')}</td>`;
+      html += `<td class="${gradeClass(cls)}">${buildCellForClass(entries, day, p.period, cls)}</td>`;
     }
     html += `</tr>`;
   }
   document.getElementById('dayTable').innerHTML = html + '</tbody>';
-
-convertTables();  
+  convertTables();  
 }
 
+// 即時上課顯示：加上調代課橘字特效
 function renderDisplay() {
   const info = getTaipeiDateParts();
   document.getElementById('displayTime').textContent = info.time.slice(0,5);
   document.getElementById('displaySub').textContent = currentLabel(info);
   const wall = document.getElementById('wallGrid');
+  
   if (!info.current) {
     wall.innerHTML = CLASSES.map(c => `<div class="wall-card empty ${gradeClass(c)}"><div class="class-name">${c}</div><div class="subject">目前非上課時段</div><div class="teacher">-</div></div>`).join('');
     return;
   }
+  
   wall.innerHTML = CLASSES.map(c => {
     const entries = slotClassEntries(c, info.day, info.current.period);
+    const subInfo = findSubForClass(info.todayStr, info.current.period, c);
+    
+    if (subInfo) {
+        let origSubject = entries.length ? entries[0].subject : "原課程";
+        return `<div class="wall-card ${gradeClass(c)}" style="border: 1px solid var(--warn); box-shadow: 0 0 15px rgba(255, 207, 134, 0.2);">
+          <div class="class-name">${c}</div>
+          <div class="subject"><span style="text-decoration:line-through; opacity:0.5">${origSubject}</span> <span style="color:var(--warn); font-weight:bold;">[${subInfo.type}] ${subInfo.subTeacher}</span></div>
+          <div class="teacher" style="color:var(--danger); opacity:0.8;">原教師：${subInfo.origTeacher} (請假)</div>
+        </div>`;
+    }
+
     if (!entries.length) return `<div class="wall-card empty ${gradeClass(c)}"><div class="class-name">${c}</div><div class="subject">本節無課</div><div class="teacher">-</div></div>`;
+    
     return `<div class="wall-card ${gradeClass(c)}">
       <div class="class-name">${c}</div>
       <div class="subject">${entries.map(e => e.subject).join(' / ')}</div>
@@ -833,13 +920,9 @@ function renderDashboard() {
       ? `<div class="compact-grid">` + emptyRooms.map(r => `<div class="compact-chip">${r}</div>`).join('') + `</div>`
       : `<div class="lesson-item"><div class="main">本節沒有空的教室</div></div>`;
 
-    const idle = getIdleTeachers(info.day, info.current.period);
+    const idle = getIdleTeachers(info.todayStr, info.day, info.current.period);
     teacherBox.innerHTML = idle.length
-      ? `<div class="compact-grid">` + idle.slice(0,60).map(t => {
-          const next = findNextTeacherLesson(t, info);
-          const cls = next && next.entries && next.entries[0] ? gradeClass(next.entries[0].classes.join(' ')) : '';
-          return `<div class="compact-chip ${cls}">${t}</div>`;
-        }).join('') + `</div>`
+      ? `<div class="compact-grid">` + idle.slice(0,60).map(t => `<div class="compact-chip">${t}</div>`).join('') + `</div>`
       : `<div class="lesson-item"><div class="main">目前所有教師都有課</div></div>`;
   } else {
     roomBox.innerHTML = `<div class="lesson-item"><div class="main">目前非上課時段</div><div class="sub">所有教室可視為空教室。</div></div>`;
@@ -849,13 +932,17 @@ function renderDashboard() {
 
 function exportCurrentDayTable() {
   const day = document.getElementById('daySelect').value;
+  const dateStr = currentWeekDates[day];
   const rows = [];
   rows.push(['節次 / 時間', ...CLASSES]);
   for (const p of PERIODS) {
     const row = [`第${p.period}節 ${p.start}-${p.end}`];
     for (const cls of CLASSES) {
       const entries = slotClassEntries(cls, day, p.period);
-      if (!entries.length) {
+      const subInfo = findSubForClass(dateStr, p.period, cls);
+      if (subInfo) {
+          row.push(`[${subInfo.type}] ${subInfo.subTeacher} (原:${subInfo.origTeacher})`);
+      } else if (!entries.length) {
         row.push('');
       } else {
         row.push(entries.map(e => `${e.subject}｜${e.teacher}｜${roomText(e.rooms)}`).join(' / '));
@@ -878,33 +965,8 @@ function exportCurrentDayTable() {
   URL.revokeObjectURL(url);
 }
 
-
-function renderQuickNow() {
-  const info = getTaipeiDateParts();
-  const box = document.getElementById('quickNowList');
-  document.getElementById('quickNowSub').textContent = currentLabel(info);
-  if (!info.current) {
-    box.innerHTML = CLASSES.map(c => `<div class="quick-item ${gradeClass(c)}"><div class="q-top"><div class="q-class">${c}</div><div>目前非上課時段</div></div></div>`).join('');
-    return;
-  }
-  box.innerHTML = CLASSES.map(c => {
-    const entries = slotClassEntries(c, info.day, info.current.period);
-    if (!entries.length) {
-      return `<div class="quick-item ${gradeClass(c)}"><div class="q-top"><div class="q-class">${c}</div><div>本節無課</div></div><div class="q-sub">-</div></div>`;
-    }
-    return `<div class="quick-item ${gradeClass(c)}">
-      <div class="q-top">
-        <div class="q-class">${c}</div>
-        <div>${info.day} 第${info.current.period}節</div>
-      </div>
-      <div class="q-main">${entries.map(e => e.subject).join(' / ')}</div>
-      <div class="q-sub">${entries.map(e => `${e.teacher}｜${roomText(e.rooms)}`).join('<br>')}</div>
-    </div>`;
-  }).join('');
-}
-
-
 function refreshAll() {
+  updateWeekDates(); 
   renderDashboard();
   renderTeacher();
   renderClass();
@@ -937,61 +999,41 @@ function initSelects() {
 }
 
 initSelects();
-refreshAll();
-setInterval(() => {
-  renderDashboard();
-  renderTeacher();
-  renderClass();
-  renderRoom();
-  renderDisplay();
-}, 30000);
-</script>
-
-
-  <script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./service-worker.js")
-}
-</script>
-
-  
-<script>
+loadSubstituteData(); // 載入資料時會自動呼叫 refreshAll()
 
 /* Convert tables to mobile cards (支援動態表格) */
 function convertTables() {
   document.querySelectorAll("table").forEach(table => {
-    // 確保有抓到 thead 裡面的標題
     const thead = table.querySelector("thead");
     if (!thead) return; 
-    
     const headers = [...thead.querySelectorAll("th")].map(th => th.innerText.trim());
-    
     table.querySelectorAll("tbody tr").forEach(row => {
       [...row.children].forEach((cell, i) => {
-        if(headers[i]) {
-          cell.setAttribute("data-label", headers[i]);
-        }
+        if(headers[i]) cell.setAttribute("data-label", headers[i]);
       });
     });
   });
 }
 
-// 首次載入時執行一次
 window.addEventListener("load", convertTables);
 
-// 【重要修改】覆寫原有的 refreshAll，讓每次更新資料後都重新綁定標籤
 const originalRefreshAll = refreshAll;
 refreshAll = function() {
   originalRefreshAll();
-  convertTables(); // 重整後重新綁定
+  convertTables(); 
 }
 
-  
+setInterval(() => {
+  refreshAll();
+}, 30000);
 </script>
 
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./service-worker.js")
+}
+</script>
   
-
-
 
 
   
