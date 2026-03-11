@@ -364,7 +364,7 @@ function updateEventPanel() {
 updateEventPanel(); setInterval(updateEventPanel, 60000);
 
 /* =========================================================
-   Google 試算表調代課陣列抓取 (強化防呆與日期解析版)
+   Google 試算表調代課陣列抓取 (水族箱雙向調課支援版)
 ========================================================= */
 const RAW_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTMAfnrLA8lnVeikakXNnsJ0gh-tJP3PHkX1vd5hlhGU9BjbP7KgTQ-divWsg7NQCdb1BaGq6OOrJpC/pubhtml";
 const SHEET_CSV_URL = RAW_URL.replace(/\/pubhtml.*/, '/pub?output=csv');
@@ -372,17 +372,11 @@ const SHEET_CSV_URL = RAW_URL.replace(/\/pubhtml.*/, '/pub?output=csv');
 let substituteData = [];
 
 function parseCSV(text) {
-    const result = [];
-    let row = [];
-    let col = '';
-    let inQuotes = false;
+    const result = []; let row = []; let col = ''; let inQuotes = false;
     for (let i = 0; i < text.length; i++) {
         let c = text[i];
         if (inQuotes) {
-            if (c === '"') {
-                if (text[i + 1] === '"') { col += '"'; i++; } 
-                else { inQuotes = false; }
-            } else { col += c; }
+            if (c === '"') { if (text[i + 1] === '"') { col += '"'; i++; } else { inQuotes = false; } } else { col += c; }
         } else {
             if (c === '"') { inQuotes = true; }
             else if (c === ',') { row.push(col.trim()); col = ''; }
@@ -394,11 +388,25 @@ function parseCSV(text) {
     return result;
 }
 
+// 幫助解析各種格式的日期字串為 MM/DD
+function parseDateStr(rawDate) {
+    if (!rawDate) return "";
+    let nums = rawDate.split(/[\/\-]/).map(n => parseInt(n, 10));
+    if (nums.length >= 3) {
+        if (nums[0] > 1000) return `${nums[1]}/${nums[2]}`;
+        else return `${nums[0]}/${nums[1]}`;
+    } else if (nums.length === 2) {
+        return `${nums[0]}/${nums[1]}`;
+    }
+    return rawDate;
+}
+
 async function loadSubstituteData() {
     try {
         const fetchUrl = SHEET_CSV_URL + "&t=" + new Date().getTime();
-        const res = await fetch(fetchUrl);
+        const res = await fetch(fetchUrl, { cache: "no-store" });
         const text = await res.text();
+        if (text.trim().startsWith("<")) return;
         
         const rows = parseCSV(text);
         let parsed = [];
@@ -406,44 +414,67 @@ async function loadSubstituteData() {
         for (let i = 1; i < rows.length; i++) {
             const cols = rows[i];
             if(cols.length >= 8 && cols[5]) {
-                let rawDate = cols[0];
-                if(!rawDate) continue;
+                let rawDate1 = cols[0] ? cols[0].trim() : ""; 
+                if(!rawDate1) continue;
                 
-                let cleanDate = rawDate;
-                const parts = cleanDate.split(/[-/]/);
-                if (parts.length >= 3) {
-                    if (parseInt(parts[0], 10) > 1000) {
-                        cleanDate = `${parseInt(parts[1], 10)}/${parseInt(parts[2], 10)}`;
-                    } else {
-                        cleanDate = `${parseInt(parts[0], 10)}/${parseInt(parts[1], 10)}`;
-                    }
-                } else if (parts.length === 2) {
-                    cleanDate = `${parseInt(parts[0], 10)}/${parseInt(parts[1], 10)}`;
-                }
+                let date1 = parseDateStr(rawDate1);
+                if(!date1 || date1.includes("NaN")) continue;
                 
-                let periodVal = parseInt(cols[5], 10);
-                if(isNaN(periodVal)) continue;
+                let periodMatch1 = String(cols[5]).match(/\d+/);
+                if(!periodMatch1) continue;
+                let period1 = parseInt(periodMatch1[0], 10);
                 
-                parsed.push({
-                    date: cleanDate,              
-                    origTeacher: cols[2] || "",  
-                    className: cols[3] || "",    
-                    period: periodVal, 
-                    type: cols[6] || "",         
-                    subTeacher: cols[7] || ""    
+                let origTeacher1 = cols[2] ? cols[2].trim() : "";
+                let className1 = cols[3] ? cols[3].trim() : "";
+                let typeVal = cols[6] ? cols[6].trim() : "";
+                let subTeacher1 = cols[7] ? cols[7].trim() : "";
+
+                // 第一筆：請假/調出 (日期A, 老師C 的課交給 老師H)
+                parsed.push({ 
+                    date: date1, 
+                    origTeacher: origTeacher1, 
+                    className: className1, 
+                    period: period1, 
+                    type: typeVal, 
+                    subTeacher: subTeacher1 
                 });
+
+                // 【雙向調課還原邏輯】：如果是調課，而且後續的還課日期(I)與節次(K)都有填
+                if (typeVal === "調" && cols.length >= 11 && cols[8] && cols[10]) {
+                    let rawDate2 = cols[8].trim();
+                    if (rawDate2) {
+                        let date2 = parseDateStr(rawDate2);
+                        let periodMatch2 = String(cols[10]).match(/\d+/);
+                        if (date2 && !date2.includes("NaN") && periodMatch2) {
+                            let period2 = parseInt(periodMatch2[0], 10);
+                            let className2 = cols[9] ? cols[9].trim() : className1;
+                            
+                            // 第二筆：還課 (日期I, 老師H 原本的課，交給 老師C 來上)
+                            parsed.push({
+                                date: date2,
+                                origTeacher: subTeacher1,
+                                className: className2,
+                                period: period2,
+                                type: "調(補)",
+                                subTeacher: origTeacher1
+                            });
+                        }
+                    }
+                }
             }
         }
         substituteData = parsed;
-        console.log("✅ 調代課資料載入成功！目前共有 " + substituteData.length + " 筆變動。");
+        console.log("✅ 水族箱調代課資料載入成功！共 " + substituteData.length + " 筆變動。");
         
+        // 觸發水族箱精靈更新
         if (typeof updateHUD === "function") updateHUD(); 
     } catch(e) {
-        console.error("❌ 調代課資料載入失敗：", e);
+        console.error("❌ 水族箱調代課資料載入失敗：", e);
     }
 }
+
 loadSubstituteData();
-setInterval(loadSubstituteData, 900000); 
+setInterval(loadSubstituteData, 900000);
 
 function isClassMatch(sheetClass, systemClass) {
     if (!sheetClass || !systemClass) return false;
