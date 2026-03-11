@@ -403,8 +403,9 @@ function parseDateStr(rawDate) {
 
 async function loadSubstituteData() {
     try {
+        // 【修正】：只保留時間戳破壞快取，拔除會觸發安全警報的 { cache: "no-store" }
         const fetchUrl = SHEET_CSV_URL + "&t=" + new Date().getTime();
-        const res = await fetch(fetchUrl, { cache: "no-store" });
+        const res = await fetch(fetchUrl); 
         const text = await res.text();
         if (text.trim().startsWith("<")) return;
         
