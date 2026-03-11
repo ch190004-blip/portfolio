@@ -16,7 +16,7 @@
   --warn:#ffcf86; --danger:#ff9c94; --border:rgba(255,255,255,.10);
   --shadow:0 12px 32px rgba(0,0,0,.28);
   
-  /* 年級專屬色系 (提升透明度讓顏色更明顯) */
+  /* 年級專屬色系 */
   --j7-bg: rgba(84, 160, 255, .22); --j7-br: rgba(122, 181, 255, .50);
   --j8-bg: rgba(103, 194, 126, .22); --j8-br: rgba(138, 220, 160, .48);
   --j9-bg: rgba(255, 178, 102, .22); --j9-br: rgba(255, 196, 136, .52);
@@ -97,7 +97,7 @@ th:first-child, td:first-child { width: 85px; text-align: center; }
 .tag.grade-h2 { background:var(--h2-bg); border-color:var(--h2-br); }
 .tag.grade-h3 { background:var(--h3-bg); border-color:var(--h3-br); }
 
-/* 即時上課網格優化 */
+/* 即時上課網格 */
 .wall-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-top: 16px;}
 .wall-card { border:1px solid var(--border); border-radius:14px; padding:14px; display:flex; flex-direction:column; justify-content:flex-start; gap: 6px; transition: transform 0.2s;}
 .wall-card.empty { opacity:.6; filter: grayscale(50%); background: rgba(255,255,255,0.02) !important; border-color: var(--border) !important; }
@@ -106,9 +106,15 @@ th:first-child, td:first-child { width: 85px; text-align: center; }
 .teacher { color:#c8d8f1; line-height:1.4; font-size: 0.9rem; }
 
 .display-header { display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap; border-bottom: 1px solid var(--border); padding-bottom: 14px; }
-.export-tip { color:#c7d6ee; font-size:.9rem; line-height:1.5; margin-top:10px; }
+.display-sub { font-size: 1.05rem; font-weight: bold; color: var(--accent); }
 
-/* ===== Mobile RWD ===== */
+/* 下課預覽專用標籤 */
+.upcoming-tag {
+  font-size:0.75em; color:#ffd56a; border:1px solid #ffd56a; 
+  padding: 2px 6px; border-radius:6px; margin-left:6px; 
+  vertical-align: middle; letter-spacing: 0.05em;
+}
+
 @media (max-width: 1100px) {
   .col-6 { grid-column: span 12; }
   .wall-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
@@ -175,6 +181,7 @@ th:first-child, td:first-child { width: 85px; text-align: center; }
         <div class="display-header">
           <div>
             <h2 style="margin:0;">全校即時上課顯示</h2>
+            <div class="display-sub" id="displaySub" style="margin-top:6px;">-</div>
           </div>
           <div class="controls">
             <button class="primary" onclick="toggleFullscreen()">全螢幕</button>
@@ -261,7 +268,6 @@ function parseCSV(text) {
     return result;
 }
 
-// 幫助解析各種格式的日期字串為 MM/DD
 function parseDateStr(rawDate) {
     if (!rawDate) return "";
     let nums = rawDate.split(/[\/\-]/).map(n => parseInt(n, 10));
@@ -285,11 +291,9 @@ async function loadSubstituteData() {
         
         for (let i = 1; i < rows.length; i++) {
             const cols = rows[i];
-            // 防呆：只要A到H欄位有東西，且F(節次5)有值就可以
             if(cols.length >= 8 && cols[5]) {
                 let rawDate1 = cols[0] ? cols[0].trim() : ""; 
                 if(!rawDate1) continue;
-                
                 let date1 = parseDateStr(rawDate1);
                 if(!date1 || date1.includes("NaN")) continue;
                 
@@ -302,17 +306,8 @@ async function loadSubstituteData() {
                 let typeVal = cols[6] ? cols[6].trim() : "";
                 let subTeacher1 = cols[7] ? cols[7].trim() : "";
 
-                // 第一筆：請假/調出 (日期A, 老師C 的課交給 老師H)
-                parsed.push({ 
-                    date: date1, 
-                    origTeacher: origTeacher1, 
-                    className: className1, 
-                    period: period1, 
-                    type: typeVal, 
-                    subTeacher: subTeacher1 
-                });
+                parsed.push({ date: date1, origTeacher: origTeacher1, className: className1, period: period1, type: typeVal, subTeacher: subTeacher1 });
 
-                // 【全新邏輯】：如果是調課，而且後面的「還課日期(I)與節次(K)」都有填，就產生第二筆
                 if (typeVal === "調" && cols.length >= 11 && cols[8] && cols[10]) {
                     let rawDate2 = cols[8].trim();
                     if (rawDate2) {
@@ -321,15 +316,8 @@ async function loadSubstituteData() {
                         if (date2 && !date2.includes("NaN") && periodMatch2) {
                             let period2 = parseInt(periodMatch2[0], 10);
                             let className2 = cols[9] ? cols[9].trim() : className1;
-                            
-                            // 第二筆：還課 (日期I, 老師H 原本的課，交給 老師C 來上)
                             parsed.push({
-                                date: date2,
-                                origTeacher: subTeacher1,   // 原本的代課老師變成被代課者
-                                className: className2,
-                                period: period2,
-                                type: "調(補)",            // 標示為調課補回，讓UI呈現更清楚
-                                subTeacher: origTeacher1    // 請假老師來還債
+                                date: date2, origTeacher: subTeacher1, className: className2, period: period2, type: "調(補)", subTeacher: origTeacher1
                             });
                         }
                     }
@@ -337,8 +325,7 @@ async function loadSubstituteData() {
             }
         }
         substituteData = parsed;
-        console.log("✅ 調代課資料載入成功！共 " + substituteData.length + " 筆變動(含調課雙向拆解)。");
-        refreshAll(); // 資料一來立刻刷新
+        refreshAll(); 
     } catch(e) { console.error("❌ 調代課資料載入失敗：", e); }
 }
 
@@ -374,7 +361,6 @@ function findSubForClass(dateStr, period, className) { return substituteData.fin
 const TEACHERS = DATA.teachers; const CLASSES = DATA.classes; const ROOMS = DATA.rooms;
 const DAYS = ["星期一","星期二","星期三","星期四","星期五"]; const PERIODS = DATA.periods;
 
-// 初始更新頂部數量
 document.getElementById('teacherBadge').textContent = `教師 ${TEACHERS.length} 位`;
 document.getElementById('classBadge').textContent = `班級 ${CLASSES.length} 個`;
 document.getElementById('roomBadge').textContent = `教室 ${ROOMS.length} 間`;
@@ -396,9 +382,11 @@ function getTaipeiDateParts() {
   return { date:`${obj.year}/${obj.month}/${obj.day}`, time:`${obj.hour}:${obj.minute}:${obj.second}`, day, current, next, todayStr: `${parseInt(obj.month, 10)}/${parseInt(obj.day, 10)}` };
 }
 
+// 狀態字眼優化
 function currentLabel(info) {
   if (info.current) return `${info.day} 第${info.current.period}節 (${info.current.start}-${info.current.end})`;
-  return `${info.day} 目前非上課時段`;
+  if (info.next) return `${info.day} 下課時間 ➔ 即將進入 第${info.next.period}節`;
+  return `${info.day} 今日課程已結束`;
 }
 
 function slotClassEntries(className, day, period) { return (((DATA.classSchedule[className] || {})[day] || {})[String(period)] || []); }
@@ -423,7 +411,7 @@ function formatClassEntries(entries) {
   return entries.map(e => `${e.subject} / ${e.teacher} / 室：${roomText(e.rooms)}`).join('；');
 }
 
-// 乾淨的 Cell (供四個查詢分頁使用)
+// 乾淨的 Cell (四個查詢分頁專用)
 function buildCell(entries, kind) {
   if (!entries.length) return `<span class="cell-empty">—</span>`;
   return entries.map(e => {
@@ -474,19 +462,16 @@ function renderTeacher() {
   document.getElementById('teacherCurrent').innerHTML = `<div class="lesson-item"><div class="main">${teacher}｜狀態</div><div class="sub">${info.current ? (slotTeacherEntries(teacher, info.day, info.current.period).length?'本節有課':'本節空堂') : '非上課時段'} <br> ${next? `下節課：${next.nextWeek?'下週':''}${next.day} 第${next.period}節`:'無後續課程'}</div></div>`;
   document.getElementById('teacherTable').innerHTML = buildWeeklyTable('節次', (d, p) => buildCell(slotTeacherEntries(teacher, d, p), 'teacher'));
 }
-
 function renderClass() {
   const cls = document.getElementById('classSelect').value; const info = getTaipeiDateParts();
   document.getElementById('classCurrent').innerHTML = `<div class="lesson-item ${gradeClass(cls)}"><div class="main">${cls}</div></div>`;
   document.getElementById('classTable').innerHTML = buildWeeklyTable('節次', (d, p) => buildCell(slotClassEntries(cls, d, p).map(e=>({...e, rawClass:cls})), 'class'));
 }
-
 function renderRoom() {
   const room = document.getElementById('roomSelect').value; const info = getTaipeiDateParts();
   document.getElementById('roomCurrent').innerHTML = `<div class="lesson-item"><div class="main">${room}</div></div>`;
   document.getElementById('roomTable').innerHTML = buildWeeklyTable('節次', (d, p) => buildCell(slotRoomEntries(room, d, p), 'room'));
 }
-
 function renderDayTable() {
   const day = document.getElementById('daySelect').value;
   let html = `<thead><tr><th>節次</th>${CLASSES.map(c => `<th class="${gradeClass(c)}">${c}</th>`).join('')}</tr></thead><tbody>`;
@@ -513,7 +498,7 @@ function exportCurrentDayTable() {
 }
 
 // ======================
-// 總覽與即時顯示 (大融合版)
+// 總覽與即時顯示 (下課預覽邏輯)
 // ======================
 function renderDashboard() {
   const info = getTaipeiDateParts();
@@ -537,22 +522,31 @@ function renderDashboard() {
       subBox.innerHTML = `<div class="lesson-item"><div class="main" style="color: #c5f5d2;">✅ 今日目前無調代課資訊</div></div>`;
   }
 
-  // 渲染即時上課顯示 (標註代課與年級顏色)
+  // 渲染即時上課顯示牆 (加入下課預覽邏輯)
   const wall = document.getElementById('wallGrid');
-  if (!info.current) {
-    wall.innerHTML = CLASSES.map(c => `<div class="wall-card empty ${gradeClass(c)}"><div class="class-name">${c}</div><div class="subject">目前非上課時段</div><div class="teacher">-</div></div>`).join('');
+  
+  let targetPeriodInfo = info.current ? info.current : info.next;
+  let isNext = !info.current && info.next;
+
+  if (!targetPeriodInfo) {
+    document.getElementById('displaySub').textContent = "今日課程已結束";
+    wall.innerHTML = CLASSES.map(c => `<div class="wall-card empty ${gradeClass(c)}"><div class="class-name">${c}</div><div class="subject">今日課程已結束 / 非上課日</div><div class="teacher">-</div></div>`).join('');
     return;
   }
+
+  document.getElementById('displaySub').textContent = isNext ? `下課中 ➔ 預覽第${targetPeriodInfo.period}節` : `第${targetPeriodInfo.period}節 進行中`;
   
   wall.innerHTML = CLASSES.map(c => {
-    const entries = slotClassEntries(c, info.day, info.current.period);
-    const subInfo = findSubForClass(info.todayStr, info.current.period, c);
+    const entries = slotClassEntries(c, info.day, targetPeriodInfo.period);
+    const subInfo = findSubForClass(info.todayStr, targetPeriodInfo.period, c);
     
-    // 如果有調代課，加上橘色發光與原本年級背景色
+    let titleSuffix = isNext ? `<span class="upcoming-tag">即將</span>` : "";
+    let cardStyle = isNext ? "opacity:0.85;" : ""; 
+
     if (subInfo) {
         let oSubj = entries.length ? entries[0].subject : "課程";
-        return `<div class="wall-card ${gradeClass(c)}" style="border:2px solid var(--warn); box-shadow:0 0 15px rgba(255,207,134,0.3);">
-          <div class="class-name">${c}</div>
+        return `<div class="wall-card ${gradeClass(c)}" style="border:2px solid var(--warn); box-shadow:0 0 15px rgba(255,207,134,0.3); ${cardStyle}">
+          <div class="class-name">${c} ${titleSuffix}</div>
           <div class="subject"><span style="text-decoration:line-through; opacity:0.6">${oSubj}</span> <span style="color:var(--warn); font-weight:bold;">[${subInfo.type}]</span></div>
           <div class="teacher">
             <span style="opacity:0.6; text-decoration:line-through;">原: ${subInfo.origTeacher}</span><br>
@@ -561,24 +555,29 @@ function renderDashboard() {
         </div>`;
     }
     
-    if (!entries.length) return `<div class="wall-card empty ${gradeClass(c)}"><div class="class-name">${c}</div><div class="subject">本節無課</div><div class="teacher">-</div></div>`;
+    if (!entries.length) return `<div class="wall-card empty ${gradeClass(c)}" style="${cardStyle}"><div class="class-name">${c} ${titleSuffix}</div><div class="subject">本節無課</div><div class="teacher">-</div></div>`;
     
-    return `<div class="wall-card ${gradeClass(c)}">
-      <div class="class-name">${c}</div>
+    return `<div class="wall-card ${gradeClass(c)}" style="${cardStyle}">
+      <div class="class-name">${c} ${titleSuffix}</div>
       <div class="subject">${entries.map(e => e.subject).join(' / ')}</div>
       <div class="teacher">${entries.map(e => `${e.teacher}｜${roomText(e.rooms)}`).join('<br>')}</div>
     </div>`;
   }).join('');
 }
 
-// 獨立的即時時鐘更新 (每1秒跳動，並同步更新標題與狀態文字)
+// 獨立的即時時鐘更新 (每1秒跳動)
 function startLiveClock() {
     setInterval(() => {
         const info = getTaipeiDateParts();
         const badge = document.getElementById('nowBadge');
         if (badge) badge.textContent = `${info.date} ${info.time}｜${currentLabel(info)}`;
-        // 如果跨節次了，也即時更新標題狀態
         document.getElementById('heroPeriod').textContent = currentLabel(info);
+        
+        // 每秒檢查是否跨節次，自動重繪顯示牆
+        if (window.lastPeriod !== (info.current ? info.current.period : (info.next ? info.next.period + "next" : "end"))) {
+            window.lastPeriod = info.current ? info.current.period : (info.next ? info.next.period + "next" : "end");
+            renderDashboard();
+        }
     }, 1000);
 }
 
@@ -621,7 +620,7 @@ initSelects();
 startLiveClock();
 refreshAll(); 
 loadSubstituteData();
-setInterval(refreshAll, 30000);
+setInterval(refreshAll, 60000); // 改為每 60 秒背景同步一次最新試算表資料
 </script>
 
 <script>
