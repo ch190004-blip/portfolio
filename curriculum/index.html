@@ -119,20 +119,96 @@ th:first-child, td:first-child { width: 85px; text-align: center; }
   .col-6 { grid-column: span 12; }
   .wall-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
 }
-@media (max-width: 768px) {
-  header { padding: 16px; }
-  .tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
-  .tabs::-webkit-scrollbar { display: none; }
-  .tab-btn { flex-shrink: 0; }
-  main { padding: 16px; }
-  .wall-grid { grid-template-columns: 1fr; }
-  .controls select { min-width: 100%; }
-  
-  th:first-child, td:first-child { width: auto; text-align: left; }
-  td { display: flex; flex-direction: column; padding: 12px; border-bottom: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; background: rgba(255,255,255,0.02);}
-  td::before { content: attr(data-label); font-weight: bold; color: var(--accent); margin-bottom: 6px; font-size: 0.9rem;}
-  td > div { width: 100%; text-align: left; align-items: flex-start; }
+@media (max-width:768px){
+
+  header{
+    padding:14px;
+  }
+
+  main{
+    padding:14px;
+  }
+
+  /* tabs 滑動 */
+  .tabs{
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    gap:8px;
+  }
+
+  .tab-btn{
+    flex-shrink:0;
+    padding:10px 12px;
+    font-size:.9rem;
+  }
+
+  /* select 滿版 */
+  .controls select{
+    min-width:100%;
+  }
+
+  /* 表格容器 */
+  .table-wrap{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  /* 表格寬度自適應 */
+  table{
+    min-width:600px;
+    font-size:.9rem;
+  }
+
+  th{
+    font-size:.85rem;
+    padding:8px 6px;
+  }
+
+  td{
+    padding:8px 6px;
+  }
+
+  /* cell 卡片縮小 */
+  .cell-box{
+    padding:6px;
+    margin-bottom:4px;
+  }
+
+  .cell-main{
+    font-size:.85rem;
+    line-height:1.2;
+  }
+
+  .cell-sub{
+    font-size:.75rem;
+  }
+
+  /* dashboard 卡片 */
+  .wall-grid{
+    grid-template-columns:1fr;
+  }
+
+  .class-name{
+    font-size:1rem;
+  }
+
+  .subject{
+    font-size:.95rem;
+  }
+
+  .teacher{
+    font-size:.8rem;
+  }
+
+  /* badge */
+  .badge{
+    font-size:.85rem;
+    padding:5px 10px;
+  }
+
 }
+  
 </style>
 </head>
 <body>
