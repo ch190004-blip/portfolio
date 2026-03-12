@@ -916,8 +916,8 @@ const DATA = {
       "星期一": {
         "1": [{"teacher": "張秀玫", "subject": "語文表達與傳播應用", "rooms": []}],
         "2": [{"teacher": "王世宗", "subject": "選修生物-生態、演化及生物多樣性", "rooms": ["5F 自主學習教室(一)"]}],
-        "5": [{"teacher": "蔡玉良", "subject": "現象一", "rooms": ["5F 自主學習教室(一)"]}],
-        "6": [{"teacher": "蔡玉良", "subject": "現象一", "rooms": ["5F 自主學習教室(一)"]}],
+        "5": [{"teacher": "蔡玉良", "subject": "選修物理-電磁現象一", "rooms": ["5F 自主學習教室(一)"]}],
+        "6": [{"teacher": "蔡玉良", "subject": "選修物理-電磁現象一", "rooms": ["5F 自主學習教室(一)"]}],
         "7": [{"teacher": "之宇", "subject": "英文增補", "rooms": []}],
         "8": [{"teacher": "之宇", "subject": "英文(輔)", "rooms": []}],
         "9": [{"teacher": "之宇", "subject": "英文素養", "rooms": []}],
@@ -1273,7 +1273,7 @@ const DATA = {
         "9": [{"teacher": "莊旭惠", "subject": "英文素養", "rooms": ["5F 視聽教室"]}, {"teacher": "鄒湘平", "subject": "英文素養", "rooms": []}],
         "1": [{"teacher": "江霂歖", "subject": "體育", "rooms": []}],
         "2": [{"teacher": "劉綺芍", "subject": "生涯規劃", "rooms": []}],
-        "3": [{"teacher": "蔡玉良", "subject": "一", "rooms": ["5F 自主學習教室(二)"]}],
+        "3": [{"teacher": "蔡玉良", "subject": "選修物理-力學一", "rooms": ["5F 自主學習教室(二)"]}],
         "5": [{"teacher": "王志遠", "subject": "數位化數學", "rooms": ["5F 自主學習教室(二)"]}],
         "6": [{"teacher": "王志遠", "subject": "數位化數學", "rooms": ["5F 自主學習教室(二)"]}]
       },
@@ -1283,7 +1283,7 @@ const DATA = {
         "8": [{"teacher": "王世宗", "subject": "生物(輔)", "rooms": ["5F 自主學習教室(二)"]}],
         "9": [{"teacher": "王妤文", "subject": "ESL(素養)", "rooms": []}, {"teacher": "Gina", "subject": "ESL(素養)", "rooms": ["4F 美術教室"]}],
         "4": [{"teacher": "Chad", "subject": "英文專題簡報實作", "rooms": ["3F 多功能 e 化教室 (VR Room)"]}, {"teacher": "Gina", "subject": "英文專題簡報實作", "rooms": ["4F 美術教室"]}],
-        "7": [{"teacher": "蔡玉良", "subject": "一", "rooms": ["5F 自主學習教室(二)"]}],
+        "7": [{"teacher": "蔡玉良", "subject": "選修物理-力學一", "rooms": ["5F 自主學習教室(二)"]}],
         "5": [{"teacher": "蘇試", "subject": "數學A", "rooms": ["5F 自主學習教室(二)"]}],
         "6": [{"teacher": "蘇試", "subject": "數學A", "rooms": ["5F 自主學習教室(二)"]}],
         "1": [{"teacher": "劉玉華", "subject": "國語文", "rooms": []}]
