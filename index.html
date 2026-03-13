@@ -70,6 +70,7 @@ font-size:20px;
 display:flex;
 gap:10px;
 margin-top:15px;
+flex-wrap:wrap;
 }
 
 button{
@@ -100,7 +101,6 @@ opacity:0.6;
 
 </head>
 
-
 <body>
 
 <header>
@@ -112,7 +112,6 @@ Interactive Web Projects
 </div>
 
 </header>
-
 
 <div class="container">
 
@@ -140,6 +139,7 @@ onclick="downloadProject('curriculum')">
 
 </div>
 
+
 <!-- aquarium -->
 
 <div class="card">
@@ -161,6 +161,7 @@ onclick="downloadProject('aquarium')">
 </div>
 
 </div>
+
 
 <!-- wave research -->
 
@@ -184,6 +185,7 @@ onclick="downloadProject('eco-wave-power')">
 
 </div>
 
+
 <!-- wave -->
 
 <div class="card">
@@ -205,6 +207,7 @@ onclick="downloadProject('wave')">
 </div>
 
 </div>
+
 
 <!-- interactive -->
 
@@ -228,6 +231,7 @@ onclick="downloadProject('interactive-desktop')">
 
 </div>
 
+
 <!-- schoolday -->
 
 <div class="card">
@@ -250,6 +254,30 @@ onclick="downloadProject('schoolday')">
 
 </div>
 
+
+<!-- PR analyzer 新增 -->
+
+<div class="card">
+
+<h2>PR成績分析系統</h2>
+
+<div class="buttons">
+
+<button class="open"
+onclick="openProject('pr-analyzer')">
+開啟系統
+</button>
+
+<button class="download"
+onclick="downloadProject('pr-analyzer')">
+下載
+</button>
+
+</div>
+
+</div>
+
+
 <!-- test -->
 
 <div class="card">
@@ -258,7 +286,6 @@ onclick="downloadProject('schoolday')">
 
 <div class="buttons">
 
-  
 <button class="open"
 onclick="openProject('test')">
 開啟作品
@@ -273,10 +300,6 @@ onclick="downloadProject('test')">
 
 </div>
 
-
-</div>
-
-</div>
 
 <!-- google site -->
 
@@ -296,10 +319,10 @@ onclick="window.open('https://sites.google.com/view/yuyunchen/home')">
 </div>
 
 
-  
+</div>
 
+</div>
 
-  
 
 <footer>
 
@@ -322,9 +345,7 @@ function downloadProject(folder){
 const repo="ch190004-blip/portfolio"
 
 window.open(
-
 `https://download-directory.github.io/?url=https://github.com/${repo}/tree/main/${folder}`
-
 )
 
 }
