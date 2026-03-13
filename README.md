@@ -1,0 +1,38 @@
+# 班級全科總分 PR 分析網站
+
+這是一個可直接部署到 GitHub Pages 的靜態網站。
+
+## 功能
+- 上傳 `.xls` / `.xlsx` 班級 row data
+- 自動抓取班級、總人數、區排 / 區排名
+- 換算每位學生 PR 值
+- 分桶成 1-10、11-20、21-30 ... 91-100
+- 產出：
+  - 全校六班比較（六條線）
+  - 三個年級總覽（三條線）
+  - 國七 / 國八 / 國九 A-B 比較圖各一張
+- 可下載 CSV / JSON
+
+## GitHub Pages 使用方式
+1. 建立新的 GitHub repository
+2. 把 `index.html` 和 `README.md` 上傳到 repo 根目錄
+3. 到 GitHub Repository 的 Settings → Pages
+4. Source 選擇 `Deploy from a branch`
+5. Branch 選擇 `main` / root
+6. 存檔後等待部署完成
+
+## PR 換算方式
+網站目前用：
+
+`PR = round((總人數 - 區排 + 1) / 總人數 * 100)`
+
+再依 PR 分到：
+- 1-10
+- 11-20
+- 21-30
+- ...
+- 91-100
+
+## 注意
+- 目前優先讀取檔案中的「區排 / 區排名」欄位
+- 若不同來源報表欄位文字略有差異，可再微調 `index.html` 內的解析邏輯
