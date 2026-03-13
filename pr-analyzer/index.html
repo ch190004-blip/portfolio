@@ -372,39 +372,51 @@
       return null;
     }
 
-    function getClassInfo(classIdRaw, fileName, metaText) {
-      let classId = classIdRaw || '';
-      const file = fileName || '';
+    function getClassInfo(classIdRaw, fileName, metaText, gradeRaw = '', classNoRaw = '') {
+      let classId = String(classIdRaw || '').trim();
+      const file = String(fileName || '');
 
-      if (!classId) {
-        const m4 = file.match(/_(\d{4})_/);
-        const m3 = file.match(/_(\d{3})(?:\.|_)/);
-        if (m4) classId = m4[1];
-        else if (m3) classId = m3[1];
-      }
+      let grade = String(gradeRaw || '').replace(/^0+/, '');
+      let classNo = String(classNoRaw || '').replace(/^0+/, '');
 
-      if (!classId) {
+      if (!grade || !classNo) {
         const gradeM = metaText.match(/年級[:：]0?(\d{1,2})/);
         const classM = metaText.match(/班級[:：]0?(\d{1,2})/);
-        if (gradeM && classM) {
-          const grade = gradeM[1].padStart(2, '0');
-          const clazz = classM[1].padStart(2, '0');
-          classId = `${grade}${clazz}`;
+        if (!grade && gradeM) grade = String(Number(gradeM[1]));
+        if (!classNo && classM) classNo = String(Number(classM[1]));
+      }
+
+      if ((!grade || !classNo) && classId) {
+        if (/^\d{4}$/.test(classId)) {
+          grade = grade || String(Number(classId.slice(0, 2)));
+          classNo = classNo || String(Number(classId.slice(2)));
+        } else if (/^\d{3}$/.test(classId)) {
+          grade = grade || classId[0];
+          classNo = classNo || String(Number(classId.slice(1)));
+        } else if (/^\d{1,2}$/.test(classId) && !classNo) {
+          classNo = String(Number(classId));
         }
       }
 
-      let grade = '';
-      let classNo = '';
-      if (/^\d{4}$/.test(classId)) {
-        grade = String(Number(classId.slice(0,2)));
-        classNo = String(Number(classId.slice(2)));
-      } else if (/^\d{3}$/.test(classId)) {
-        grade = classId[0];
-        classNo = String(Number(classId.slice(1)));
+      if ((!grade || !classNo) && file) {
+        const m4 = file.match(/_(\d{4})_/);
+        const m3 = file.match(/_(\d{3})(?:\.|_)/);
+        if (m4) {
+          if (!grade) grade = String(Number(m4[1].slice(0, 2)));
+          if (!classNo) classNo = String(Number(m4[1].slice(2)));
+        } else if (m3) {
+          if (!grade) grade = m3[1][0];
+          if (!classNo) classNo = String(Number(m3[1].slice(1)));
+        }
+      }
+
+      if (!classId && grade && classNo) {
+        classId = Number(grade) >= 7 ? `${String(grade).padStart(2, '0')}${String(classNo).padStart(2, '0')}` : `${grade}${String(classNo).padStart(2, '0')}`;
       }
 
       const classLetter = classNo === '1' ? 'A' : classNo === '2' ? 'B' : classNo;
-      const classLabel = grade ? `國${['','一','二','三','四','五','六','七','八','九'][Number(grade)]}${classLetter}` : classId || '未知班級';
+      const gradeMap = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+      const classLabel = grade && classNo ? `國${gradeMap[Number(grade)]}${classLetter}` : classId || '未知班級';
       return { classId, grade, classNo, classLabel };
     }
 
@@ -477,10 +489,18 @@
       const metaText = rows.slice(0, 10).flat().map(normalize).join(' ');
       const totalPopulation = extractFirstNumber(metaText, [/總人數[:：]([\d,]+)/, /全區人數[:：]([\d,]+)/, /區人數[:：]([\d,]+)/]);
       const classFromMeta = (() => {
-        const m = metaText.match(/班級[:：](\d{2,4})/);
+        const m = metaText.match(/班級[:：](\d{1,4})/);
         return m ? m[1] : '';
       })();
-      const { classId, classLabel, grade } = getClassInfo(classFromMeta, file.name, metaText);
+      const gradeFromMeta = (() => {
+        const m = metaText.match(/年級[:：](\d{1,2})/);
+        return m ? m[1] : '';
+      })();
+      const classNoFromMeta = (() => {
+        const m = metaText.match(/班級[:：](\d{1,2})/);
+        return m ? m[1] : '';
+      })();
+      const { classId, classLabel, grade } = getClassInfo(classFromMeta, file.name, metaText, gradeFromMeta, classNoFromMeta);
       const rankCol = findRankCol(rows, header.rowIndex);
       if (rankCol === null || rankCol === undefined) throw new Error('找不到區排名欄位');
 
@@ -508,11 +528,13 @@
         studentCount++;
       }
 
+      const classInfo = getClassInfo(classId, file.name, metaText, gradeFromMeta, classNoFromMeta);
       return {
         fileName: file.name,
-        classId,
-        classLabel,
-        grade,
+        classId: classInfo.classId,
+        classLabel: classInfo.classLabel,
+        grade: classInfo.grade,
+        classNo: classInfo.classNo,
         totalPopulation,
         studentCount,
         counts
@@ -525,7 +547,15 @@
         if (!item || !item.classLabel) return;
         dedupMap.set(item.classLabel, item);
       });
-      const classes = [...dedupMap.values()].sort((a, b) => a.classLabel.localeCompare(b.classLabel, 'zh-Hant'));
+      const classes = [...dedupMap.values()].sort((a, b) => {
+        const ga = Number(a.grade || 99);
+        const gb = Number(b.grade || 99);
+        if (ga !== gb) return ga - gb;
+        const ca = Number(a.classNo || 99);
+        const cb = Number(b.classNo || 99);
+        if (ca !== cb) return ca - cb;
+        return a.classLabel.localeCompare(b.classLabel, 'zh-Hant');
+      });
 
       const gradeMap = new Map();
       classes.forEach(item => {
