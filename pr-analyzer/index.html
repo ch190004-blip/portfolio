@@ -120,7 +120,43 @@
       color:white;
       border:1px solid rgba(148,163,184,.18);
     }
+    .btn-action{
+      background:var(--accent2);
+      color:#001018;
+    }
     input[type=file]{display:none}
+    
+    /* 新增：待上傳檔案列表樣式 */
+    .file-list {
+      margin-top: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: 0.2s;
+    }
+    .file-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .file-item input {
+      cursor: pointer;
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent);
+    }
+
     .status{
       margin-top:14px;
       padding:14px 16px;
@@ -209,6 +245,33 @@
       min-height:365px;
     }
     .chart-card.wide{grid-column:1/-1}
+    
+    /* 新增：圖表標題列樣式 */
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .chart-header h3 {
+      margin: 0;
+    }
+    .btn-sm {
+      background: var(--line);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+    .btn-sm:hover {
+      background: var(--accent);
+      color: #000;
+    }
+
     canvas{
       width:100% !important;
       height:300px !important;
@@ -244,9 +307,9 @@
     <div class="panel">
       <div class="toolbar">
         <div class="uploader" id="dropZone">
-          <h2>上傳 Excel 後直接分析</h2>
-          <p>這個版本已移除示例模式，開啟網站後不會再先顯示範例。<br>
-          你只要上傳六個班級檔案，就會直接產生 PR 區間統計表與折線圖。</p>
+          <h2>選取檔案並勾選分析</h2>
+          <p>請將檔案拖拉至此，或點擊下方按鈕選擇。<br>
+          系統會列出已載入的檔案，確認勾選後點擊「🚀 開始分析」。</p>
 
           <div class="hint-list">
             <span class="pill">南一：0701 / 0702 / 0801 / 0802 / 0901 / 0902</span>
@@ -255,14 +318,17 @@
             <span class="pill">支援拖拉上傳</span>
           </div>
 
+          <div id="fileListContainer"></div>
+
           <div id="status" class="status">尚未上傳檔案。</div>
         </div>
 
         <div class="controls">
           <label class="file-btn" for="fileInput">📂 選擇 Excel 檔</label>
           <input id="fileInput" type="file" accept=".xls,.xlsx" multiple>
+          <button class="btn btn-action" id="analyzeBtn">🚀 開始分析</button>
           <button class="btn btn-secondary" id="downloadCsvBtn">⬇ 下載 CSV</button>
-          <button class="btn btn-ghost" id="clearBtn">🧹 清空結果</button>
+          <button class="btn btn-ghost" id="clearBtn">🧹 清空所有資料</button>
         </div>
       </div>
 
@@ -289,23 +355,38 @@
 
       <div class="charts">
         <div class="chart-card wide">
-          <h3>全校六班折線圖</h3>
+          <div class="chart-header">
+            <h3>全校六班折線圖</h3>
+            <button class="btn-sm" onclick="downloadChart('allChart', '全校六班折線圖')">⬇ 下載圖表</button>
+          </div>
           <canvas id="allChart"></canvas>
         </div>
         <div class="chart-card wide">
-          <h3>分三個年級折線圖</h3>
+          <div class="chart-header">
+            <h3>分三個年級折線圖</h3>
+            <button class="btn-sm" onclick="downloadChart('gradeChart', '分三個年級折線圖')">⬇ 下載圖表</button>
+          </div>
           <canvas id="gradeChart"></canvas>
         </div>
         <div class="chart-card">
-          <h3>國七 A / B 比較</h3>
+          <div class="chart-header">
+            <h3>國七 A / B 比較</h3>
+            <button class="btn-sm" onclick="downloadChart('g7Chart', '國七A_B比較折線圖')">⬇ 下載圖表</button>
+          </div>
           <canvas id="g7Chart"></canvas>
         </div>
         <div class="chart-card">
-          <h3>國八 A / B 比較</h3>
+          <div class="chart-header">
+            <h3>國八 A / B 比較</h3>
+            <button class="btn-sm" onclick="downloadChart('g8Chart', '國八A_B比較折線圖')">⬇ 下載圖表</button>
+          </div>
           <canvas id="g8Chart"></canvas>
         </div>
         <div class="chart-card wide">
-          <h3>國九 A / B 比較</h3>
+          <div class="chart-header">
+            <h3>國九 A / B 比較</h3>
+            <button class="btn-sm" onclick="downloadChart('g9Chart', '國九A_B比較折線圖')">⬇ 下載圖表</button>
+          </div>
           <canvas id="g9Chart"></canvas>
         </div>
       </div>
@@ -313,6 +394,20 @@
   </div>
 
 <script>
+// --- Chart.js 外掛：確保下載時有深色背景 ---
+const bgColorPlugin = {
+  id: 'customCanvasBackgroundColor',
+  beforeDraw: (chart, args, options) => {
+    const {ctx} = chart;
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-over';
+    ctx.fillStyle = options.color || '#111827'; // 與卡片背景相同的深藍色
+    ctx.fillRect(0, 0, chart.width, chart.height);
+    ctx.restore();
+  }
+};
+Chart.register(bgColorPlugin);
+
 const BINS = ['1-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','81-90','91-100'];
 const CLASS_ORDER = ['國九A','國九B','國八A','國八B','國七A','國七B'];
 const COLORS = {
@@ -329,8 +424,47 @@ const COLORS = {
 
 let currentDataMap = null;
 let charts = {};
+let stagedFiles = []; // 暫存區的檔案列表
 
 function setStatus(text){ document.getElementById('status').textContent = text; }
+
+// --- UI 渲染邏輯 (暫存區) ---
+function renderFileList() {
+  const container = document.getElementById('fileListContainer');
+  if (stagedFiles.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+  container.innerHTML = '<div class="file-list">' + stagedFiles.map((sf, i) => `
+    <label class="file-item" title="${sf.file.name}">
+      <input type="checkbox" ${sf.checked ? 'checked' : ''} onchange="stagedFiles[${i}].checked = this.checked">
+      <span>${sf.file.name}</span>
+    </label>
+  `).join('') + '</div>';
+}
+
+function addFilesToStage(fileList) {
+  Array.from(fileList || []).forEach(file => {
+    // 避免重複加入相同檔名的檔案
+    if (!stagedFiles.some(sf => sf.file.name === file.name)) {
+      stagedFiles.push({ file: file, checked: true });
+    }
+  });
+  renderFileList();
+  setStatus(`已載入 ${stagedFiles.length} 個檔案，請勾選後點擊「🚀 開始分析」。`);
+}
+
+// 下載圖表功能
+function downloadChart(canvasId, filename) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const link = document.createElement('a');
+  link.download = filename + '.png';
+  link.href = canvas.toDataURL('image/png', 1.0);
+  link.click();
+}
+
+// === 以下完全保留你的解析邏輯 ===
 
 function parseNumber(v){
   if(v == null) return null;
@@ -385,10 +519,10 @@ function buildCSV(dataMap){
 
 function downloadCSV(){
   if(!currentDataMap){
-    setStatus('請先上傳 Excel，再下載 CSV。');
+    setStatus('請先產出報表，再下載 CSV。');
     return;
   }
-  const blob = new Blob([buildCSV(currentDataMap)], {type:'text/csv;charset=utf-8;'});
+  const blob = new Blob(['\uFEFF' + buildCSV(currentDataMap)], {type:'text/csv;charset=utf-8;'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -448,6 +582,9 @@ function tooltipOptions(){
 
 function upsertChart(id, config){
   if(charts[id]) charts[id].destroy();
+  // 將預設字體顏色調亮以配合深色背景
+  Chart.defaults.color = '#94a3b8';
+  Chart.defaults.borderColor = 'rgba(148, 163, 184, 0.15)';
   charts[id] = new Chart(document.getElementById(id), config);
 }
 
@@ -690,15 +827,20 @@ function parseWorkbook(file, workbook){
   return parsed;
 }
 
-async function handleFiles(fileList){
-  const files = Array.from(fileList || []);
-  if(!files.length) return;
+// === 修改為按鈕觸發的整合邏輯 ===
+async function processSelectedFiles(){
+  const filesToProcess = stagedFiles.filter(sf => sf.checked).map(sf => sf.file);
+  
+  if(!filesToProcess.length){
+    alert('請至少勾選一個檔案進行分析！');
+    return;
+  }
 
   setStatus('讀取 Excel 中，請稍候...');
   const results = [];
   const summary = [];
 
-  for(const file of files){
+  for(const file of filesToProcess){
     try{
       const buf = await file.arrayBuffer();
       const workbook = XLSX.read(buf, {type:'array'});
@@ -719,11 +861,13 @@ async function handleFiles(fileList){
   renderSummary(summary);
 
   const uploaded = results.map(x => x.classLabel).join('、') || '無';
-  setStatus(`分析完成。\n已辨識班級：${uploaded}\n成功 ${results.length} 份，失敗 ${files.length - results.length} 份。`);
+  setStatus(`分析完成。\n已辨識班級：${uploaded}\n成功 ${results.length} 份，失敗 ${filesToProcess.length - results.length} 份。`);
 }
 
 function clearAll(){
   currentDataMap = emptyDataMap();
+  stagedFiles = []; // 清空暫存區
+  renderFileList();
   renderTable(currentDataMap);
   renderCharts(currentDataMap);
   renderSummary([]);
@@ -731,15 +875,13 @@ function clearAll(){
   document.getElementById('fileInput').value = '';
 }
 
-document.getElementById('fileInput').addEventListener('change', async e => {
-  try{
-    await handleFiles(e.target.files);
-  }catch(err){
-    console.error(err);
-    setStatus('發生錯誤：' + err.message);
-  }
+// --- 事件綁定 ---
+document.getElementById('fileInput').addEventListener('change', e => {
+  addFilesToStage(e.target.files);
+  e.target.value = ''; // 重置 input 讓同檔名可以重複選取
 });
 
+document.getElementById('analyzeBtn').addEventListener('click', processSelectedFiles);
 document.getElementById('downloadCsvBtn').addEventListener('click', downloadCSV);
 document.getElementById('clearBtn').addEventListener('click', clearAll);
 
@@ -759,15 +901,9 @@ const dropZone = document.getElementById('dropZone');
     dropZone.classList.remove('dragover');
   });
 });
-dropZone.addEventListener('drop', async e => {
-  const files = e.dataTransfer.files;
-  if(files && files.length){
-    try{
-      await handleFiles(files);
-    }catch(err){
-      console.error(err);
-      setStatus('發生錯誤：' + err.message);
-    }
+dropZone.addEventListener('drop', e => {
+  if(e.dataTransfer.files && e.dataTransfer.files.length){
+    addFilesToStage(e.dataTransfer.files);
   }
 });
 
