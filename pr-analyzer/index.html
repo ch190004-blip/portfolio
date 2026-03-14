@@ -3,148 +3,182 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PR 成績分析系統 Pro</title>
+  <title>PR 成績分析系統</title>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root{
-      --bg:#0f172a;
+      --bg:#020617;
+      --bg2:#0f172a;
       --panel:#111827;
       --card:#1f2937;
-      --card2:#111827;
+      --line:#334155;
       --text:#f8fafc;
       --muted:#94a3b8;
-      --line:#334155;
       --accent:#38bdf8;
       --accent2:#22c55e;
-      --warn:#f59e0b;
+      --danger:#fb7185;
+      --warning:#f59e0b;
     }
     *{box-sizing:border-box}
     body{
       margin:0;
-      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      background:linear-gradient(180deg,#020617 0%, #0f172a 100%);
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;
       color:var(--text);
+      background:linear-gradient(180deg,var(--bg),var(--bg2));
+      min-height:100vh;
     }
     header{
-      padding:32px 20px 16px;
+      padding:34px 20px 18px;
       text-align:center;
     }
     h1{
-      margin:0 0 8px;
-      font-size:clamp(28px,4vw,40px);
+      margin:0 0 10px;
+      font-size:clamp(28px,4vw,42px);
+      letter-spacing:.5px;
     }
     .subtitle{
       color:var(--muted);
-      font-size:15px;
-      line-height:1.7;
-      max-width:900px;
+      line-height:1.8;
+      max-width:1000px;
       margin:0 auto;
+      font-size:15px;
     }
     .wrap{
-      max-width:1400px;
+      max-width:1450px;
       margin:0 auto;
-      padding:20px;
+      padding:0 20px 28px;
     }
     .panel{
-      background:rgba(17,24,39,.86);
-      border:1px solid rgba(148,163,184,.15);
-      border-radius:18px;
-      padding:20px;
-      box-shadow:0 20px 40px rgba(0,0,0,.25);
-      backdrop-filter:blur(8px);
+      background:rgba(17,24,39,.92);
+      border:1px solid rgba(148,163,184,.14);
+      border-radius:22px;
+      box-shadow:0 24px 50px rgba(0,0,0,.28);
+      overflow:hidden;
     }
     .toolbar{
-      display:flex;
-      gap:14px;
-      flex-wrap:wrap;
-      align-items:center;
-      margin-bottom:18px;
+      padding:22px;
+      display:grid;
+      grid-template-columns:1.25fr .95fr;
+      gap:18px;
+      border-bottom:1px solid rgba(148,163,184,.12);
     }
-    .drop{
-      flex:1 1 420px;
-      border:2px dashed rgba(56,189,248,.45);
-      border-radius:16px;
+    .uploader{
+      background:rgba(15,23,42,.7);
+      border:2px dashed rgba(56,189,248,.4);
+      border-radius:18px;
       padding:18px;
-      background:rgba(15,23,42,.45);
     }
-    .drop strong{display:block; font-size:18px; margin-bottom:6px}
-    .drop p{margin:0; color:var(--muted); line-height:1.7}
-    .actions{display:flex; gap:10px; flex-wrap:wrap}
-    button,.file-btn{
+    .uploader h2{
+      margin:0 0 8px;
+      font-size:22px;
+    }
+    .uploader p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.8;
+      font-size:14px;
+    }
+    .controls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-content:flex-start;
+      align-items:flex-start;
+    }
+    .btn,.file-btn{
       border:none;
-      border-radius:12px;
+      border-radius:13px;
       padding:12px 18px;
-      cursor:pointer;
       font-weight:700;
       font-size:14px;
-      transition:.2s;
+      cursor:pointer;
       text-decoration:none;
       display:inline-flex;
       align-items:center;
       justify-content:center;
       gap:8px;
+      transition:.2s;
     }
-    .primary{background:var(--accent); color:#001018}
-    .secondary{background:#1d4ed8; color:white}
-    .ghost{background:#1f2937; color:white; border:1px solid rgba(148,163,184,.2)}
-    button:hover,.file-btn:hover{transform:translateY(-2px)}
+    .btn:hover,.file-btn:hover{transform:translateY(-2px)}
+    .btn-primary,.file-btn{
+      background:var(--accent);
+      color:#001018;
+    }
+    .btn-secondary{
+      background:#1d4ed8;
+      color:white;
+    }
+    .btn-ghost{
+      background:#1f2937;
+      color:white;
+      border:1px solid rgba(148,163,184,.18);
+    }
     input[type=file]{display:none}
-    .note{
-      margin:14px 0 0;
-      color:#cbd5e1;
+    .status{
+      margin-top:14px;
+      padding:14px 16px;
+      border-radius:14px;
+      background:#0b1220;
+      border:1px solid rgba(148,163,184,.16);
+      color:#dbeafe;
+      white-space:pre-wrap;
       line-height:1.8;
       font-size:14px;
     }
-    .status{
+    .hint-list{
       margin-top:12px;
-      padding:12px 14px;
-      border-radius:12px;
-      background:#0b1220;
-      border:1px solid rgba(148,163,184,.18);
-      color:#dbeafe;
-      display:none;
-      white-space:pre-wrap;
-      line-height:1.7;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
     }
-    .grid{
+    .pill{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      border:1px solid rgba(148,163,184,.18);
+      background:rgba(31,41,55,.8);
+      color:#dbeafe;
+    }
+    .main{
+      padding:20px;
       display:grid;
-      grid-template-columns:1.1fr .9fr;
+      grid-template-columns:1.05fr .95fr;
       gap:18px;
-      margin-top:20px;
     }
     .card{
-      background:rgba(17,24,39,.88);
+      background:rgba(17,24,39,.9);
       border:1px solid rgba(148,163,184,.12);
       border-radius:18px;
       padding:18px;
     }
-    .card h2{
-      margin:0 0 14px;
-      font-size:20px;
+    .card h3{
+      margin:0 0 10px;
+      font-size:21px;
     }
     .small{
       color:var(--muted);
       font-size:13px;
-      line-height:1.7;
-      margin-top:-4px;
+      line-height:1.8;
       margin-bottom:10px;
     }
     .table-wrap{
       overflow:auto;
+      max-height:600px;
     }
     table{
       width:100%;
       border-collapse:collapse;
-      min-width:760px;
+      min-width:780px;
       background:#0b1220;
       border-radius:14px;
       overflow:hidden;
     }
     th,td{
       padding:10px 12px;
-      text-align:center;
       border-bottom:1px solid rgba(148,163,184,.12);
+      text-align:center;
       font-size:14px;
     }
     th{
@@ -155,83 +189,81 @@
     }
     tr:last-child td{border-bottom:none}
     .charts{
+      margin-top:18px;
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:18px;
-      margin-top:18px;
+      padding:0 20px 20px;
     }
     .chart-card{
-      background:rgba(17,24,39,.88);
+      background:rgba(17,24,39,.9);
       border:1px solid rgba(148,163,184,.12);
       border-radius:18px;
       padding:18px;
-      min-height:360px;
+      min-height:365px;
     }
-    .chart-card.wide{grid-column:1 / -1}
-    canvas{width:100% !important; height:300px !important;}
-    .legend-note{
-      color:#cbd5e1;
-      font-size:13px;
-      line-height:1.7;
-      margin-top:8px;
+    .chart-card.wide{grid-column:1/-1}
+    canvas{
+      width:100% !important;
+      height:300px !important;
     }
-    .pill{
-      display:inline-block;
-      padding:5px 10px;
-      border-radius:999px;
-      background:rgba(34,197,94,.14);
-      color:#86efac;
-      border:1px solid rgba(34,197,94,.35);
-      font-size:12px;
-      margin-right:8px;
-      margin-bottom:8px;
+    .ok{color:#86efac}
+    .warn{color:#fde68a}
+    .err{color:#fda4af}
+    .summary-list{
+      margin:8px 0 0;
+      padding-left:18px;
+      line-height:1.8;
+      color:#e2e8f0;
+      font-size:14px;
     }
-    .warn{
-      background:rgba(245,158,11,.12);
-      color:#fde68a;
-      border-color:rgba(245,158,11,.3);
-    }
-    @media (max-width: 980px){
-      .grid{grid-template-columns:1fr}
-      .charts{grid-template-columns:1fr}
+    @media (max-width: 1020px){
+      .toolbar,.main,.charts{
+        grid-template-columns:1fr;
+      }
       .chart-card.wide{grid-column:auto}
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>PR 成績分析系統 Pro</h1>
+    <h1>PR 成績分析系統</h1>
     <div class="subtitle">
-      上傳六個班級 Excel（國七A、國七B、國八A、國八B、國九A、國九B） (支援康軒、南一版本表格)，
-      自動產出 PR 區間分布表與折線圖。<br>
-      本版已強化：<b>0701 / 0702 / 0801 / 0802 / 901 / 902</b> 的班級辨識，並加入本次你提供資料的校對設定。
+      上傳 <code>.xls</code> / <code>.xlsx</code>（支援康軒、南一版本表格）<br>
+      上傳六個班級 Excel（國七A、國七B、國八A、國八B、國九A、國九B）（支援康軒、南一版本表格）
     </div>
   </header>
 
   <div class="wrap">
     <div class="panel">
       <div class="toolbar">
-        <div class="drop">
-          <strong>上傳 Excel 檔案</strong>
-          <p>支援 .xls / .xlsx，可一次選 6 個檔案。上傳後會自動分析、畫圖，並可下載 CSV。</p>
-          <div class="note">建議上傳：國七A、國七B、國八A、國八B、國九A、國九B 六個班級檔案。</div>
+        <div class="uploader">
+          <h2>上傳 Excel 後直接分析</h2>
+          <p>這個版本已移除示例模式，開啟網站後不會再先顯示範例。<br>
+          你只要上傳六個班級檔案，就會直接產生 PR 區間統計表與折線圖。</p>
+
+          <div class="hint-list">
+            <span class="pill">國七：0701 / 0702</span>
+            <span class="pill">國八：0801 / 0802</span>
+            <span class="pill">國九：901 / 902</span>
+            <span class="pill">自動辨識 RN201 / RK202C</span>
+          </div>
+
+          <div id="status" class="status">尚未上傳檔案。</div>
         </div>
 
-        <div class="actions">
-          <label class="file-btn primary" for="fileInput">📂 選擇 Excel</label>
-          <input id="fileInput" type="file" accept=".xls,.xlsx" multiple />
-          <button class="secondary" id="demoBtn">✨ 載入目前校對版示例</button>
-          <button class="ghost" id="csvBtn">⬇ 下載表格 CSV</button>
+        <div class="controls">
+          <label class="file-btn" for="fileInput">📂 選擇 Excel 檔</label>
+          <input id="fileInput" type="file" accept=".xls,.xlsx" multiple>
+          <button class="btn btn-secondary" id="downloadCsvBtn">⬇ 下載 CSV</button>
+          <button class="btn btn-ghost" id="clearBtn">🧹 清空結果</button>
         </div>
       </div>
 
-      <div id="status" class="status"></div>
-
-      <div class="grid">
+      <div class="main">
         <div class="card">
-          <h2>PR 區間統計表</h2>
-          <div class="small">區間為 1-10、11-20、...、91-100。表格與圖表會一起更新。</div>
-          <div id="profileFlags"></div>
+          <h3>PR 區間統計表</h3>
+          <div class="small">區間依序為：1-10、11-20、21-30、31-40、41-50、51-60、61-70、71-80、81-90、91-100。</div>
           <div class="table-wrap">
             <table id="resultTable">
               <thead></thead>
@@ -241,37 +273,33 @@
         </div>
 
         <div class="card">
-          <h2>分析說明</h2>
-          <div class="small">
-            這個版本分成兩層邏輯：
-          </div>
-          <div class="legend-note">
-            <span class="pill">一般模式</span> 依檔案中的班級、區排、全區人數自動計算 PR 區間。<br>
-            <span class="pill warn">校對模式</span> 若上傳內容符合你這次提供的六份報表格式，會套用本次校對設定，直接對齊你提供的目標表格。<br><br>
-            目前已校對的目標欄位順序為：<b>國九A、國九B、國八A、國八B、國七A、國七B</b>。
-          </div>
+          <h3>解析摘要</h3>
+          <div class="small">系統會先辨識班級，再從 Excel 內抓取區排與全區人數，換算 PR 後落入 10 個區間。</div>
+          <ul class="summary-list" id="summaryList">
+            <li>尚未分析。</li>
+          </ul>
         </div>
       </div>
 
       <div class="charts">
         <div class="chart-card wide">
-          <h2>全校六班折線圖</h2>
+          <h3>全校六班折線圖</h3>
           <canvas id="allChart"></canvas>
         </div>
         <div class="chart-card wide">
-          <h2>分年級折線圖（國七、國八、國九）</h2>
+          <h3>分三個年級折線圖</h3>
           <canvas id="gradeChart"></canvas>
         </div>
         <div class="chart-card">
-          <h2>國七 A / B 比較</h2>
+          <h3>國七 A / B 比較</h3>
           <canvas id="g7Chart"></canvas>
         </div>
         <div class="chart-card">
-          <h2>國八 A / B 比較</h2>
+          <h3>國八 A / B 比較</h3>
           <canvas id="g8Chart"></canvas>
         </div>
         <div class="chart-card wide">
-          <h2>國九 A / B 比較</h2>
+          <h3>國九 A / B 比較</h3>
           <canvas id="g9Chart"></canvas>
         </div>
       </div>
@@ -293,29 +321,19 @@ const COLORS = {
   '國九':'#3b82f6'
 };
 
-// 這組就是你提供的校對表
-const REFERENCE_COUNTS = {
-  '國九A':[0,1,6,3,3,3,3,3,1,2],
-  '國九B':[1,0,1,5,5,5,2,3,1,0],
-  '國八A':[1,5,5,2,3,3,4,0,1,0],
-  '國八B':[5,4,6,2,0,3,2,1,0,1],
-  '國七A':[7,7,8,4,4,2,0,1,1,0],
-  '國七B':[11,5,6,4,2,3,0,2,0,1],
-};
-
-let currentResult = null;
+let currentDataMap = null;
 let charts = {};
 
-function showStatus(msg){
-  const el = document.getElementById('status');
-  el.style.display = 'block';
-  el.textContent = msg;
+function setStatus(text){ document.getElementById('status').textContent = text; }
+
+function parseNumber(v){
+  if(v == null) return null;
+  const m = String(v).replace(/,/g,'').match(/-?\d+/);
+  return m ? Number(m[0]) : null;
 }
 
-function parseNumber(text){
-  if(text == null) return null;
-  const m = String(text).replace(/,/g,'').match(/\d+/);
-  return m ? Number(m[0]) : null;
+function normalizeText(v){
+  return String(v ?? '').trim();
 }
 
 function classLabelFromFile(name, meta=''){
@@ -324,8 +342,8 @@ function classLabelFromFile(name, meta=''){
   if(/0702/.test(t)) return '國七B';
   if(/0801/.test(t)) return '國八A';
   if(/0802/.test(t)) return '國八B';
-  if(/_901|班級：901|班級:901/.test(t)) return '國九A';
-  if(/_902|班級：902|班級:902/.test(t)) return '國九B';
+  if(/(?:^|[_\s])901(?:\.|_|\s|$)|班級[:：]\s*901/.test(t)) return '國九A';
+  if(/(?:^|[_\s])902(?:\.|_|\s|$)|班級[:：]\s*902/.test(t)) return '國九B';
   return '';
 }
 
@@ -341,146 +359,34 @@ function bucketByPR(pr){
   return Math.min(9, Math.floor((value - 1) / 10));
 }
 
-function detectCalibrationProfile(parsedFiles){
-  const labels = parsedFiles.map(x => x.classLabel).sort().join('|');
-  const hasRequired = labels === ['國七A','國七B','國八A','國八B','國九A','國九B'].sort().join('|');
-  const looksLikeCurrentSet = parsedFiles.every(x => {
-    const n = x.fileName;
-    return /0701|0702|0801|0802|_901|_902/.test(n);
-  });
-  return hasRequired && looksLikeCurrentSet;
-}
-
-function sheetToMatrix(workbook){
-  const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-  return XLSX.utils.sheet_to_json(firstSheet, { header:1, raw:false, defval:'' });
-}
-
-function parseRN201(matrix, fileName){
-  const metaRow = matrix.find(r => r.some(v => String(v).includes('年級：') && String(v).includes('班級：'))) || [];
-  const metaText = metaRow.join(' ');
-  const classLabel = classLabelFromFile(fileName, metaText);
-
-  let totalArea = parseNumber(metaText.match(/全區：([\d,]+)/)?.[1] || '');
-  const rankHeaderRow = matrix.findIndex(r => r.includes('班排') || r.includes('區排'));
-  const startRow = rankHeaderRow + 1;
-  const rankCol = 33; // 由報表結構固定
-
-  const counts = Array(10).fill(0);
-  let studentCount = 0;
-
-  for(let i = startRow; i < matrix.length; i++){
-    const row = matrix[i] || [];
-    const name = row[3];
-    if(!String(name).trim()) continue;
-    const rank = parseNumber(row[rankCol]);
-    if(!rank || !totalArea) continue;
-    const pr = Math.round(100 * (1 - rank / totalArea));
-    counts[bucketByPR(pr)]++;
-    studentCount++;
-  }
-
-  return {
-    fileName,
-    classLabel,
-    grade: gradeFromClass(classLabel),
-    mode: 'RN201',
-    counts,
-    studentCount,
-    metaText
-  };
-}
-
-function parseRK202C(matrix, fileName){
-  const row1 = (matrix[1] || []).join(' ');
-  const row2 = (matrix[2] || []).join(' ');
-  const metaText = `${row1} ${row2}`;
-  const classLabel = classLabelFromFile(fileName, metaText);
-  const totalArea = parseNumber(metaText.match(/全區人數：([\d,]+)/)?.[1] || '');
-  const startRow = 7;
-  const rankCol = 31;
-
-  const counts = Array(10).fill(0);
-  let studentCount = 0;
-
-  for(let i = startRow; i < matrix.length; i++){
-    const row = matrix[i] || [];
-    const name = row[2];
-    if(!String(name).trim()) continue;
-    const rank = parseNumber(row[rankCol]);
-    if(!rank || !totalArea) continue;
-    const pr = Math.round(100 * (1 - rank / totalArea));
-    counts[bucketByPR(pr)]++;
-    studentCount++;
-  }
-
-  return {
-    fileName,
-    classLabel,
-    grade: gradeFromClass(classLabel),
-    mode: 'RK202C',
-    counts,
-    studentCount,
-    metaText
-  };
-}
-
-function parseWorkbook(fileName, workbook){
-  const matrix = sheetToMatrix(workbook);
-  const mergedText = matrix.slice(0, 8).map(r => r.join(' ')).join(' ');
-  if(/RK202C/.test(mergedText) || /班級能力等級成績統計表/.test(mergedText)) {
-    return parseRK202C(matrix, fileName);
-  }
-  return parseRN201(matrix, fileName);
-}
-
-function buildDataMap(parsedFiles){
+function emptyDataMap(){
   const map = {};
-  parsedFiles.forEach(item => {
-    if(item.classLabel) map[item.classLabel] = item;
+  CLASS_ORDER.forEach(label => {
+    map[label] = { classLabel: label, grade: gradeFromClass(label), counts: Array(10).fill(0), studentCount: 0, mode: '' };
   });
   return map;
 }
 
-function applyCalibrationIfNeeded(parsedFiles){
-  const calibrated = detectCalibrationProfile(parsedFiles);
-  const map = buildDataMap(parsedFiles);
-  if(calibrated){
-    Object.keys(REFERENCE_COUNTS).forEach(label => {
-      if(map[label]){
-        map[label].counts = [...REFERENCE_COUNTS[label]];
-        map[label].calibrated = true;
-      }
-    });
-  }
-  return { dataMap: map, calibrated };
+function buildCSV(dataMap){
+  const rows = [['PR 區間', ...CLASS_ORDER]];
+  BINS.forEach((bin, i) => {
+    rows.push([bin, ...CLASS_ORDER.map(label => dataMap[label]?.counts?.[i] ?? 0)]);
+  });
+  return rows.map(r => r.join(',')).join('\n');
 }
 
-function gradeAggregate(dataMap){
-  const grades = {
-    '國七': Array(10).fill(0),
-    '國八': Array(10).fill(0),
-    '國九': Array(10).fill(0),
-  };
-  for(const label of Object.keys(dataMap)){
-    const grade = gradeFromClass(label);
-    if(!grades[grade]) continue;
-    dataMap[label].counts.forEach((v, i) => grades[grade][i] += v);
+function downloadCSV(){
+  if(!currentDataMap){
+    setStatus('請先上傳 Excel，再下載 CSV。');
+    return;
   }
-  return grades;
-}
-
-function renderFlags(calibrated){
-  const box = document.getElementById('profileFlags');
-  if(calibrated){
-    box.innerHTML = `
-      <span class="pill warn">已套用本次六份 Excel 的校對設定</span>
-      <span class="pill">國九抓取修正</span>
-      <span class="pill">國七、國八對齊參考表</span>
-    `;
-  } else {
-    box.innerHTML = `<span class="pill">一般自動分析模式</span>`;
-  }
+  const blob = new Blob([buildCSV(currentDataMap)], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'pr-distribution.csv';
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 function renderTable(dataMap){
@@ -497,9 +403,22 @@ function renderTable(dataMap){
   tbody.innerHTML = BINS.map((bin, i) => `
     <tr>
       <td><b>${bin}</b></td>
-      ${CLASS_ORDER.map(label => `<td>${dataMap[label]?.counts?.[i] ?? ''}</td>`).join('')}
+      ${CLASS_ORDER.map(label => `<td>${dataMap[label]?.counts?.[i] ?? 0}</td>`).join('')}
     </tr>
   `).join('');
+}
+
+function aggregateGrades(dataMap){
+  const grades = {
+    '國七': Array(10).fill(0),
+    '國八': Array(10).fill(0),
+    '國九': Array(10).fill(0),
+  };
+  for(const label of CLASS_ORDER){
+    const grade = gradeFromClass(label);
+    (dataMap[label]?.counts || []).forEach((v, i) => grades[grade][i] += v);
+  }
+  return grades;
 }
 
 function upsertChart(id, config){
@@ -508,12 +427,12 @@ function upsertChart(id, config){
 }
 
 function renderCharts(dataMap){
-  const makeDataset = labels => labels.map(label => ({
+  const makeSet = labels => labels.map(label => ({
     label,
     data: dataMap[label]?.counts || Array(10).fill(0),
     borderColor: COLORS[label],
     backgroundColor: COLORS[label],
-    tension: 0.25,
+    tension: .25,
     fill: false,
     pointRadius: 4,
     borderWidth: 3
@@ -521,127 +440,188 @@ function renderCharts(dataMap){
 
   upsertChart('allChart', {
     type:'line',
-    data:{ labels:BINS, datasets: makeDataset(CLASS_ORDER) },
+    data:{ labels:BINS, datasets: makeSet(CLASS_ORDER) },
     options:{ responsive:true, maintainAspectRatio:false }
   });
 
-  const grades = gradeAggregate(dataMap);
+  const grades = aggregateGrades(dataMap);
   upsertChart('gradeChart', {
     type:'line',
     data:{
       labels:BINS,
       datasets:[
-        { label:'國七', data:grades['國七'], borderColor:COLORS['國七'], backgroundColor:COLORS['國七'], tension:.25, fill:false, pointRadius:4, borderWidth:3 },
-        { label:'國八', data:grades['國八'], borderColor:COLORS['國八'], backgroundColor:COLORS['國八'], tension:.25, fill:false, pointRadius:4, borderWidth:3 },
-        { label:'國九', data:grades['國九'], borderColor:COLORS['國九'], backgroundColor:COLORS['國九'], tension:.25, fill:false, pointRadius:4, borderWidth:3 },
+        {label:'國七', data:grades['國七'], borderColor:COLORS['國七'], backgroundColor:COLORS['國七'], tension:.25, fill:false, pointRadius:4, borderWidth:3},
+        {label:'國八', data:grades['國八'], borderColor:COLORS['國八'], backgroundColor:COLORS['國八'], tension:.25, fill:false, pointRadius:4, borderWidth:3},
+        {label:'國九', data:grades['國九'], borderColor:COLORS['國九'], backgroundColor:COLORS['國九'], tension:.25, fill:false, pointRadius:4, borderWidth:3},
       ]
     },
     options:{ responsive:true, maintainAspectRatio:false }
   });
 
-  upsertChart('g7Chart', {
-    type:'line',
-    data:{ labels:BINS, datasets: makeDataset(['國七A','國七B']) },
-    options:{ responsive:true, maintainAspectRatio:false }
-  });
-
-  upsertChart('g8Chart', {
-    type:'line',
-    data:{ labels:BINS, datasets: makeDataset(['國八A','國八B']) },
-    options:{ responsive:true, maintainAspectRatio:false }
-  });
-
-  upsertChart('g9Chart', {
-    type:'line',
-    data:{ labels:BINS, datasets: makeDataset(['國九A','國九B']) },
-    options:{ responsive:true, maintainAspectRatio:false }
-  });
+  upsertChart('g7Chart', { type:'line', data:{ labels:BINS, datasets: makeSet(['國七A','國七B']) }, options:{ responsive:true, maintainAspectRatio:false } });
+  upsertChart('g8Chart', { type:'line', data:{ labels:BINS, datasets: makeSet(['國八A','國八B']) }, options:{ responsive:true, maintainAspectRatio:false } });
+  upsertChart('g9Chart', { type:'line', data:{ labels:BINS, datasets: makeSet(['國九A','國九B']) }, options:{ responsive:true, maintainAspectRatio:false } });
 }
 
-function buildCSV(dataMap){
-  const rows = [['PR 區間', ...CLASS_ORDER]];
-  BINS.forEach((bin, i) => {
-    rows.push([bin, ...CLASS_ORDER.map(label => dataMap[label]?.counts?.[i] ?? '')]);
-  });
-  return rows.map(r => r.join(',')).join('\n');
+function renderSummary(items){
+  const el = document.getElementById('summaryList');
+  if(!items.length){
+    el.innerHTML = '<li>尚未分析。</li>';
+    return;
+  }
+  el.innerHTML = items.map(item => `<li>${item}</li>`).join('');
 }
 
-function downloadCSV(dataMap){
-  if(!dataMap) return;
-  const blob = new Blob([buildCSV(dataMap)], {type:'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'pr-distribution.csv';
-  a.click();
-  URL.revokeObjectURL(url);
+function headerIndexByKeywords(row, keywords){
+  return row.findIndex(v => keywords.some(k => normalizeText(v).includes(k)));
 }
 
-function renderAll(parsedFiles){
-  const { dataMap, calibrated } = applyCalibrationIfNeeded(parsedFiles);
-  renderFlags(calibrated);
-  renderTable(dataMap);
-  renderCharts(dataMap);
-  currentResult = dataMap;
+function findHeaderRow(matrix, keywords, maxScan=30){
+  for(let i = 0; i < Math.min(matrix.length, maxScan); i++){
+    const row = matrix[i].map(normalizeText);
+    if(keywords.some(k => row.some(cell => cell.includes(k)))) return i;
+  }
+  return -1;
+}
 
-  const summary = CLASS_ORDER.map(label => {
-    const c = dataMap[label];
-    return `${label}：${c ? c.counts.join(' / ') : '未上傳'}`;
-  }).join('\n');
+function extractTotalAreaFromText(text){
+  const patterns = [
+    /全區人數[:：]\s*([\d,]+)/,
+    /全區[:：]\s*([\d,]+)/,
+    /區人數[:：]\s*([\d,]+)/,
+    /總人數[:：]\s*([\d,]+)/
+  ];
+  for(const p of patterns){
+    const m = text.match(p);
+    if(m) return parseNumber(m[1]);
+  }
+  return null;
+}
 
-  showStatus(
-`分析完成。
-模式：${calibrated ? '已套用本次校對設定' : '一般自動分析'}
-班級：${parsedFiles.map(x => x.classLabel).filter(Boolean).join('、')}
+function parseByDetectedColumns(matrix, fileName){
+  const metaText = matrix.slice(0, 8).map(r => r.join(' ')).join(' ');
+  const classLabel = classLabelFromFile(fileName, metaText);
+  const totalAreaFromText = extractTotalAreaFromText(metaText);
 
-各班 10 區間人數：
-${summary}`
-  );
+  const headerRowIndex = findHeaderRow(matrix, ['區排','排名','名次']);
+  if(headerRowIndex < 0) throw new Error(`找不到排名欄位：${fileName}`);
+
+  const header = matrix[headerRowIndex].map(normalizeText);
+  let nameCol = headerIndexByKeywords(header, ['姓名']);
+  let rankCol = headerIndexByKeywords(header, ['區排','排名','名次']);
+  let totalCol = headerIndexByKeywords(header, ['全區人數','全區','區人數','總人數']);
+
+  // 舊報表固定欄位回退
+  if(rankCol < 0 && /RK202C/.test(metaText)) rankCol = 31;
+  if(rankCol < 0 && /RN201/.test(metaText)) rankCol = 33;
+  if(nameCol < 0){
+    if(/RK202C/.test(metaText)) nameCol = 2;
+    else if(/RN201/.test(metaText)) nameCol = 3;
+  }
+
+  const counts = Array(10).fill(0);
+  let studentCount = 0;
+  let sampleRanks = 0;
+  let derivedTotalArea = totalAreaFromText;
+
+  for(let i = headerRowIndex + 1; i < matrix.length; i++){
+    const row = matrix[i] || [];
+    const name = normalizeText(row[nameCol]);
+    if(!name) continue;
+
+    let rank = parseNumber(row[rankCol]);
+    let totalArea = totalCol >= 0 ? parseNumber(row[totalCol]) : null;
+    if(!totalArea) totalArea = derivedTotalArea;
+
+    if(rank && totalArea){
+      const pr = Math.round(100 * (1 - rank / totalArea));
+      counts[bucketByPR(pr)]++;
+      sampleRanks++;
+    }
+    studentCount++;
+  }
+
+  if(sampleRanks === 0){
+    throw new Error(`未抓到有效的區排/全區人數：${fileName}`);
+  }
+
+  return {
+    fileName,
+    classLabel,
+    grade: gradeFromClass(classLabel),
+    mode: /RK202C/.test(metaText) ? 'RK202C' : (/RN201/.test(metaText) ? 'RN201' : 'auto'),
+    counts,
+    studentCount,
+    metaText
+  };
+}
+
+function sheetToMatrix(workbook){
+  const ws = workbook.Sheets[workbook.SheetNames[0]];
+  return XLSX.utils.sheet_to_json(ws, {header:1, raw:false, defval:''});
+}
+
+function parseWorkbook(file, workbook){
+  const matrix = sheetToMatrix(workbook);
+  const parsed = parseByDetectedColumns(matrix, file.name);
+  if(!parsed.classLabel) throw new Error(`無法辨識班級：${file.name}`);
+  return parsed;
 }
 
 async function handleFiles(fileList){
   const files = Array.from(fileList || []);
   if(!files.length) return;
 
-  const parsed = [];
+  setStatus('讀取 Excel 中，請稍候...');
+  const results = [];
+  const summary = [];
+
   for(const file of files){
-    const buf = await file.arrayBuffer();
-    const workbook = XLSX.read(buf, { type:'array' });
-    parsed.push(parseWorkbook(file.name, workbook));
+    try{
+      const buf = await file.arrayBuffer();
+      const workbook = XLSX.read(buf, {type:'array'});
+      const parsed = parseWorkbook(file, workbook);
+      results.push(parsed);
+      summary.push(`<span class="ok">✔</span> ${parsed.classLabel}　${parsed.mode}　共 ${parsed.studentCount} 筆`);
+    }catch(err){
+      summary.push(`<span class="err">✘</span> ${file.name}　${err.message}`);
+    }
   }
 
-  renderAll(parsed);
+  const dataMap = emptyDataMap();
+  results.forEach(item => { dataMap[item.classLabel] = item; });
+
+  currentDataMap = dataMap;
+  renderTable(dataMap);
+  renderCharts(dataMap);
+  renderSummary(summary);
+
+  const uploaded = results.map(x => x.classLabel).join('、') || '無';
+  setStatus(`分析完成。\n已辨識班級：${uploaded}\n成功 ${results.length} 份，失敗 ${files.length - results.length} 份。`);
 }
 
-document.getElementById('fileInput').addEventListener('change', async (e) => {
+function clearAll(){
+  currentDataMap = emptyDataMap();
+  renderTable(currentDataMap);
+  renderCharts(currentDataMap);
+  renderSummary([]);
+  setStatus('尚未上傳檔案。');
+  document.getElementById('fileInput').value = '';
+}
+
+document.getElementById('fileInput').addEventListener('change', async e => {
   try{
     await handleFiles(e.target.files);
   }catch(err){
     console.error(err);
-    showStatus('讀取檔案時發生問題：' + err.message);
+    setStatus('發生錯誤：' + err.message);
   }
 });
 
-document.getElementById('csvBtn').addEventListener('click', () => {
-  if(!currentResult){
-    showStatus('請先上傳 Excel 或載入示例。');
-    return;
-  }
-  downloadCSV(currentResult);
-});
+document.getElementById('downloadCsvBtn').addEventListener('click', downloadCSV);
+document.getElementById('clearBtn').addEventListener('click', clearAll);
 
-document.getElementById('demoBtn').addEventListener('click', () => {
-  const parsed = CLASS_ORDER.map(label => ({
-    fileName: label,
-    classLabel: label,
-    grade: gradeFromClass(label),
-    counts: [...REFERENCE_COUNTS[label]],
-    calibrated: true
-  }));
-  renderAll(parsed);
-});
-
-document.getElementById('demoBtn').click();
+clearAll();
 </script>
 </body>
 </html>
