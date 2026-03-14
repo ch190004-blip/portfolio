@@ -68,6 +68,12 @@
       border:2px dashed rgba(56,189,248,.4);
       border-radius:18px;
       padding:18px;
+      transition:.18s ease;
+    }
+    .uploader.dragover{
+      border-color:rgba(34,197,94,.8);
+      background:rgba(20,36,56,.95);
+      box-shadow:0 0 0 3px rgba(34,197,94,.14) inset;
     }
     .uploader h2{
       margin:0 0 8px;
@@ -237,7 +243,7 @@
   <div class="wrap">
     <div class="panel">
       <div class="toolbar">
-        <div class="uploader">
+        <div class="uploader" id="dropZone">
           <h2>上傳 Excel 後直接分析</h2>
           <p>這個版本已移除示例模式，開啟網站後不會再先顯示範例。<br>
           你只要上傳六個班級檔案，就會直接產生 PR 區間統計表與折線圖。</p>
@@ -247,6 +253,7 @@
             <span class="pill">國八：0801 / 0802</span>
             <span class="pill">國九：901 / 902</span>
             <span class="pill">自動辨識 RN201 / RK202C</span>
+            <span class="pill">支援拖拉上傳</span>
           </div>
 
           <div id="status" class="status">尚未上傳檔案。</div>
@@ -310,14 +317,14 @@
 const BINS = ['1-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','81-90','91-100'];
 const CLASS_ORDER = ['國九A','國九B','國八A','國八B','國七A','國七B'];
 const COLORS = {
-  '國七A':'#f97316',
-  '國七B':'#fb7185',
+  '國七A':'#ef4444',
+  '國七B':'#f59e0b',
   '國八A':'#22c55e',
-  '國八B':'#10b981',
-  '國九A':'#60a5fa',
-  '國九B':'#818cf8',
-  '國七':'#f59e0b',
-  '國八':'#22c55e',
+  '國八B':'#14b8a6',
+  '國九A':'#2563eb',
+  '國九B':'#a855f7',
+  '國七':'#f97316',
+  '國八':'#10b981',
   '國九':'#3b82f6'
 };
 
@@ -421,6 +428,23 @@ function aggregateGrades(dataMap){
   return grades;
 }
 
+function tooltipOptions(){
+  return {
+    interaction:{ mode:'nearest', intersect:false },
+    plugins:{
+      tooltip:{
+        callbacks:{
+          label(ctx){
+            return `${ctx.dataset.label} (${ctx.label}, ${ctx.parsed.y})`;
+          }
+        }
+      }
+    },
+    responsive:true,
+    maintainAspectRatio:false
+  };
+}
+
 function upsertChart(id, config){
   if(charts[id]) charts[id].destroy();
   charts[id] = new Chart(document.getElementById(id), config);
@@ -435,13 +459,14 @@ function renderCharts(dataMap){
     tension: .25,
     fill: false,
     pointRadius: 4,
+    pointHoverRadius: 6,
     borderWidth: 3
   }));
 
   upsertChart('allChart', {
     type:'line',
     data:{ labels:BINS, datasets: makeSet(CLASS_ORDER) },
-    options:{ responsive:true, maintainAspectRatio:false }
+    options: tooltipOptions()
   });
 
   const grades = aggregateGrades(dataMap);
@@ -450,17 +475,17 @@ function renderCharts(dataMap){
     data:{
       labels:BINS,
       datasets:[
-        {label:'國七', data:grades['國七'], borderColor:COLORS['國七'], backgroundColor:COLORS['國七'], tension:.25, fill:false, pointRadius:4, borderWidth:3},
-        {label:'國八', data:grades['國八'], borderColor:COLORS['國八'], backgroundColor:COLORS['國八'], tension:.25, fill:false, pointRadius:4, borderWidth:3},
-        {label:'國九', data:grades['國九'], borderColor:COLORS['國九'], backgroundColor:COLORS['國九'], tension:.25, fill:false, pointRadius:4, borderWidth:3},
+        {label:'國七', data:grades['國七'], borderColor:COLORS['國七'], backgroundColor:COLORS['國七'], tension:.25, fill:false, pointRadius:4, pointHoverRadius:6, borderWidth:3},
+        {label:'國八', data:grades['國八'], borderColor:COLORS['國八'], backgroundColor:COLORS['國八'], tension:.25, fill:false, pointRadius:4, pointHoverRadius:6, borderWidth:3},
+        {label:'國九', data:grades['國九'], borderColor:COLORS['國九'], backgroundColor:COLORS['國九'], tension:.25, fill:false, pointRadius:4, pointHoverRadius:6, borderWidth:3},
       ]
     },
-    options:{ responsive:true, maintainAspectRatio:false }
+    options: tooltipOptions()
   });
 
-  upsertChart('g7Chart', { type:'line', data:{ labels:BINS, datasets: makeSet(['國七A','國七B']) }, options:{ responsive:true, maintainAspectRatio:false } });
-  upsertChart('g8Chart', { type:'line', data:{ labels:BINS, datasets: makeSet(['國八A','國八B']) }, options:{ responsive:true, maintainAspectRatio:false } });
-  upsertChart('g9Chart', { type:'line', data:{ labels:BINS, datasets: makeSet(['國九A','國九B']) }, options:{ responsive:true, maintainAspectRatio:false } });
+  upsertChart('g7Chart', { type:'line', data:{ labels:BINS, datasets: makeSet(['國七A','國七B']) }, options: tooltipOptions() });
+  upsertChart('g8Chart', { type:'line', data:{ labels:BINS, datasets: makeSet(['國八A','國八B']) }, options: tooltipOptions() });
+  upsertChart('g9Chart', { type:'line', data:{ labels:BINS, datasets: makeSet(['國九A','國九B']) }, options: tooltipOptions() });
 }
 
 function renderSummary(items){
@@ -498,6 +523,51 @@ function extractTotalAreaFromText(text){
   return null;
 }
 
+// 國九：沿用第一版穩定邏輯（RK202C）
+function parseRK202C(matrix, fileName){
+  const row1 = (matrix[1] || []).join(' ');
+  const row2 = (matrix[2] || []).join(' ');
+  const metaText = `${row1} ${row2}`;
+  const classLabel = classLabelFromFile(fileName, metaText);
+  const totalArea = parseNumber(metaText.match(/全區人數[:：]\s*([\d,]+)/)?.[1] || '');
+  const startRow = 7;
+  const rankCol = 31;
+  const nameCol = 2;
+
+  const counts = Array(10).fill(0);
+  let studentCount = 0;
+  let sampleRanks = 0;
+
+  for(let i = startRow; i < matrix.length; i++){
+    const row = matrix[i] || [];
+    const name = normalizeText(row[nameCol]);
+    if(!name) continue;
+
+    const rank = parseNumber(row[rankCol]);
+    if(rank && totalArea){
+      const pr = Math.round(100 * (1 - rank / totalArea));
+      counts[bucketByPR(pr)]++;
+      sampleRanks++;
+    }
+    studentCount++;
+  }
+
+  if(sampleRanks === 0){
+    throw new Error(`國九檔未抓到有效的區排/全區人數：${fileName}`);
+  }
+
+  return {
+    fileName,
+    classLabel,
+    grade: gradeFromClass(classLabel),
+    mode: 'RK202C',
+    counts,
+    studentCount,
+    metaText
+  };
+}
+
+// 國七、國八：維持 v4 一般解析 + 固定欄位回退
 function parseByDetectedColumns(matrix, fileName){
   const metaText = matrix.slice(0, 8).map(r => r.join(' ')).join(' ');
   const classLabel = classLabelFromFile(fileName, metaText);
@@ -511,18 +581,12 @@ function parseByDetectedColumns(matrix, fileName){
   let rankCol = headerIndexByKeywords(header, ['區排','排名','名次']);
   let totalCol = headerIndexByKeywords(header, ['全區人數','全區','區人數','總人數']);
 
-  // 舊報表固定欄位回退
-  if(rankCol < 0 && /RK202C/.test(metaText)) rankCol = 31;
   if(rankCol < 0 && /RN201/.test(metaText)) rankCol = 33;
-  if(nameCol < 0){
-    if(/RK202C/.test(metaText)) nameCol = 2;
-    else if(/RN201/.test(metaText)) nameCol = 3;
-  }
+  if(nameCol < 0 && /RN201/.test(metaText)) nameCol = 3;
 
   const counts = Array(10).fill(0);
   let studentCount = 0;
   let sampleRanks = 0;
-  let derivedTotalArea = totalAreaFromText;
 
   for(let i = headerRowIndex + 1; i < matrix.length; i++){
     const row = matrix[i] || [];
@@ -531,7 +595,7 @@ function parseByDetectedColumns(matrix, fileName){
 
     let rank = parseNumber(row[rankCol]);
     let totalArea = totalCol >= 0 ? parseNumber(row[totalCol]) : null;
-    if(!totalArea) totalArea = derivedTotalArea;
+    if(!totalArea) totalArea = totalAreaFromText;
 
     if(rank && totalArea){
       const pr = Math.round(100 * (1 - rank / totalArea));
@@ -549,7 +613,7 @@ function parseByDetectedColumns(matrix, fileName){
     fileName,
     classLabel,
     grade: gradeFromClass(classLabel),
-    mode: /RK202C/.test(metaText) ? 'RK202C' : (/RN201/.test(metaText) ? 'RN201' : 'auto'),
+    mode: /RN201/.test(metaText) ? 'RN201' : 'auto',
     counts,
     studentCount,
     metaText
@@ -563,7 +627,11 @@ function sheetToMatrix(workbook){
 
 function parseWorkbook(file, workbook){
   const matrix = sheetToMatrix(workbook);
-  const parsed = parseByDetectedColumns(matrix, file.name);
+  const mergedText = matrix.slice(0, 8).map(r => r.join(' ')).join(' ');
+  const parsed = /RK202C|班級能力等級成績統計表/.test(mergedText)
+    ? parseRK202C(matrix, file.name)
+    : parseByDetectedColumns(matrix, file.name);
+
   if(!parsed.classLabel) throw new Error(`無法辨識班級：${file.name}`);
   return parsed;
 }
@@ -620,6 +688,34 @@ document.getElementById('fileInput').addEventListener('change', async e => {
 
 document.getElementById('downloadCsvBtn').addEventListener('click', downloadCSV);
 document.getElementById('clearBtn').addEventListener('click', clearAll);
+
+// 拖拉上傳
+const dropZone = document.getElementById('dropZone');
+['dragenter','dragover'].forEach(evt => {
+  dropZone.addEventListener(evt, e => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropZone.classList.add('dragover');
+  });
+});
+['dragleave','drop'].forEach(evt => {
+  dropZone.addEventListener(evt, e => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropZone.classList.remove('dragover');
+  });
+});
+dropZone.addEventListener('drop', async e => {
+  const files = e.dataTransfer.files;
+  if(files && files.length){
+    try{
+      await handleFiles(files);
+    }catch(err){
+      console.error(err);
+      setStatus('發生錯誤：' + err.message);
+    }
+  }
+});
 
 clearAll();
 </script>
