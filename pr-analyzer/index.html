@@ -235,8 +235,8 @@
   <header>
     <h1>PR 成績分析系統</h1>
     <div class="subtitle">
-      上傳 <code>.xls</code> / <code>.xlsx</code>（支援康軒、南一版本表格）<br>
-      上傳六個班級 Excel（國七A、國七B、國八A、國八B、國九A、國九B）（支援康軒、南一版本表格）
+      上傳 <code>.xls</code> / <code>.xlsx</code>（支援康軒、南一、翰林版本表格）<br>
+      上傳六個班級 Excel（國七A、國七B、國八A、國八B、國九A、國九B）（支援康軒、南一、翰林版本表格）
     </div>
   </header>
 
@@ -249,10 +249,9 @@
           你只要上傳六個班級檔案，就會直接產生 PR 區間統計表與折線圖。</p>
 
           <div class="hint-list">
-            <span class="pill">國七：0701 / 0702</span>
-            <span class="pill">國八：0801 / 0802</span>
-            <span class="pill">國九：901 / 902</span>
-            <span class="pill">自動辨識 RN201 / RK202C</span>
+            <span class="pill">南一：0701 / 0702 / 0801 / 0802 / 0901 / 0902</span>
+            <span class="pill">康軒：901 / 902</span>
+            <span class="pill">翰林：9年01班 / 9年02班</span>
             <span class="pill">支援拖拉上傳</span>
           </div>
 
@@ -349,8 +348,10 @@ function classLabelFromFile(name, meta=''){
   if(/0702/.test(t)) return '國七B';
   if(/0801/.test(t)) return '國八A';
   if(/0802/.test(t)) return '國八B';
-  if(/(?:^|[_\s])901(?:\.|_|\s|$)|班級[:：]\s*901/.test(t)) return '國九A';
-  if(/(?:^|[_\s])902(?:\.|_|\s|$)|班級[:：]\s*902/.test(t)) return '國九B';
+  if(/0901/.test(t)) return '國九A';
+  if(/0902/.test(t)) return '國九B';
+  if(/(?:^|[_\s])901(?:\.|_|\s|$)|班級[:：]\s*901|9年0?1班/.test(t)) return '國九A';
+  if(/(?:^|[_\s])902(?:\.|_|\s|$)|班級[:：]\s*902|9年0?2班/.test(t)) return '國九B';
   return '';
 }
 
@@ -511,6 +512,7 @@ function findHeaderRow(matrix, keywords, maxScan=30){
 
 function extractTotalAreaFromText(text){
   const patterns = [
+    /考區人數[:：]\s*([\d,]+)/,
     /全區人數[:：]\s*([\d,]+)/,
     /全區[:：]\s*([\d,]+)/,
     /區人數[:：]\s*([\d,]+)/,
@@ -523,7 +525,7 @@ function extractTotalAreaFromText(text){
   return null;
 }
 
-// 國九：沿用第一版穩定邏輯（RK202C）
+// 康軒 RK202C：原先穩定版
 function parseRK202C(matrix, fileName){
   const row1 = (matrix[1] || []).join(' ');
   const row2 = (matrix[2] || []).join(' ');
@@ -553,7 +555,7 @@ function parseRK202C(matrix, fileName){
   }
 
   if(sampleRanks === 0){
-    throw new Error(`國九檔未抓到有效的區排/全區人數：${fileName}`);
+    throw new Error(`康軒 RK202C 未抓到有效的區排/全區人數：${fileName}`);
   }
 
   return {
@@ -567,9 +569,54 @@ function parseRK202C(matrix, fileName){
   };
 }
 
-// 國七、國八：維持 v4 一般解析 + 固定欄位回退
-function parseByDetectedColumns(matrix, fileName){
-  const metaText = matrix.slice(0, 8).map(r => r.join(' ')).join(' ');
+// 翰林 RH201CW：9年01班 / 9年02班
+function parseRH201CW(matrix, fileName){
+  const metaText = matrix.slice(0, 6).map(r => r.join(' ')).join(' ');
+  const classLabel = classLabelFromFile(fileName, metaText);
+
+  // row 3/4 has 考區人數 / 全體人數
+  const totalArea = extractTotalAreaFromText(metaText);
+  // data starts row 9 (0-index 8)
+  const startRow = 8;
+  const nameCol = 1;     // 姓名
+  const rankCol = 38;    // 考區總排 (0-index 38 => Excel col 39)
+
+  const counts = Array(10).fill(0);
+  let studentCount = 0;
+  let sampleRanks = 0;
+
+  for(let i = startRow; i < matrix.length; i++){
+    const row = matrix[i] || [];
+    const name = normalizeText(row[nameCol]);
+    if(!name) continue;
+
+    const rank = parseNumber(row[rankCol]);
+    if(rank && totalArea){
+      const pr = Math.round(100 * (1 - rank / totalArea));
+      counts[bucketByPR(pr)]++;
+      sampleRanks++;
+    }
+    studentCount++;
+  }
+
+  if(sampleRanks === 0){
+    throw new Error(`翰林 RH201CW 未抓到有效的考區總排/考區人數：${fileName}`);
+  }
+
+  return {
+    fileName,
+    classLabel,
+    grade: gradeFromClass(classLabel),
+    mode: 'RH201CW',
+    counts,
+    studentCount,
+    metaText
+  };
+}
+
+// 南一 RN201：支援 0701/0702/0801/0802/0901/0902
+function parseRN201(matrix, fileName){
+  const metaText = matrix.slice(0, 10).map(r => r.join(' ')).join(' ');
   const classLabel = classLabelFromFile(fileName, metaText);
   const totalAreaFromText = extractTotalAreaFromText(metaText);
 
@@ -581,8 +628,9 @@ function parseByDetectedColumns(matrix, fileName){
   let rankCol = headerIndexByKeywords(header, ['區排','排名','名次']);
   let totalCol = headerIndexByKeywords(header, ['全區人數','全區','區人數','總人數']);
 
-  if(rankCol < 0 && /RN201/.test(metaText)) rankCol = 33;
-  if(nameCol < 0 && /RN201/.test(metaText)) nameCol = 3;
+  // RN201 固定欄位回退
+  if(rankCol < 0) rankCol = 33;
+  if(nameCol < 0) nameCol = 3;
 
   const counts = Array(10).fill(0);
   let studentCount = 0;
@@ -606,14 +654,14 @@ function parseByDetectedColumns(matrix, fileName){
   }
 
   if(sampleRanks === 0){
-    throw new Error(`未抓到有效的區排/全區人數：${fileName}`);
+    throw new Error(`南一 RN201 未抓到有效的區排/全區人數：${fileName}`);
   }
 
   return {
     fileName,
     classLabel,
     grade: gradeFromClass(classLabel),
-    mode: /RN201/.test(metaText) ? 'RN201' : 'auto',
+    mode: 'RN201',
     counts,
     studentCount,
     metaText
@@ -628,9 +676,15 @@ function sheetToMatrix(workbook){
 function parseWorkbook(file, workbook){
   const matrix = sheetToMatrix(workbook);
   const mergedText = matrix.slice(0, 8).map(r => r.join(' ')).join(' ');
-  const parsed = /RK202C|班級能力等級成績統計表/.test(mergedText)
-    ? parseRK202C(matrix, file.name)
-    : parseByDetectedColumns(matrix, file.name);
+
+  let parsed;
+  if(/RH201CW|班級學生成績總表/.test(mergedText)){
+    parsed = parseRH201CW(matrix, file.name);
+  }else if(/RK202C|班級能力等級成績統計表/.test(mergedText)){
+    parsed = parseRK202C(matrix, file.name);
+  }else{
+    parsed = parseRN201(matrix, file.name);
+  }
 
   if(!parsed.classLabel) throw new Error(`無法辨識班級：${file.name}`);
   return parsed;
