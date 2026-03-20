@@ -11,21 +11,24 @@
   <style>
     html, body { margin:0; padding:0; width:100%; height:100dvh; overflow:hidden; font-family:'Noto Sans TC',sans-serif; background:#f8fafc; }
     body { display:flex; flex-direction:column; }
-    #app { flex:1; display:flex; min-height:0; }
+    #app { flex:1; display:flex; min-height:0; position:relative; }
     #sidebar {
       width: 350px; max-width: 88vw; background:#f8fafc; border-right:1px solid #e2e8f0;
       display:flex; flex-direction:column; position:relative; z-index:1200; transition:transform .28s ease, margin-left .28s ease;
     }
     #map-wrap { flex:1; position:relative; min-width:0; }
     #map { width:100%; height:100%; }
-    #sidebar-toggle {
-      position:absolute; top:50%; right:-28px; width:28px; height:64px; border-radius:0 10px 10px 0;
+    #edge-toggle {
+      position:absolute; top:50%; left:336px; width:28px; height:64px; border-radius:0 10px 10px 0;
       background:#fff; border:1px solid #e2e8f0; border-left:none; box-shadow:4px 0 12px rgba(0,0,0,.08);
       display:flex; align-items:center; justify-content:center; cursor:pointer; color:#64748b;
-      transform:translateY(-50%); z-index:1300;
+      transform:translateY(-50%); z-index:1600; transition:left .28s ease, background-color .18s ease, color .18s ease;
     }
+    #edge-toggle:hover { background:#f8fafc; color:#2563eb; }
+    #edge-toggle i { transition:transform .28s ease; }
     body.sidebar-collapsed #sidebar { transform:translateX(-100%); margin-left:-350px; }
-    body.sidebar-collapsed #sidebar-toggle i { transform:rotate(180deg); }
+    body.sidebar-collapsed #edge-toggle { left:8px; }
+    body.sidebar-collapsed #edge-toggle i { transform:rotate(180deg); }
     #mobile-mask {
       display:none; position:absolute; inset:0; background:rgba(15,23,42,.22); z-index:1100; backdrop-filter:blur(1px);
     }
@@ -68,7 +71,8 @@
       #mobile-mask { display:block; opacity:0; pointer-events:none; transition:opacity .25s ease; }
       body:not(.sidebar-collapsed) #mobile-mask { opacity:1; pointer-events:auto; }
       body.sidebar-collapsed #sidebar { transform:translateX(-100%); margin-left:-350px; }
-      #sidebar-toggle { right:-26px; width:26px; }
+      #edge-toggle { width:26px; left:266px; }
+      body.sidebar-collapsed #edge-toggle { left:8px; }
     }
   </style>
 </head>
@@ -88,10 +92,10 @@
   </div>
 
   <div id="app">
-    <div id="mobile-mask" onclick="toggleSidebar(false)"></div>
+    <div id="mobile-mask" onclick="closeSidebar()"></div>
+    <button id="edge-toggle" onclick="toggleSidebar()" title="切換側欄"><i class="fa-solid fa-chevron-left"></i></button>
 
     <aside id="sidebar">
-      <button id="sidebar-toggle" onclick="toggleSidebar()" title="切換側欄"><i class="fa-solid fa-chevron-right"></i></button>
 
       <section id="userSection" class="flex flex-col h-full">
         <div class="p-4 border-b border-slate-200 bg-white sticky top-0 z-10">
@@ -213,13 +217,39 @@
       showToast._t = setTimeout(() => toast.classList.add('hidden'), 1800);
     }
 
-    function toggleSidebar(force) {
-      if (typeof force === 'boolean') {
-        document.body.classList.toggle('sidebar-collapsed', force);
-      } else {
-        document.body.classList.toggle('sidebar-collapsed');
-      }
+    function syncMapAfterSidebar() {
       setTimeout(() => map.invalidateSize(), 280);
+    }
+
+    function updateToggleTitle() {
+      const btn = document.getElementById('edge-toggle');
+      btn.title = document.body.classList.contains('sidebar-collapsed') ? '打開側欄' : '收起側欄';
+    }
+
+    function openSidebar() {
+      document.body.classList.remove('sidebar-collapsed');
+      updateToggleTitle();
+      syncMapAfterSidebar();
+    }
+
+    function closeSidebar() {
+      document.body.classList.add('sidebar-collapsed');
+      updateToggleTitle();
+      syncMapAfterSidebar();
+    }
+
+    function toggleSidebar(force) {
+      if (force === true) {
+        closeSidebar();
+        return;
+      }
+      if (force === false) {
+        openSidebar();
+        return;
+      }
+      document.body.classList.toggle('sidebar-collapsed');
+      updateToggleTitle();
+      syncMapAfterSidebar();
     }
 
     function switchMode(mode) {
@@ -243,7 +273,7 @@
         renderAdminSelect();
         if (!currentAdminRouteId) routeSelect.value = '';
       }
-      if (window.innerWidth <= 768) toggleSidebar(false);
+      if (window.innerWidth <= 768) openSidebar();
     }
 
     function renderSidebar(filterText = '') {
@@ -267,7 +297,7 @@
           currentUserRouteId = route.id;
           renderSidebar(filterText);
           drawUserRoute(route.id);
-          if (window.innerWidth <= 768) toggleSidebar(true);
+          if (window.innerWidth <= 768) closeSidebar();
         };
         routeList.appendChild(btn);
       });
@@ -448,6 +478,7 @@
     renderSidebar();
     switchMode('user');
     if (window.innerWidth > 768) document.body.classList.remove('sidebar-collapsed');
+    updateToggleTitle();
   </script>
 </body>
 </html>
