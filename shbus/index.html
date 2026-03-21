@@ -3,300 +3,86 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>輔大聖心高中｜校車路線地圖（單一路線版）</title>
+  <title>輔大聖心高中｜校車路線地圖</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #eef3fb;
-      --panel: rgba(255,255,255,.95);
-      --text: #0f172a;
-      --muted: #64748b;
-      --border: #dbe4f0;
-      --shadow: 0 14px 36px rgba(15,23,42,.12);
-      --topbar-h: 68px;
-      --sidebar-w: 332px;
-      --active: #005BFF;
+      --bg:#edf3fb;
+      --panel:rgba(255,255,255,.96);
+      --text:#0f172a;
+      --muted:#64748b;
+      --border:#dbe4f0;
+      --shadow:0 14px 36px rgba(15,23,42,.12);
+      --topbar-h:64px;
+      --sidebar-w:330px;
+      --active:#005BFF;
     }
-    * { box-sizing: border-box; }
-    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Noto Sans TC', system-ui, sans-serif; background: var(--bg); color: var(--text); }
-    body { display: flex; flex-direction: column; }
-    button { font: inherit; }
+    * { box-sizing:border-box; }
+    html,body { margin:0; width:100%; height:100%; overflow:hidden; font-family:'Noto Sans TC',system-ui,sans-serif; background:var(--bg); color:var(--text); }
+    body { display:flex; flex-direction:column; }
+    button { font:inherit; }
     .topbar {
-      height: var(--topbar-h);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 18px;
-      background: linear-gradient(135deg, #0b1327 0%, #16233f 100%);
-      color: white;
-      box-shadow: 0 10px 28px rgba(11,19,39,.24);
-      z-index: 1000;
+      height:var(--topbar-h); display:flex; align-items:center; justify-content:space-between;
+      padding:0 16px 0 18px; color:#fff; background:linear-gradient(135deg,#081225 0%,#16233f 100%);
+      box-shadow:0 10px 28px rgba(11,19,39,.22); z-index:1000;
     }
-    .brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
-    .brand-icon {
-      width: 44px; height: 44px; border-radius: 14px;
-      display: grid; place-items: center;
-      background: linear-gradient(135deg, #3b82f6, #2563eb);
-      font-size: 22px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.28);
-      flex-shrink: 0;
-    }
-    .brand-title { font-size: 21px; font-weight: 900; letter-spacing: .02em; }
-    .brand-sub { font-size: 12px; opacity: .82; margin-top: 2px; }
-    .top-pill {
-      padding: 10px 14px; border-radius: 999px;
-      background: rgba(255,255,255,.10);
-      border: 1px solid rgba(255,255,255,.16);
-      font-size: 12px; font-weight: 800;
-      white-space: nowrap;
-    }
-
-    #app { flex: 1; min-height: 0; display: flex; position: relative; }
-    #sidebar {
-      width: var(--sidebar-w);
-      min-width: var(--sidebar-w);
-      background: rgba(247,250,255,.96);
-      backdrop-filter: blur(18px);
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      z-index: 900;
-      transition: transform .26s ease;
-    }
-    #map-wrap { flex: 1; min-width: 0; position: relative; }
-    #map { width: 100%; height: 100%; }
-    #edgeToggle {
-      position: absolute;
-      left: calc(var(--sidebar-w) - 12px);
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 980;
-      width: 26px;
-      height: 78px;
-      border-radius: 0 14px 14px 0;
-      border: 1px solid var(--border);
-      border-left: none;
-      background: white;
-      box-shadow: 8px 0 24px rgba(15,23,42,.12);
-      cursor: pointer;
-      color: #334155;
-      font-size: 18px;
-      font-weight: 900;
-    }
-    body.sidebar-collapsed #sidebar { transform: translateX(-100%); }
-    body.sidebar-collapsed #edgeToggle { left: 8px; }
-    body.sidebar-collapsed #edgeToggle .arrow { transform: rotate(180deg); }
-    #edgeToggle .arrow { display: inline-block; transition: transform .2s ease; }
-
-    .sidebar-scroll { flex: 1; overflow: auto; padding: 16px 14px 22px; }
-    .panel {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      box-shadow: 0 8px 20px rgba(15,23,42,.05);
-      overflow: hidden;
-    }
-    .section-title {
-      font-size: 13px;
-      font-weight: 900;
-      letter-spacing: .08em;
-      color: #334155;
-      margin: 0 0 10px 2px;
-    }
-    .route-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    .route-btn {
-      position: relative;
-      border: 1px solid var(--border);
-      background: white;
-      border-radius: 18px;
-      padding: 12px 12px 10px;
-      text-align: left;
-      cursor: pointer;
-      transition: .18s ease;
-      overflow: hidden;
-    }
-    .route-btn::before {
-      content: '';
-      position: absolute;
-      inset: 0 auto 0 0;
-      width: 7px;
-      background: var(--color);
-    }
-    .route-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 18px rgba(15,23,42,.08);
-      border-color: color-mix(in srgb, var(--color) 30%, white);
-    }
-    .route-btn.active {
-      background: linear-gradient(135deg, color-mix(in srgb, var(--color) 18%, white), white 65%);
-      border-color: var(--color);
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--color) 18%, white), 0 14px 24px rgba(15,23,42,.10);
-    }
-    .route-btn.active .route-btn-name,
-    .route-btn.active .route-btn-meta { color: #0f172a; }
-    .route-btn-name { font-size: 18px; font-weight: 900; line-height: 1; padding-left: 10px; }
-    .route-btn-meta { font-size: 11px; color: var(--muted); padding-left: 10px; margin-top: 7px; line-height: 1.4; }
-    .route-btn-count {
-      position: absolute; right: 10px; top: 10px;
-      padding: 5px 8px; border-radius: 999px;
-      background: var(--color); color: white;
-      font-size: 11px; font-weight: 900;
-    }
-
-    .summary-card {
-      margin-top: 14px;
-      padding: 16px 16px 14px;
-      border-radius: 22px;
-      color: white;
-      background: linear-gradient(135deg, var(--active), color-mix(in srgb, var(--active) 68%, white));
-      box-shadow: 0 14px 26px color-mix(in srgb, var(--active) 24%, rgba(15,23,42,.12));
-    }
-    .summary-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: flex-start;
-    }
-    .summary-name { font-size: 26px; font-weight: 900; line-height: 1; }
-    .summary-region { font-size: 13px; opacity: .93; margin-top: 8px; }
-    .summary-chip {
-      padding: 7px 10px; border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.15);
-      font-size: 12px; font-weight: 800;
-      white-space: nowrap;
-    }
-    .summary-meta {
-      display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px;
-    }
-    .summary-meta span {
-      padding: 7px 10px; border-radius: 999px;
-      background: rgba(255,255,255,.14);
-      border: 1px solid rgba(255,255,255,.14);
-      font-size: 12px; font-weight: 800;
-    }
-
-    .status-card {
-      margin-top: 14px;
-      padding: 12px 14px;
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.96);
-      color: #334155;
-      font-size: 12px;
-      line-height: 1.6;
-    }
-    .status-card strong { color: #0f172a; }
-    .status-dot {
-      display: inline-block;
-      width: 9px; height: 9px; border-radius: 999px;
-      background: #f59e0b; margin-right: 6px;
-      vertical-align: middle;
-    }
-    .status-dot.ok { background: #10b981; }
-
-    .stops-panel { margin-top: 14px; }
-    .stops-head {
-      padding: 16px 16px 14px;
-      border-bottom: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,250,255,.92));
-    }
-    .stops-head-title { font-size: 16px; font-weight: 900; }
-    .stops-head-sub { font-size: 12px; color: var(--muted); margin-top: 6px; }
-    .stops-list {
-      padding: 12px 10px 14px;
-      max-height: 50vh;
-      overflow: auto;
-      background: rgba(255,255,255,.94);
-    }
-    .stop-item {
-      position: relative;
-      display: block;
-      width: 100%;
-      border: none;
-      background: transparent;
-      padding: 10px 10px 10px 38px;
-      text-align: left;
-      border-radius: 16px;
-      cursor: pointer;
-      transition: .16s ease;
-    }
-    .stop-item:hover {
-      background: color-mix(in srgb, var(--active) 8%, white);
-    }
-    .stop-item.active {
-      background: color-mix(in srgb, var(--active) 12%, white);
-    }
-    .stop-dot {
-      position: absolute;
-      left: 10px; top: 10px;
-      width: 20px; height: 20px; border-radius: 999px;
-      background: var(--active);
-      color: white;
-      display: grid; place-items: center;
-      font-size: 10px; font-weight: 900;
-      box-shadow: 0 0 0 4px white;
-    }
-    .stop-item.school .stop-dot { background: #e11d48; }
-    .stop-name { font-size: 14px; font-weight: 800; color: #0f172a; line-height: 1.35; }
-    .stop-coord { margin-top: 4px; font-size: 11px; color: #64748b; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
-    .stop-item.active .stop-name { color: var(--active); }
-
-    .map-hint {
-      position: absolute;
-      top: 16px;
-      left: 16px;
-      z-index: 700;
-      background: rgba(255,255,255,.94);
-      border: 1px solid rgba(226,232,240,.95);
-      border-radius: 18px;
-      padding: 14px 16px;
-      box-shadow: 0 12px 26px rgba(15,23,42,.10);
-      max-width: min(400px, calc(100vw - 32px));
-    }
-    .map-hint-title { font-size: 14px; font-weight: 900; }
-    .map-hint-sub { font-size: 12px; color: var(--muted); line-height: 1.6; margin-top: 6px; }
-
-    .leaflet-control-zoom {
-      border: none !important;
-      box-shadow: 0 10px 24px rgba(15,23,42,.14);
-      overflow: hidden;
-      border-radius: 16px;
-    }
-    .leaflet-control-zoom a {
-      width: 38px !important;
-      height: 38px !important;
-      line-height: 38px !important;
-      font-size: 18px !important;
-    }
-    .leaflet-popup-content-wrapper {
-      border-radius: 18px;
-      box-shadow: 0 14px 34px rgba(15,23,42,.18);
-    }
-    .leaflet-popup-content { margin: 14px 16px; min-width: 200px; }
-    .stop-popup-title { font-size: 15px; font-weight: 900; color: #0f172a; }
-    .stop-popup-sub { margin-top: 6px; font-size: 12px; color: #64748b; line-height: 1.6; }
-    .leaflet-control-attribution { font-size: 11px; }
-
-    @media (max-width: 900px) {
-      :root { --sidebar-w: min(88vw, 340px); }
-      #sidebar {
-        position: absolute; left: 0; top: 0; bottom: 0;
-        box-shadow: 14px 0 30px rgba(15,23,42,.16);
-      }
-      .brand-title { font-size: 18px; }
-      .brand-sub { display: none; }
-      .top-pill { display: none; }
-      .map-hint { top: 12px; left: 12px; right: 12px; max-width: none; }
-      .stops-list { max-height: 44vh; }
+    .brand { display:flex; align-items:center; gap:12px; min-width:0; }
+    .brand-icon { width:42px; height:42px; border-radius:14px; display:grid; place-items:center; flex-shrink:0; font-size:21px; background:linear-gradient(135deg,#3b82f6,#2563eb); }
+    .brand-title { font-size:20px; font-weight:900; letter-spacing:.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .route-pill { padding:9px 12px; border-radius:999px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.14); font-size:12px; font-weight:800; white-space:nowrap; }
+    #app { flex:1; min-height:0; display:flex; position:relative; }
+    #sidebar { width:var(--sidebar-w); min-width:var(--sidebar-w); background:rgba(247,250,255,.96); border-right:1px solid var(--border); display:flex; flex-direction:column; transition:transform .23s ease; z-index:900; }
+    #map-wrap { flex:1; min-width:0; position:relative; }
+    #map { width:100%; height:100%; }
+    #edgeToggle { position:absolute; left:calc(var(--sidebar-w) - 12px); top:50%; transform:translateY(-50%); z-index:980; width:26px; height:78px; border-radius:0 14px 14px 0; border:1px solid var(--border); border-left:none; background:#fff; box-shadow:8px 0 24px rgba(15,23,42,.12); cursor:pointer; color:#334155; font-size:18px; font-weight:900; }
+    body.sidebar-collapsed #sidebar { transform:translateX(-100%); }
+    body.sidebar-collapsed #edgeToggle { left:8px; }
+    body.sidebar-collapsed #edgeToggle .arrow { transform:rotate(180deg); }
+    #edgeToggle .arrow { display:inline-block; transition:transform .2s ease; }
+    .sidebar-scroll { flex:1; overflow:auto; padding:16px 14px 20px; }
+    .route-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .route-btn { position:relative; border:1px solid var(--border); background:#fff; border-radius:18px; padding:12px 12px 10px; text-align:left; cursor:pointer; transition:transform .14s ease, box-shadow .14s ease, border-color .14s ease; overflow:hidden; }
+    .route-btn::before { content:''; position:absolute; inset:0 auto 0 0; width:8px; background:var(--color); }
+    .route-btn:hover { transform:translateY(-1px); box-shadow:0 10px 18px rgba(15,23,42,.08); border-color:color-mix(in srgb,var(--color) 26%, white); }
+    .route-btn.active { background:linear-gradient(135deg,color-mix(in srgb,var(--color) 15%, white),white 70%); border-color:var(--color); box-shadow:0 0 0 3px color-mix(in srgb,var(--color) 16%, white), 0 12px 22px rgba(15,23,42,.1); }
+    .route-btn-name { font-size:18px; font-weight:900; line-height:1; padding-left:10px; }
+    .route-btn-meta { font-size:11px; color:var(--muted); padding-left:10px; margin-top:7px; line-height:1.35; }
+    .route-btn-count { position:absolute; right:10px; top:10px; padding:5px 8px; border-radius:999px; background:var(--color); color:#fff; font-size:11px; font-weight:900; }
+    .summary-card { margin-top:14px; padding:16px; border-radius:22px; color:#fff; background:linear-gradient(135deg,var(--active), color-mix(in srgb,var(--active) 68%, white)); box-shadow:0 14px 26px color-mix(in srgb,var(--active) 24%, rgba(15,23,42,.12)); }
+    .summary-top { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+    .summary-name { font-size:26px; font-weight:900; line-height:1; }
+    .summary-region { font-size:13px; opacity:.95; margin-top:7px; }
+    .summary-chip { padding:7px 10px; border-radius:999px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.14); font-size:12px; font-weight:900; white-space:nowrap; }
+    .summary-meta { display:flex; gap:8px; flex-wrap:wrap; margin-top:13px; }
+    .summary-meta span { padding:7px 10px; border-radius:999px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.14); font-size:12px; font-weight:800; }
+    .panel { margin-top:14px; background:var(--panel); border:1px solid var(--border); border-radius:22px; overflow:hidden; box-shadow:0 8px 20px rgba(15,23,42,.05); }
+    .panel-head { padding:15px 16px 13px; border-bottom:1px solid var(--border); background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,250,255,.92)); }
+    .panel-head-title { font-size:16px; font-weight:900; }
+    .stops-list { padding:12px 10px 14px; max-height:52vh; overflow:auto; background:rgba(255,255,255,.95); }
+    .stop-item { position:relative; display:block; width:100%; border:none; background:transparent; padding:10px 10px 10px 38px; text-align:left; border-radius:16px; cursor:pointer; transition:background .12s ease; }
+    .stop-item:hover { background:color-mix(in srgb,var(--active) 8%, white); }
+    .stop-item.active { background:color-mix(in srgb,var(--active) 12%, white); }
+    .stop-dot { position:absolute; left:10px; top:10px; width:20px; height:20px; border-radius:999px; background:var(--active); color:#fff; display:grid; place-items:center; font-size:10px; font-weight:900; box-shadow:0 0 0 4px #fff; }
+    .stop-item.school .stop-dot { background:#e11d48; }
+    .stop-name { font-size:14px; font-weight:800; color:#0f172a; line-height:1.35; }
+    .stop-coord { margin-top:4px; font-size:11px; color:#64748b; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+    .map-tools { position:absolute; right:16px; top:16px; z-index:700; display:flex; gap:8px; }
+    .map-tool-btn { padding:10px 12px; border:none; border-radius:14px; background:rgba(255,255,255,.94); box-shadow:0 10px 24px rgba(15,23,42,.12); font-size:12px; font-weight:900; color:#0f172a; cursor:pointer; }
+    .leaflet-control-zoom { border:none !important; box-shadow:0 10px 24px rgba(15,23,42,.14); overflow:hidden; border-radius:16px; }
+    .leaflet-control-zoom a { width:38px !important; height:38px !important; line-height:38px !important; font-size:18px !important; }
+    .leaflet-popup-content-wrapper { border-radius:18px; box-shadow:0 14px 34px rgba(15,23,42,.18); }
+    .leaflet-popup-content { margin:14px 16px; min-width:200px; }
+    .stop-popup-title { font-size:15px; font-weight:900; color:#0f172a; }
+    .stop-popup-sub { margin-top:6px; font-size:12px; color:#64748b; line-height:1.55; }
+    @media (max-width:900px) {
+      :root { --sidebar-w:min(88vw,340px); }
+      #sidebar { position:absolute; left:0; top:0; bottom:0; box-shadow:14px 0 30px rgba(15,23,42,.16); }
+      .brand-title { font-size:18px; }
+      .route-pill { display:none; }
+      .stops-list { max-height:45vh; }
     }
   </style>
 </head>
@@ -304,1215 +90,205 @@
   <header class="topbar">
     <div class="brand">
       <div class="brand-icon">🚌</div>
-      <div>
-        <div class="brand-title">輔大聖心高中 校車路線地圖</div>
-        <div class="brand-sub">單一路線切換版｜一次只顯示一條，顏色更明顯</div>
-      </div>
+      <div class="brand-title">輔大聖心高中 校車路線地圖</div>
     </div>
-    <div class="top-pill" id="topPill">目前顯示：甲車</div>
+    <div class="route-pill" id="topPill">甲車</div>
   </header>
-
   <div id="app">
-    <aside id="sidebar">
-      <div class="sidebar-scroll">
-        <div class="section-title">路線切換</div>
-        <div class="route-grid" id="routeGrid"></div>
-
-        <section class="summary-card" id="summaryCard">
-          <div class="summary-top">
-            <div>
-              <div class="summary-name" id="summaryName">甲車</div>
-              <div class="summary-region" id="summaryRegion">中正、中山區</div>
-            </div>
-            <div class="summary-chip" id="summaryBadge">載入中</div>
-          </div>
-          <div class="summary-meta" id="summaryMeta"></div>
-        </section>
-
-        <div class="status-card" id="statusCard">
-          <div><span class="status-dot" id="statusDot"></span><strong id="statusText">道路路線載入中</strong></div>
-          <div id="statusSub">若道路資料稍慢，會先顯示站點直線，稍後自動改成沿道路版本。</div>
+    <aside id="sidebar"><div class="sidebar-scroll">
+      <div class="route-grid" id="routeGrid"></div>
+      <section class="summary-card" id="summaryCard">
+        <div class="summary-top">
+          <div><div class="summary-name" id="summaryName"></div><div class="summary-region" id="summaryRegion"></div></div>
+          <div class="summary-chip" id="summaryChip"></div>
         </div>
-
-        <section class="panel stops-panel">
-          <div class="stops-head">
-            <div class="stops-head-title">站點清單</div>
-            <div class="stops-head-sub">點任一站名，地圖會直接跳到該站位置。</div>
-          </div>
-          <div class="stops-list" id="stopsList"></div>
-        </section>
-      </div>
-    </aside>
-
+        <div class="summary-meta" id="summaryMeta"></div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><div class="panel-head-title">站點</div></div>
+        <div class="stops-list" id="stopsList"></div>
+      </section>
+    </div></aside>
     <button id="edgeToggle" aria-label="切換側欄"><span class="arrow">❮</span></button>
-
     <main id="map-wrap">
       <div id="map"></div>
-      <div class="map-hint">
-        <div class="map-hint-title">目前只顯示一條路線</div>
-        <div class="map-hint-sub">左側直接切換甲到辛車。每條線都會沿道路顯示；若道路資料尚未回來，會暫時用站點直線當備援。</div>
+      <div class="map-tools">
+        <button class="map-tool-btn" id="focusRouteBtn">聚焦目前路線</button>
       </div>
     </main>
   </div>
-
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    const SCHOOL = {
-      name: '輔大聖心高中',
-      lat: 25.135329910295223,
-      lng: 121.73411787394417
-    };
+    const SCHOOL={name:'輔大聖心高中', lat:25.135329910295223, lng:121.73411787394417};
+    const ROUTES=[{"id":"A","name":"甲車","region":"中正、中山區","color":"#005BFF","stops":[{"order":1,"name":"就業輔導中心","lat":25.137547,"lng":121.749582,"confirmed":true},{"order":2,"name":"中船路口OK店","lat":25.138433,"lng":121.751198,"confirmed":true},{"order":3,"name":"復興館","lat":25.139524,"lng":121.754164,"confirmed":true},{"order":4,"name":"巧味漢堡店","lat":25.141681,"lng":121.75988,"confirmed":true},{"order":5,"name":"安瀾橋7-11","lat":25.14276,"lng":121.760877,"confirmed":true},{"order":6,"name":"七海釣具","lat":25.145729,"lng":121.761716,"confirmed":true},{"order":7,"name":"鈺峰汽車","lat":25.14752368286546,"lng":121.76180143934072,"confirmed":true},{"order":8,"name":"武昌街OK店","lat":25.148961,"lng":121.763709,"confirmed":true},{"order":9,"name":"漁市場對面全家","lat":25.15106197246964,"lng":121.76713833722805,"confirmed":true},{"order":10,"name":"和平藥局","lat":25.1523,"lng":121.7699,"confirmed":true},{"order":11,"name":"海洋大學對面家鄉牛肉麵","lat":25.151091,"lng":121.772065,"confirmed":true},{"order":12,"name":"祥豐街合成診所","lat":25.143656,"lng":121.765677,"confirmed":true},{"order":13,"name":"祥豐市場對面公有停車場","lat":25.142115,"lng":121.763883,"confirmed":true},{"order":14,"name":"亨利幼稚園","lat":25.141686,"lng":121.761559,"confirmed":true},{"order":15,"name":"金田日照中心","lat":25.141837,"lng":121.757108,"confirmed":true},{"order":16,"name":"信五路橙品71","lat":25.134451,"lng":121.746495,"confirmed":true},{"order":17,"name":"義一路自來水公司","lat":25.137927,"lng":121.749707,"confirmed":true},{"order":18,"name":"中山二路全家對面","lat":25.138187,"lng":121.740833,"confirmed":true},{"order":19,"name":"中山區公所站牌","lat":25.153095,"lng":121.729559,"confirmed":true},{"order":20,"name":"土地公廟對面站牌","lat":25.14844,"lng":121.725788,"confirmed":true},{"order":21,"name":"學校","lat":25.135329910295223,"lng":121.73411787394417,"confirmed":false}]},{"id":"B","name":"乙車","region":"仁愛、信義區","color":"#FF2D55","stops":[{"order":1,"name":"東和大樓","lat":25.127544,"lng":121.740772,"confirmed":true},{"order":2,"name":"仁一路華南銀行","lat":25.129869,"lng":121.745309,"confirmed":true},{"order":3,"name":"仁一路7-11","lat":25.128562,"lng":121.747262,"confirmed":true},{"order":4,"name":"白馬磁磚","lat":25.1282,"lng":121.749965,"confirmed":true},{"order":5,"name":"愛九路口","lat":25.128025,"lng":121.752426,"confirmed":true},{"order":6,"name":"美聯社","lat":25.128229,"lng":121.755316,"confirmed":true},{"order":7,"name":"台肥停車場旁","lat":25.127862,"lng":121.758369,"confirmed":true},{"order":8,"name":"東明路77巷口","lat":25.127544,"lng":121.762037,"confirmed":true},{"order":9,"name":"重泰牙醫","lat":25.12816,"lng":121.764445,"confirmed":true},{"order":10,"name":"阿惠便當","lat":25.129253,"lng":121.765163,"confirmed":true},{"order":11,"name":"信義國中站牌","lat":25.128297,"lng":121.767799,"confirmed":true},{"order":12,"name":"燦坤","lat":25.128988,"lng":121.763435,"confirmed":true},{"order":13,"name":"羊肉爐","lat":25.129601,"lng":121.761571,"confirmed":true},{"order":14,"name":"基隆女中","lat":25.128677,"lng":121.759094,"confirmed":true},{"order":15,"name":"七星菁仔行(義九路口)","lat":25.128552,"lng":121.756107,"confirmed":true},{"order":16,"name":"信一路彰化銀行","lat":25.128739,"lng":121.753387,"confirmed":true},{"order":17,"name":"隆美窗簾","lat":25.129038,"lng":121.750395,"confirmed":true},{"order":18,"name":"信一路台新銀行","lat":25.129502,"lng":121.747483,"confirmed":true},{"order":19,"name":"肯德基公車站牌","lat":25.130189,"lng":121.740953,"confirmed":true},{"order":20,"name":"學校","lat":25.135329910295223,"lng":121.73411787394417,"confirmed":false}]},{"id":"C","name":"丙車","region":"安樂區","color":"#00A86B","stops":[{"order":1,"name":"崇德路口","lat":25.132211,"lng":121.729779,"confirmed":true},{"order":2,"name":"安樂中學公車站牌","lat":25.13382,"lng":121.729804,"confirmed":true},{"order":3,"name":"國揚大地門口","lat":25.138882,"lng":121.717979,"confirmed":true},{"order":4,"name":"凱悅名宮","lat":25.139967,"lng":121.715939,"confirmed":true},{"order":5,"name":"武嶺街口","lat":25.14065,"lng":121.711565,"confirmed":true},{"order":6,"name":"采峰傢俱行","lat":25.135008,"lng":121.720644,"confirmed":true},{"order":7,"name":"龍騰大地","lat":25.129284,"lng":121.718849,"confirmed":true},{"order":8,"name":"國家新城","lat":25.129705,"lng":121.717819,"confirmed":true},{"order":9,"name":"天驕","lat":25.128629,"lng":121.715433,"confirmed":true},{"order":10,"name":"霸味薑母鴨","lat":25.125025,"lng":121.7197,"confirmed":true},{"order":11,"name":"橘郡","lat":25.121196,"lng":121.720431,"confirmed":true},{"order":12,"name":"建德眼鏡行","lat":25.12154,"lng":121.724235,"confirmed":true},{"order":13,"name":"學校","lat":25.135329910295223,"lng":121.73411787394417,"confirmed":false}]},{"id":"D","name":"丁車","region":"信義、仁愛區","color":"#FF7A00","stops":[{"order":1,"name":"培德高職對面站牌","lat":25.129313,"lng":121.771414,"confirmed":true},{"order":2,"name":"孝東路站牌","lat":25.128607,"lng":121.779497,"confirmed":true},{"order":3,"name":"愛買對面","lat":25.13304,"lng":121.782415,"confirmed":true},{"order":4,"name":"深美國小7-11","lat":25.137354,"lng":121.778901,"confirmed":true},{"order":5,"name":"深澳坑路6巷站牌","lat":25.13332,"lng":121.777055,"confirmed":true},{"order":6,"name":"美的世界(深美藥局)","lat":25.136686,"lng":121.773873,"confirmed":true},{"order":7,"name":"大香港對面站牌","lat":25.136849,"lng":121.770969,"confirmed":true},{"order":8,"name":"翠峰山莊","lat":25.132273,"lng":121.770275,"confirmed":true},{"order":9,"name":"信義大街","lat":25.131424,"lng":121.768708,"confirmed":true},{"order":10,"name":"土地公廟","lat":25.129528,"lng":121.767441,"confirmed":true},{"order":11,"name":"光華國宅對面(阿忠檳榔)","lat":25.12845,"lng":121.736618,"confirmed":true},{"order":12,"name":"學校","lat":25.135329910295223,"lng":121.73411787394417,"confirmed":false}]},{"id":"E","name":"戊車","region":"七堵、仁愛區","color":"#7A2CFF","stops":[{"order":1,"name":"百福消防局","lat":25.085675,"lng":121.697589,"confirmed":true},{"order":2,"name":"福五街7-11","lat":25.084762,"lng":121.698543,"confirmed":true},{"order":3,"name":"全聯","lat":25.084978,"lng":121.697723,"confirmed":true},{"order":4,"name":"百三街7-11","lat":25.08199,"lng":121.69809,"confirmed":true},{"order":5,"name":"明德二路幸福人生","lat":25.088771,"lng":121.705367,"confirmed":true},{"order":6,"name":"陽明海運","lat":25.094178,"lng":121.710656,"confirmed":true},{"order":7,"name":"七堵郵局","lat":25.097163,"lng":121.71283,"confirmed":true},{"order":8,"name":"泰安診所","lat":25.098628,"lng":121.715882,"confirmed":true},{"order":9,"name":"阿忠檳榔","lat":25.100097,"lng":121.717697,"confirmed":true},{"order":10,"name":"八堵橋頭全家","lat":25.110211,"lng":121.733991,"confirmed":true},{"order":11,"name":"上好汽車借款","lat":25.110793,"lng":121.736042,"confirmed":true},{"order":12,"name":"南榮黃昏市場對面","lat":25.115243,"lng":121.743077,"confirmed":true},{"order":13,"name":"南榮路OK店","lat":25.118495,"lng":121.744215,"confirmed":true},{"order":14,"name":"南榮國小","lat":25.119472,"lng":121.743587,"confirmed":true},{"order":15,"name":"南榮路7-11","lat":25.123958,"lng":121.74317,"confirmed":true},{"order":16,"name":"南榮郵局對面","lat":25.125766,"lng":121.742851,"confirmed":true},{"order":17,"name":"天仁茗茶","lat":25.128364,"lng":121.742751,"confirmed":true},{"order":18,"name":"學校","lat":25.135329910295223,"lng":121.73411787394417,"confirmed":false}]},{"id":"F","name":"己車","region":"暖暖區","color":"#009E9A","stops":[{"order":1,"name":"過港活動中心對面","lat":25.10471,"lng":121.738158,"confirmed":true},{"order":2,"name":"過港OK店對面","lat":25.10401,"lng":121.739781,"confirmed":true},{"order":3,"name":"碇內加油站對面7-11","lat":25.098246,"lng":121.748905,"confirmed":true},{"order":4,"name":"源遠台灣房屋","lat":25.098302,"lng":121.751034,"confirmed":true},{"order":5,"name":"碇內國小旁(碇內五金行)","lat":25.098613,"lng":121.754523,"confirmed":true},{"order":6,"name":"碇內診所對面","lat":25.099285,"lng":121.757529,"confirmed":true},{"order":7,"name":"藝觀天下對面","lat":25.097058,"lng":121.756058,"confirmed":true},{"order":8,"name":"暖碇路7-11","lat":25.096482,"lng":121.754945,"confirmed":true},{"order":9,"name":"琉璃園","lat":25.095801,"lng":121.750483,"confirmed":true},{"order":10,"name":"羅傑天母對面","lat":25.095342,"lng":121.749117,"confirmed":true},{"order":11,"name":"碧嵐山水對面","lat":25.096011,"lng":121.73902,"confirmed":true},{"order":12,"name":"雲舞大廈對面","lat":25.098736,"lng":121.737929,"confirmed":true},{"order":13,"name":"暖暖區公所對面","lat":25.100259,"lng":121.736139,"confirmed":true},{"order":14,"name":"八堵國小","lat":25.108561,"lng":121.73278,"confirmed":true},{"order":15,"name":"富景天下","lat":25.116536,"lng":121.72647,"confirmed":true},{"order":16,"name":"學校","lat":25.135329910295223,"lng":121.73411787394417,"confirmed":false}]},{"id":"G","name":"庚車","region":"汐止區","color":"#D946EF","stops":[{"order":1,"name":"樟樹灣(第一銀行前)","lat":25.057423,"lng":121.634419,"confirmed":true},{"order":2,"name":"中興路口(五金行前)","lat":25.059451,"lng":121.638376,"confirmed":true},{"order":3,"name":"樟樹一路路口","lat":25.06097,"lng":121.64238,"confirmed":true},{"order":4,"name":"中國信託","lat":25.065412,"lng":121.653432,"confirmed":true},{"order":5,"name":"消防隊對面","lat":25.063655,"lng":121.657116,"confirmed":true},{"order":6,"name":"汐止火車站旁公園","lat":25.068837,"lng":121.662772,"confirmed":true},{"order":7,"name":"行政中心對面","lat":25.064547,"lng":121.658542,"confirmed":true},{"order":8,"name":"汐止農會前","lat":25.06383,"lng":121.656736,"confirmed":true},{"order":9,"name":"連興路路口(屈臣氏)","lat":25.062693,"lng":121.654128,"confirmed":true},{"order":10,"name":"學校","lat":25.135329910295223,"lng":121.73411787394417,"confirmed":false}]},{"id":"H","name":"辛車","region":"金山、萬里、大武崙","color":"#FFB000","stops":[{"order":1,"name":"金山中正路路口7-11","lat":25.219786,"lng":121.633257,"confirmed":true},{"order":2,"name":"中正路公車站牌","lat":25.221823,"lng":121.634115,"confirmed":true},{"order":3,"name":"金山區公所","lat":25.22232,"lng":121.636648,"confirmed":true},{"order":4,"name":"淡水一信合作社對面","lat":25.220809,"lng":121.638481,"confirmed":true},{"order":5,"name":"郵局(金山站)","lat":25.218989,"lng":121.639972,"confirmed":true},{"order":6,"name":"喜凱亞溫泉酒店","lat":25.215296,"lng":121.643384,"confirmed":true},{"order":7,"name":"頂寮(知味鄉玉米)","lat":25.20914,"lng":121.654891,"confirmed":true},{"order":8,"name":"野柳隧道口","lat":25.201118,"lng":121.67366,"confirmed":true},{"order":9,"name":"野柳農會","lat":25.203219,"lng":121.686559,"confirmed":true},{"order":10,"name":"東方美早餐店","lat":25.203946,"lng":121.68771,"confirmed":true},{"order":11,"name":"翡翠灣","lat":25.187182,"lng":121.68314,"confirmed":true},{"order":12,"name":"東澳公車站","lat":25.203715,"lng":121.691254,"confirmed":true},{"order":13,"name":"龜吼公車站","lat":25.195912,"lng":121.686475,"confirmed":true},{"order":14,"name":"石角公車站","lat":25.192193,"lng":121.684672,"confirmed":true},{"order":15,"name":"美崙公車站","lat":25.184674,"lng":121.685995,"confirmed":true},{"order":16,"name":"萬里區公有市場","lat":25.179607,"lng":121.689336,"confirmed":true},{"order":17,"name":"萬里分駐所","lat":25.178054,"lng":121.689412,"confirmed":true},{"order":18,"name":"萬里國小對面7-11","lat":25.177442,"lng":121.687228,"confirmed":true},{"order":19,"name":"磚廠公車站","lat":25.168935,"lng":121.680417,"confirmed":true},{"order":20,"name":"武聖街口(全家)","lat":25.148473,"lng":121.700176,"confirmed":true},{"order":21,"name":"藍天麗池對面","lat":25.154155,"lng":121.696841,"confirmed":true},{"order":22,"name":"石山公車站牌","lat":25.151982,"lng":121.697686,"confirmed":true},{"order":23,"name":"三層公車站牌","lat":25.143946,"lng":121.702256,"confirmed":true},{"order":24,"name":"武崙國中站牌","lat":25.138271,"lng":121.705764,"confirmed":true},{"order":25,"name":"情人湖路口","lat":25.141801,"lng":121.709895,"confirmed":true},{"order":26,"name":"學校","lat":25.135329910295223,"lng":121.73411787394417,"confirmed":false}]}];
+    const ROAD_CACHE_KEY='shbus-road-cache-v4';
 
-    const ROUTES = [
-  {
-    "id": "A",
-    "name": "甲車",
-    "region": "中正、中山區",
-    "color": "#005BFF",
-    "stops": [
-      {
-        "order": 1,
-        "name": "就業輔導中心",
-        "lat": 25.137547,
-        "lng": 121.749582,
-        "confirmed": true
-      },
-      {
-        "order": 2,
-        "name": "中船路口OK店",
-        "lat": 25.138433,
-        "lng": 121.751198,
-        "confirmed": true
-      },
-      {
-        "order": 3,
-        "name": "復興館",
-        "lat": 25.139524,
-        "lng": 121.754164,
-        "confirmed": true
-      },
-      {
-        "order": 4,
-        "name": "巧味漢堡店",
-        "lat": 25.141681,
-        "lng": 121.75988,
-        "confirmed": true
-      },
-      {
-        "order": 5,
-        "name": "安瀾橋7-11",
-        "lat": 25.14276,
-        "lng": 121.760877,
-        "confirmed": true
-      },
-      {
-        "order": 6,
-        "name": "七海釣具",
-        "lat": 25.145729,
-        "lng": 121.761716,
-        "confirmed": true
-      },
-      {
-        "order": 7,
-        "name": "鈺峰汽車",
-        "lat": 25.14752368286546,
-        "lng": 121.76180143934072,
-        "confirmed": true
-      },
-      {
-        "order": 8,
-        "name": "武昌街OK店",
-        "lat": 25.148961,
-        "lng": 121.763709,
-        "confirmed": true
-      },
-      {
-        "order": 9,
-        "name": "漁市場對面全家",
-        "lat": 25.15106197246964,
-        "lng": 121.76713833722805,
-        "confirmed": true
-      },
-      {
-        "order": 10,
-        "name": "和平藥局",
-        "lat": 25.1523,
-        "lng": 121.7699,
-        "confirmed": true
-      },
-      {
-        "order": 11,
-        "name": "海洋大學對面家鄉牛肉麵",
-        "lat": 25.151091,
-        "lng": 121.772065,
-        "confirmed": true
-      },
-      {
-        "order": 12,
-        "name": "祥豐街合成診所",
-        "lat": 25.143656,
-        "lng": 121.765677,
-        "confirmed": true
-      },
-      {
-        "order": 13,
-        "name": "祥豐市場對面公有停車場",
-        "lat": 25.142115,
-        "lng": 121.763883,
-        "confirmed": true
-      },
-      {
-        "order": 14,
-        "name": "亨利幼稚園",
-        "lat": 25.141686,
-        "lng": 121.761559,
-        "confirmed": true
-      },
-      {
-        "order": 15,
-        "name": "金田日照中心",
-        "lat": 25.141837,
-        "lng": 121.757108,
-        "confirmed": true
-      },
-      {
-        "order": 16,
-        "name": "信五路橙品71",
-        "lat": 25.134451,
-        "lng": 121.746495,
-        "confirmed": true
-      },
-      {
-        "order": 17,
-        "name": "義一路自來水公司",
-        "lat": 25.137927,
-        "lng": 121.749707,
-        "confirmed": true
-      },
-      {
-        "order": 18,
-        "name": "中山二路全家對面",
-        "lat": 25.138187,
-        "lng": 121.740833,
-        "confirmed": true
-      },
-      {
-        "order": 19,
-        "name": "中山區公所站牌",
-        "lat": 25.153095,
-        "lng": 121.729559,
-        "confirmed": true
-      },
-      {
-        "order": 20,
-        "name": "土地公廟對面站牌",
-        "lat": 25.14844,
-        "lng": 121.725788,
-        "confirmed": true
-      },
-      {
-        "order": 21,
-        "name": "學校",
-        "lat": 25.13533,
-        "lng": 121.734118,
-        "confirmed": false
-      }
-    ]
-  },
-  {
-    "id": "B",
-    "name": "乙車",
-    "region": "仁愛、信義區",
-    "color": "#FF255E",
-    "stops": [
-      {
-        "order": 1,
-        "name": "東和大樓",
-        "lat": 25.127544,
-        "lng": 121.740772,
-        "confirmed": true
-      },
-      {
-        "order": 2,
-        "name": "仁一路華南銀行",
-        "lat": 25.129869,
-        "lng": 121.745309,
-        "confirmed": true
-      },
-      {
-        "order": 3,
-        "name": "仁一路7-11",
-        "lat": 25.128562,
-        "lng": 121.747262,
-        "confirmed": true
-      },
-      {
-        "order": 4,
-        "name": "白馬磁磚",
-        "lat": 25.1282,
-        "lng": 121.749965,
-        "confirmed": true
-      },
-      {
-        "order": 5,
-        "name": "愛九路口",
-        "lat": 25.128025,
-        "lng": 121.752426,
-        "confirmed": true
-      },
-      {
-        "order": 6,
-        "name": "美聯社",
-        "lat": 25.128229,
-        "lng": 121.755316,
-        "confirmed": true
-      },
-      {
-        "order": 7,
-        "name": "台肥停車場旁",
-        "lat": 25.127862,
-        "lng": 121.758369,
-        "confirmed": true
-      },
-      {
-        "order": 8,
-        "name": "東明路77巷口",
-        "lat": 25.127544,
-        "lng": 121.762037,
-        "confirmed": true
-      },
-      {
-        "order": 9,
-        "name": "重泰牙醫",
-        "lat": 25.12816,
-        "lng": 121.764445,
-        "confirmed": true
-      },
-      {
-        "order": 10,
-        "name": "阿惠便當",
-        "lat": 25.129253,
-        "lng": 121.765163,
-        "confirmed": true
-      },
-      {
-        "order": 11,
-        "name": "信義國中站牌",
-        "lat": 25.128297,
-        "lng": 121.767799,
-        "confirmed": true
-      },
-      {
-        "order": 12,
-        "name": "燦坤",
-        "lat": 25.128988,
-        "lng": 121.763435,
-        "confirmed": true
-      },
-      {
-        "order": 13,
-        "name": "羊肉爐",
-        "lat": 25.129601,
-        "lng": 121.761571,
-        "confirmed": true
-      },
-      {
-        "order": 14,
-        "name": "基隆女中",
-        "lat": 25.128677,
-        "lng": 121.759094,
-        "confirmed": true
-      },
-      {
-        "order": 15,
-        "name": "七星菁仔行(義九路口)",
-        "lat": 25.128552,
-        "lng": 121.756107,
-        "confirmed": true
-      },
-      {
-        "order": 16,
-        "name": "信一路彰化銀行",
-        "lat": 25.128739,
-        "lng": 121.753387,
-        "confirmed": true
-      },
-      {
-        "order": 17,
-        "name": "隆美窗簾",
-        "lat": 25.129038,
-        "lng": 121.750395,
-        "confirmed": true
-      },
-      {
-        "order": 18,
-        "name": "信一路台新銀行",
-        "lat": 25.129502,
-        "lng": 121.747483,
-        "confirmed": true
-      },
-      {
-        "order": 19,
-        "name": "肯德基公車站牌",
-        "lat": 25.130189,
-        "lng": 121.740953,
-        "confirmed": true
-      },
-      {
-        "order": 20,
-        "name": "學校",
-        "lat": 25.13533,
-        "lng": 121.734118,
-        "confirmed": false
-      }
-    ]
-  },
-  {
-    "id": "C",
-    "name": "丙車",
-    "region": "安樂區",
-    "color": "#00A86B",
-    "stops": [
-      {
-        "order": 1,
-        "name": "崇德路口",
-        "lat": 25.132211,
-        "lng": 121.729779,
-        "confirmed": true
-      },
-      {
-        "order": 2,
-        "name": "安樂中學公車站牌",
-        "lat": 25.13382,
-        "lng": 121.729804,
-        "confirmed": true
-      },
-      {
-        "order": 3,
-        "name": "國揚大地門口",
-        "lat": 25.138882,
-        "lng": 121.717979,
-        "confirmed": true
-      },
-      {
-        "order": 4,
-        "name": "凱悅名宮",
-        "lat": 25.139967,
-        "lng": 121.715939,
-        "confirmed": true
-      },
-      {
-        "order": 5,
-        "name": "武嶺街口",
-        "lat": 25.14065,
-        "lng": 121.711565,
-        "confirmed": true
-      },
-      {
-        "order": 6,
-        "name": "采峰傢俱行",
-        "lat": 25.135008,
-        "lng": 121.720644,
-        "confirmed": true
-      },
-      {
-        "order": 7,
-        "name": "龍騰大地",
-        "lat": 25.129284,
-        "lng": 121.718849,
-        "confirmed": true
-      },
-      {
-        "order": 8,
-        "name": "國家新城",
-        "lat": 25.129705,
-        "lng": 121.717819,
-        "confirmed": true
-      },
-      {
-        "order": 9,
-        "name": "天驕",
-        "lat": 25.128629,
-        "lng": 121.715433,
-        "confirmed": true
-      },
-      {
-        "order": 10,
-        "name": "霸味薑母鴨",
-        "lat": 25.125025,
-        "lng": 121.7197,
-        "confirmed": true
-      },
-      {
-        "order": 11,
-        "name": "橘郡",
-        "lat": 25.121196,
-        "lng": 121.720431,
-        "confirmed": true
-      },
-      {
-        "order": 12,
-        "name": "建德眼鏡行",
-        "lat": 25.12154,
-        "lng": 121.724235,
-        "confirmed": true
-      },
-      {
-        "order": 13,
-        "name": "學校",
-        "lat": 25.13533,
-        "lng": 121.734118,
-        "confirmed": false
-      }
-    ]
-  },
-  {
-    "id": "D",
-    "name": "丁車",
-    "region": "信義、仁愛區",
-    "color": "#FF7A00",
-    "stops": [
-      {
-        "order": 1,
-        "name": "培德高職對面站牌",
-        "lat": 25.129313,
-        "lng": 121.771414,
-        "confirmed": true
-      },
-      {
-        "order": 2,
-        "name": "孝東路站牌",
-        "lat": 25.128607,
-        "lng": 121.779497,
-        "confirmed": true
-      },
-      {
-        "order": 3,
-        "name": "愛買對面",
-        "lat": 25.13304,
-        "lng": 121.782415,
-        "confirmed": true
-      },
-      {
-        "order": 4,
-        "name": "深美國小7-11",
-        "lat": 25.137354,
-        "lng": 121.778901,
-        "confirmed": true
-      },
-      {
-        "order": 5,
-        "name": "深澳坑路6巷站牌",
-        "lat": 25.13332,
-        "lng": 121.777055,
-        "confirmed": true
-      },
-      {
-        "order": 6,
-        "name": "美的世界(深美藥局)",
-        "lat": 25.136686,
-        "lng": 121.773873,
-        "confirmed": true
-      },
-      {
-        "order": 7,
-        "name": "大香港對面站牌",
-        "lat": 25.136849,
-        "lng": 121.770969,
-        "confirmed": true
-      },
-      {
-        "order": 8,
-        "name": "翠峰山莊",
-        "lat": 25.132273,
-        "lng": 121.770275,
-        "confirmed": true
-      },
-      {
-        "order": 9,
-        "name": "信義大街",
-        "lat": 25.131424,
-        "lng": 121.768708,
-        "confirmed": true
-      },
-      {
-        "order": 10,
-        "name": "土地公廟",
-        "lat": 25.129528,
-        "lng": 121.767441,
-        "confirmed": true
-      },
-      {
-        "order": 11,
-        "name": "光華國宅對面(阿忠檳榔)",
-        "lat": 25.12845,
-        "lng": 121.736618,
-        "confirmed": true
-      },
-      {
-        "order": 12,
-        "name": "學校",
-        "lat": 25.13533,
-        "lng": 121.734118,
-        "confirmed": false
-      }
-    ]
-  },
-  {
-    "id": "E",
-    "name": "戊車",
-    "region": "七堵、仁愛區",
-    "color": "#7A2CFF",
-    "stops": [
-      {
-        "order": 1,
-        "name": "百福消防局",
-        "lat": 25.085675,
-        "lng": 121.697589,
-        "confirmed": true
-      },
-      {
-        "order": 2,
-        "name": "福五街7-11",
-        "lat": 25.084762,
-        "lng": 121.698543,
-        "confirmed": true
-      },
-      {
-        "order": 3,
-        "name": "全聯",
-        "lat": 25.084978,
-        "lng": 121.697723,
-        "confirmed": true
-      },
-      {
-        "order": 4,
-        "name": "百三街7-11",
-        "lat": 25.08199,
-        "lng": 121.69809,
-        "confirmed": true
-      },
-      {
-        "order": 5,
-        "name": "明德二路幸福人生",
-        "lat": 25.088771,
-        "lng": 121.705367,
-        "confirmed": true
-      },
-      {
-        "order": 6,
-        "name": "陽明海運",
-        "lat": 25.094178,
-        "lng": 121.710656,
-        "confirmed": true
-      },
-      {
-        "order": 7,
-        "name": "七堵郵局",
-        "lat": 25.097163,
-        "lng": 121.71283,
-        "confirmed": true
-      },
-      {
-        "order": 8,
-        "name": "泰安診所",
-        "lat": 25.098628,
-        "lng": 121.715882,
-        "confirmed": true
-      },
-      {
-        "order": 9,
-        "name": "阿忠檳榔",
-        "lat": 25.100097,
-        "lng": 121.717697,
-        "confirmed": true
-      },
-      {
-        "order": 10,
-        "name": "八堵橋頭全家",
-        "lat": 25.110211,
-        "lng": 121.733991,
-        "confirmed": true
-      },
-      {
-        "order": 11,
-        "name": "上好汽車借款",
-        "lat": 25.110793,
-        "lng": 121.736042,
-        "confirmed": true
-      },
-      {
-        "order": 12,
-        "name": "南榮黃昏市場對面",
-        "lat": 25.115243,
-        "lng": 121.743077,
-        "confirmed": true
-      },
-      {
-        "order": 13,
-        "name": "南榮路OK店",
-        "lat": 25.118495,
-        "lng": 121.744215,
-        "confirmed": true
-      },
-      {
-        "order": 14,
-        "name": "南榮國小",
-        "lat": 25.119472,
-        "lng": 121.743587,
-        "confirmed": true
-      },
-      {
-        "order": 15,
-        "name": "南榮路7-11",
-        "lat": 25.123958,
-        "lng": 121.74317,
-        "confirmed": true
-      },
-      {
-        "order": 16,
-        "name": "南榮郵局對面",
-        "lat": 25.125766,
-        "lng": 121.742851,
-        "confirmed": true
-      },
-      {
-        "order": 17,
-        "name": "天仁茗茶",
-        "lat": 25.128364,
-        "lng": 121.742751,
-        "confirmed": true
-      },
-      {
-        "order": 18,
-        "name": "學校",
-        "lat": 25.13533,
-        "lng": 121.734118,
-        "confirmed": false
-      }
-    ]
-  },
-  {
-    "id": "F",
-    "name": "己車",
-    "region": "暖暖區",
-    "color": "#009E9A",
-    "stops": [
-      {
-        "order": 1,
-        "name": "八南里民活動中心",
-        "lat": 25.1064,
-        "lng": 121.739289,
-        "confirmed": true
-      },
-      {
-        "order": 2,
-        "name": "八堵國小",
-        "lat": 25.108682,
-        "lng": 121.743793,
-        "confirmed": true
-      },
-      {
-        "order": 3,
-        "name": "源遠台灣房屋",
-        "lat": 25.102178,
-        "lng": 121.746087,
-        "confirmed": true
-      },
-      {
-        "order": 4,
-        "name": "暖暖郵局",
-        "lat": 25.102304,
-        "lng": 121.744383,
-        "confirmed": true
-      },
-      {
-        "order": 5,
-        "name": "暖暖區公所",
-        "lat": 25.102798,
-        "lng": 121.742253,
-        "confirmed": true
-      },
-      {
-        "order": 6,
-        "name": "學校",
-        "lat": 25.13533,
-        "lng": 121.734118,
-        "confirmed": false
-      }
-    ]
-  },
+    const routeGrid=document.getElementById('routeGrid');
+    const stopsList=document.getElementById('stopsList');
+    const summaryCard=document.getElementById('summaryCard');
+    const summaryName=document.getElementById('summaryName');
+    const summaryRegion=document.getElementById('summaryRegion');
+    const summaryChip=document.getElementById('summaryChip');
+    const summaryMeta=document.getElementById('summaryMeta');
+    const topPill=document.getElementById('topPill');
+    const edgeToggle=document.getElementById('edgeToggle');
+    const focusRouteBtn=document.getElementById('focusRouteBtn');
 
-        {
-    "id": "G",
-    "name": "庚車",
-    "region": "汐止區",
-    "color": "#D948FF",
-    "stops": [
-      {
-        "order": 1,
-        "name": "汐止國小",
-        "lat": 25.069339,
-        "lng": 121.66689,
-        "confirmed": true
-      },
-      {
-        "order": 2,
-        "name": "五堵火車站",
-        "lat": 25.077544,
-        "lng": 121.665444,
-        "confirmed": true
-      },
-      {
-        "order": 3,
-        "name": "伯爵山莊",
-        "lat": 25.079667,
-        "lng": 121.661453,
-        "confirmed": true
-      },
-      {
-        "order": 4,
-        "name": "中國信託",
-        "lat": 25.065412,
-        "lng": 121.653432,
-        "confirmed": true
-      },
-      {
-        "order": 5,
-        "name": "消防隊對面",
-        "lat": 25.063655,
-        "lng": 121.657116,
-        "confirmed": true
-      },
-      {
-        "order": 6,
-        "name": "汐止火車站旁公園",
-        "lat": 25.068837,
-        "lng": 121.662772,
-        "confirmed": true
-      },
-      {
-        "order": 7,
-        "name": "學校",
-        "lat": 25.13533,
-        "lng": 121.734118,
-        "confirmed": false
-      }
-    ]
-  },
-  {
-    "id": "H",
-    "name": "辛車",
-    "region": "金山、萬里",
-    "color": "#FFB000",
-    "stops": [
-      {
-        "order": 1,
-        "name": "金山郵局",
-        "lat": 25.222956,
-        "lng": 121.636761,
-        "confirmed": true
-      },
-      {
-        "order": 2,
-        "name": "國光客運",
-        "lat": 25.2238,
-        "lng": 121.638619,
-        "confirmed": true
-      },
-      {
-        "order": 3,
-        "name": "景美國小",
-        "lat": 25.215928,
-        "lng": 121.640421,
-        "confirmed": true
-      },
-      {
-        "order": 4,
-        "name": "大鵬國小",
-        "lat": 25.205436,
-        "lng": 121.642355,
-        "confirmed": true
-      },
-      {
-        "order": 5,
-        "name": "金山高中",
-        "lat": 25.219313,
-        "lng": 121.637395,
-        "confirmed": true
-      },
-      {
-        "order": 6,
-        "name": "翡翠灣",
-        "lat": 25.185861,
-        "lng": 121.690351,
-        "confirmed": true
-      },
-      {
-        "order": 7,
-        "name": "野柳國小",
-        "lat": 25.205488,
-        "lng": 121.690996,
-        "confirmed": true
-      },
-      {
-        "order": 8,
-        "name": "翡翠灣社區",
-        "lat": 25.183645,
-        "lng": 121.690365,
-        "confirmed": true
-      },
-      {
-        "order": 9,
-        "name": "台電宿舍",
-        "lat": 25.155763,
-        "lng": 121.695369,
-        "confirmed": true
-      },
-      {
-        "order": 10,
-        "name": "大武崙中油對面",
-        "lat": 25.152934,
-        "lng": 121.711366,
-        "confirmed": true
-      },
-      {
-        "order": 11,
-        "name": "學校",
-        "lat": 25.13533,
-        "lng": 121.734118,
-        "confirmed": false
-      }
-    ]
-  }
-];
+    const map=L.map('map',{zoomControl:true, preferCanvas:true, zoomSnap:.25}).setView([SCHOOL.lat,SCHOOL.lng],12.75);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap 貢獻者', maxZoom:19}).addTo(map);
 
-    const routeGrid = document.getElementById('routeGrid');
-    const summaryCard = document.getElementById('summaryCard');
-    const summaryName = document.getElementById('summaryName');
-    const summaryRegion = document.getElementById('summaryRegion');
-    const summaryBadge = document.getElementById('summaryBadge');
-    const summaryMeta = document.getElementById('summaryMeta');
-    const topPill = document.getElementById('topPill');
-    const stopsList = document.getElementById('stopsList');
-    const statusText = document.getElementById('statusText');
-    const statusSub = document.getElementById('statusSub');
-    const statusDot = document.getElementById('statusDot');
-    const edgeToggle = document.getElementById('edgeToggle');
+    const roadCache=loadRoadCache();
+    const routeStates=new Map();
+    let activeRouteId=ROUTES[0].id;
+    let activeStopOrder=null;
+    let activeLayers=[];
+    let prefetchQueue=[];
 
-    const map = L.map('map', {
-      zoomControl: true,
-      preferCanvas: true
-    }).setView([25.13533, 121.734118], 12);
+    function loadRoadCache(){ try { return JSON.parse(localStorage.getItem(ROAD_CACHE_KEY) || '{}'); } catch(e) { return {}; } }
+    function saveRoadCache(){ try { localStorage.setItem(ROAD_CACHE_KEY, JSON.stringify(roadCache)); } catch(e) {} }
+    function cacheKey(route){ return route.id + ':' + route.stops.map(s => `${s.order}:${Number(s.lat).toFixed(6)},${Number(s.lng).toFixed(6)}`).join('|'); }
+    function rgba(hex,a){ const c=hex.replace('#',''); const n=parseInt(c,16); return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`; }
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap 貢獻者'
-    }).addTo(map);
-
-    function rgba(hex, alpha) {
-      const c = hex.replace('#', '');
-      const bigint = parseInt(c, 16);
-      const r = (bigint >> 16) & 255;
-      const g = (bigint >> 8) & 255;
-      const b = bigint & 255;
-      return `rgba(${r},${g},${b},${alpha})`;
-    }
-
-    function createStopIcon(color, label) {
+    function createStopIcon(color,label){
       return L.divIcon({
-        className: '',
-        iconSize: [34, 34],
-        iconAnchor: [17, 17],
-        html: `
-          <div style="
-            width:34px;height:34px;border-radius:50%;
-            background:${color};
-            color:#fff;
-            display:grid;place-items:center;
-            font-weight:900;font-size:12px;
-            border:3px solid #fff;
-            box-shadow:0 8px 18px rgba(15,23,42,.24);">
-            ${label}
-          </div>
-        `
+        className:'', iconSize:[34,34], iconAnchor:[17,17],
+        html:`<div style="width:34px;height:34px;border-radius:50%;background:${color};color:#fff;display:grid;place-items:center;font-weight:900;font-size:12px;border:3px solid #fff;box-shadow:0 8px 18px rgba(15,23,42,.24);">${label}</div>`
       });
     }
-
-    const schoolIcon = L.divIcon({
-      className: '',
-      iconSize: [44, 44],
-      iconAnchor: [22, 22],
-      html: `
-        <div style="
-          width:44px;height:44px;border-radius:50%;
-          display:grid;place-items:center;
-          background:linear-gradient(135deg,#ef4444,#e11d48);
-          color:#fff;font-size:20px;
-          border:3px solid #fff;
-          box-shadow:0 12px 22px rgba(15,23,42,.25);">🏫</div>
-      `
+    const schoolIcon=L.divIcon({
+      className:'', iconSize:[44,44], iconAnchor:[22,22],
+      html:`<div style="width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#ef4444,#e11d48);color:#fff;font-size:20px;border:3px solid #fff;box-shadow:0 12px 22px rgba(15,23,42,.25);">🏫</div>`
     });
+    const schoolMarker=L.marker([SCHOOL.lat,SCHOOL.lng],{icon:schoolIcon,zIndexOffset:4000})
+      .bindPopup(`<div class="stop-popup-title">🏫 ${SCHOOL.name}</div><div class="stop-popup-sub">所有路線最終到達站</div>`);
 
-    const schoolMarker = L.marker([SCHOOL.lat, SCHOOL.lng], { icon: schoolIcon, zIndexOffset: 4000 })
-      .bindPopup(`<div class="stop-popup-title">🏫 ${SCHOOL.name}</div><div class="stop-popup-sub">所有路線的最終到達站</div>`);
-
-    let activeRouteId = ROUTES[0].id;
-    let activeStopOrder = null;
-    let activeLayers = [];
-    let routeStates = new Map();
-
-    function fetchRoadGeometry(stops) {
-      const coordString = stops.map(stop => `${stop.lng},${stop.lat}`).join(';');
-      const url = `https://router.project-osrm.org/route/v1/driving/${coordString}?overview=full&geometries=geojson&continue_straight=true&steps=false`;
-      return fetch(url)
-        .then(r => {
-          if (!r.ok) throw new Error(`HTTP ${r.status}`);
-          return r.json();
-        })
-        .then(data => {
-          if (data.code !== 'Ok' || !data.routes || !data.routes.length) throw new Error('route not found');
-          return data.routes[0].geometry.coordinates.map(([lng, lat]) => [lat, lng]);
-        });
-    }
-
-    function createState(route) {
-      const state = {
-        route,
-        roadReady: false,
-        failed: false,
-        latlngs: route.stops.map(s => [s.lat, s.lng]),
-        roadPromise: null,
-        layersReady: false,
-        glow: null,
-        casing: null,
-        line: null,
-        markers: L.layerGroup()
-      };
-
-      route.stops.forEach((stop, idx) => {
-        const isSchool = idx === route.stops.length - 1;
-        if (isSchool) return;
-        const marker = L.marker([stop.lat, stop.lng], {
-          icon: createStopIcon(route.color, stop.order),
-          keyboard: false,
-          zIndexOffset: 2000 + stop.order
-        }).bindPopup(`
-          <div class="stop-popup-title">${route.name}｜${stop.order}. ${stop.name}</div>
-          <div class="stop-popup-sub">${route.region}<br>緯度 ${stop.lat.toFixed(6)} ｜ 經度 ${stop.lng.toFixed(6)}</div>
-        `);
-        marker.on('click', () => {
-          activeRouteId = route.id;
-          activeStopOrder = stop.order;
-          renderAll();
-          marker.openPopup();
-        });
+    function createState(route){
+      const directLatLngs=route.stops.map(s=>[s.lat,s.lng]);
+      const state={route,directLatLngs,roadLatLngs:null,fetching:false,fetched:false,failed:false,markers:L.layerGroup(),glow:null,casing:null,line:null};
+      route.stops.forEach((stop,idx)=>{
+        if (idx===route.stops.length-1) return;
+        const marker=L.marker([stop.lat,stop.lng],{icon:createStopIcon(route.color, stop.order),keyboard:false,zIndexOffset:2000+stop.order})
+          .bindPopup(`<div class="stop-popup-title">${route.name}｜${stop.order}. ${stop.name}</div><div class="stop-popup-sub">${route.region}<br>緯度 ${Number(stop.lat).toFixed(6)} ｜ 經度 ${Number(stop.lng).toFixed(6)}</div>`);
+        marker.on('click',()=>{ activeRouteId=route.id; activeStopOrder=stop.order; renderAll(false); marker.openPopup(); });
         state.markers.addLayer(marker);
       });
-
-      state.glow = L.polyline(state.latlngs, {
-        color: rgba(route.color, 0.24),
-        weight: 18,
-        opacity: 1,
-        lineCap: 'round',
-        lineJoin: 'round'
-      });
-      state.casing = L.polyline(state.latlngs, {
-        color: 'rgba(255,255,255,.96)',
-        weight: 11,
-        opacity: .96,
-        lineCap: 'round',
-        lineJoin: 'round'
-      });
-      state.line = L.polyline(state.latlngs, {
-        color: route.color,
-        weight: 7,
-        opacity: .98,
-        lineCap: 'round',
-        lineJoin: 'round'
-      });
-      state.line.on('click', () => {
-        activeRouteId = route.id;
-        renderAll();
-      });
-      state.casing.on('click', () => {
-        activeRouteId = route.id;
-        renderAll();
-      });
-
+      state.glow=L.polyline(directLatLngs,{color:rgba(route.color,.22),weight:20,opacity:1,lineCap:'round',lineJoin:'round'});
+      state.casing=L.polyline(directLatLngs,{color:'rgba(255,255,255,.97)',weight:12,opacity:.98,lineCap:'round',lineJoin:'round'});
+      state.line=L.polyline(directLatLngs,{color:route.color,weight:8,opacity:.98,lineCap:'round',lineJoin:'round'});
+      state.line.on('click',()=>{ activeRouteId=route.id; renderAll(false); });
+      state.casing.on('click',()=>{ activeRouteId=route.id; renderAll(false); });
+      const cached=roadCache[cacheKey(route)];
+      if (cached && Array.isArray(cached) && cached.length>1) {
+        state.roadLatLngs=cached;
+        state.fetched=true;
+        state.glow.setLatLngs(cached); state.casing.setLatLngs(cached); state.line.setLatLngs(cached);
+      }
       return state;
     }
 
-    function fitActiveRoute() {
-      const state = routeStates.get(activeRouteId);
-      if (!state) return;
-      const bounds = state.line.getBounds();
-      if (bounds.isValid()) {
-        map.fitBounds(bounds, { padding: [46, 46], maxZoom: 14 });
-      }
-    }
-
-    function removeActiveLayers() {
-      activeLayers.forEach(layer => {
-        if (map.hasLayer(layer)) map.removeLayer(layer);
-      });
-      activeLayers = [];
-    }
-
-    function showRouteOnMap(routeId) {
+    function routeLatLngs(state){ return state.roadLatLngs || state.directLatLngs; }
+    function removeActiveLayers(){ activeLayers.forEach(layer=>{ if (map.hasLayer(layer)) map.removeLayer(layer); }); activeLayers=[]; }
+    function showRouteOnMap(routeId, fit=true){
+      const state=routeStates.get(routeId); if (!state) return;
       removeActiveLayers();
-      const state = routeStates.get(routeId);
-      if (!state) return;
-      activeLayers = [state.glow, state.casing, state.line, state.markers, schoolMarker];
-      activeLayers.forEach(layer => {
-        if (!map.hasLayer(layer)) layer.addTo(map);
-      });
-      state.glow.bringToBack();
-      state.casing.bringToFront();
-      state.line.bringToFront();
-      schoolMarker.bringToFront();
-      fitActiveRoute();
+      activeLayers=[state.glow,state.casing,state.line,state.markers,schoolMarker];
+      activeLayers.forEach(layer=>{ if (!map.hasLayer(layer)) layer.addTo(map); });
+      state.glow.bringToBack(); state.casing.bringToFront(); state.line.bringToFront(); schoolMarker.bringToFront();
+      if (fit) focusRoute(routeId);
+    }
+    function focusRoute(routeId){
+      const state=routeStates.get(routeId); if (!state) return;
+      const bounds=L.latLngBounds(routeLatLngs(state));
+      if (bounds.isValid()) map.flyToBounds(bounds, {padding:[44,44], maxZoom:14.25, duration:.6});
     }
 
-    function renderRouteButtons() {
-      routeGrid.innerHTML = ROUTES.map(route => {
-        const state = routeStates.get(route.id);
-        const readyText = state?.roadReady ? '沿道路' : state?.failed ? '直線備援' : '載入中';
-        return `
-          <button class="route-btn ${activeRouteId === route.id ? 'active' : ''}" style="--color:${route.color}" data-route-id="${route.id}">
-            <div class="route-btn-count">${route.stops.length - 1}站</div>
-            <div class="route-btn-name">${route.name}</div>
-            <div class="route-btn-meta">${route.region}<br>${readyText}</div>
-          </button>
-        `;
-      }).join('');
-            routeGrid.querySelectorAll('.route-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          activeRouteId = btn.dataset.routeId;
-          activeStopOrder = null;
-          renderAll();
-          if (window.innerWidth <= 900) {
-            document.body.classList.add('sidebar-collapsed');
-            setTimeout(() => map.invalidateSize(), 260);
-          }
-        });
-      });
+    async function fetchRoadGeometry(route){
+      const coords=route.stops.map(s=>`${s.lng},${s.lat}`).join(';');
+      const url=`https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson&continue_straight=true&steps=false`;
+      const res=await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data=await res.json();
+      if (data.code!=='Ok' || !data.routes?.length) throw new Error('route not found');
+      return data.routes[0].geometry.coordinates.map(([lng,lat])=>[lat,lng]);
     }
 
-    function renderSummary() {
-      const route = ROUTES.find(r => r.id === activeRouteId);
-      const state = routeStates.get(activeRouteId);
-      document.documentElement.style.setProperty('--active', route.color);
-      summaryCard.style.background = `linear-gradient(135deg, ${route.color}, color-mix(in srgb, ${route.color} 68%, white))`;
-      summaryName.textContent = route.name;
-      summaryRegion.textContent = route.region;
-      summaryBadge.textContent = state.roadReady ? '沿道路完成' : state.failed ? '直線備援' : '道路載入中';
-      summaryMeta.innerHTML = `
-        <span>${route.stops.length - 1} 個上車站</span>
-        <span>${route.stops.filter(s => s.confirmed).length} 站已確認</span>
-        <span>終點：學校</span>
-      `;
-      topPill.textContent = `目前顯示：${route.name}`;
-      statusText.textContent = state.roadReady ? `${route.name} 已沿道路顯示` : state.failed ? `${route.name} 目前為直線備援` : `${route.name} 道路路線載入中`;
-      statusSub.textContent = state.roadReady
-        ? '這條路線已切換成沿道路的版本。'
-        : state.failed
-          ? '這條線暫時抓不到道路資料，所以先用站點直線顯示。'
-          : '若資料稍慢，地圖會先用站點直線顯示，稍後自動更新。';
-      statusDot.className = 'status-dot' + (state.roadReady ? ' ok' : '');
-    }
-
-    function renderStops() {
-      const route = ROUTES.find(r => r.id === activeRouteId);
-      stopsList.innerHTML = route.stops.map((stop, idx) => {
-        const isSchool = idx === route.stops.length - 1;
-        const label = isSchool ? '校' : stop.order;
-        const active = activeStopOrder === stop.order;
-        return `
-          <button class="stop-item ${isSchool ? 'school' : ''} ${active ? 'active' : ''}" data-order="${stop.order}">
-            <span class="stop-dot">${label}</span>
-            <div class="stop-name">${stop.name}</div>
-            <div class="stop-coord">${Number(stop.lat).toFixed(6)}, ${Number(stop.lng).toFixed(6)}</div>
-          </button>
-        `;
-      }).join('');
-      stopsList.querySelectorAll('.stop-item').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const route = ROUTES.find(r => r.id === activeRouteId);
-          const order = Number(btn.dataset.order);
-          const stop = route.stops.find(s => s.order === order);
-          if (!stop) return;
-          activeStopOrder = order;
-          renderStops();
-          if (stop.name === '學校') {
-            map.flyTo([SCHOOL.lat, SCHOOL.lng], Math.max(map.getZoom(), 16), { duration: .6 });
-            schoolMarker.openPopup();
-            return;
-          }
-          map.flyTo([stop.lat, stop.lng], Math.max(map.getZoom(), 16), { duration: .6 });
-          const state = routeStates.get(activeRouteId);
-          state.markers.eachLayer(layer => {
-            const ll = layer.getLatLng();
-            if (Math.abs(ll.lat - stop.lat) < 1e-6 && Math.abs(ll.lng - stop.lng) < 1e-6) {
-              layer.openPopup();
-            }
-          });
-        });
-      });
-    }
-
-    function renderAll() {
-      renderRouteButtons();
-      renderSummary();
-      renderStops();
-      showRouteOnMap(activeRouteId);
-    }
-
-    function startBackgroundRouting() {
-      ROUTES.forEach(route => {
-        const state = routeStates.get(route.id);
-        state.roadPromise = fetchRoadGeometry(route.stops)
-          .then(latlngs => {
-            state.latlngs = latlngs;
-            state.roadReady = true;
-            state.glow.setLatLngs(latlngs);
-            state.casing.setLatLngs(latlngs);
-            state.line.setLatLngs(latlngs);
-            if (activeRouteId === route.id) {
-              renderSummary();
-              showRouteOnMap(activeRouteId);
-            } else {
-              renderRouteButtons();
-            }
-          })
-          .catch(error => {
-            console.warn('道路資料抓取失敗，改用直線備援：', route.name, error);
-            state.failed = true;
-            if (activeRouteId === route.id) renderSummary();
-            renderRouteButtons();
-          });
-      });
-    }
-
-    function toggleSidebar() {
-      document.body.classList.toggle('sidebar-collapsed');
-      setTimeout(() => map.invalidateSize(), 260);
-    }
-
-    function init() {
-      ROUTES.forEach(route => routeStates.set(route.id, createState(route)));
-      renderAll();
-      startBackgroundRouting();
-      setTimeout(() => map.invalidateSize(), 180);
-      if (window.innerWidth <= 900) {
-        document.body.classList.add('sidebar-collapsed');
+    async function ensureRoad(routeId, redraw=false){
+      const state=routeStates.get(routeId); if (!state || state.fetched || state.fetching || state.failed) return;
+      state.fetching=true;
+      try {
+        const latlngs=await fetchRoadGeometry(state.route);
+        state.roadLatLngs=latlngs; state.fetched=true;
+        state.glow.setLatLngs(latlngs); state.casing.setLatLngs(latlngs); state.line.setLatLngs(latlngs);
+        roadCache[cacheKey(state.route)]=latlngs; saveRoadCache();
+        if (activeRouteId===routeId && redraw) showRouteOnMap(routeId,false);
+      } catch(err) {
+        console.warn('道路資料抓取失敗，保留站點連線：', state.route.name, err);
+        state.failed=true;
+      } finally {
+        state.fetching=false;
       }
     }
+
+    function queuePrefetchOthers(){
+      prefetchQueue = ROUTES.map(r=>r.id).filter(id=>id!==activeRouteId);
+      let delay=1200;
+      prefetchQueue.forEach(id=>{
+        setTimeout(()=>ensureRoad(id,false), delay);
+        delay += 900;
+      });
+    }
+
+    function renderRouteButtons(){
+      routeGrid.innerHTML=ROUTES.map(route=>`<button class="route-btn ${activeRouteId===route.id?'active':''}" style="--color:${route.color}" data-route-id="${route.id}"><div class="route-btn-count">${route.stops.length-1}站</div><div class="route-btn-name">${route.name}</div><div class="route-btn-meta">${route.region}</div></button>`).join('');
+      routeGrid.querySelectorAll('.route-btn').forEach(btn=>btn.addEventListener('click',()=>selectRoute(btn.dataset.routeId,true)));
+    }
+
+    function renderSummary(){
+      const route=ROUTES.find(r=>r.id===activeRouteId); const state=routeStates.get(activeRouteId);
+      document.documentElement.style.setProperty('--active', route.color);
+      summaryCard.style.background=`linear-gradient(135deg, ${route.color}, color-mix(in srgb, ${route.color} 68%, white))`;
+      summaryName.textContent=route.name;
+      summaryRegion.textContent=route.region;
+      summaryChip.textContent=`${route.stops.length-1} 站`;
+      summaryMeta.innerHTML=`<span>${route.stops.filter(s=>s.confirmed).length} 站已確認</span><span>終點：學校</span>${state.fetched ? '<span>道路版</span>' : ''}`;
+      topPill.textContent=route.name;
+    }
+
+    function renderStops(){
+      const route=ROUTES.find(r=>r.id===activeRouteId);
+      stopsList.innerHTML=route.stops.map((stop,idx)=>{
+        const isSchool=idx===route.stops.length-1; const label=isSchool?'校':stop.order; const active=activeStopOrder===stop.order;
+        return `<button class="stop-item ${isSchool?'school':''} ${active?'active':''}" data-order="${stop.order}"><span class="stop-dot">${label}</span><div class="stop-name">${stop.name}</div><div class="stop-coord">${Number(stop.lat).toFixed(6)}, ${Number(stop.lng).toFixed(6)}</div></button>`;
+      }).join('');
+      stopsList.querySelectorAll('.stop-item').forEach(btn=>btn.addEventListener('click',()=>{
+        const route=ROUTES.find(r=>r.id===activeRouteId); const order=Number(btn.dataset.order); const stop=route.stops.find(s=>s.order===order); if (!stop) return;
+        activeStopOrder=order; renderStops();
+        if (stop.name==='學校') { map.flyTo([SCHOOL.lat,SCHOOL.lng], Math.max(map.getZoom(),16), {duration:.45}); schoolMarker.openPopup(); return; }
+        map.flyTo([stop.lat,stop.lng], Math.max(map.getZoom(),16.4), {duration:.38});
+        const state=routeStates.get(activeRouteId);
+        state.markers.eachLayer(layer=>{ const ll=layer.getLatLng(); if (Math.abs(ll.lat-stop.lat)<1e-6 && Math.abs(ll.lng-stop.lng)<1e-6) layer.openPopup(); });
+      }));
+    }
+
+    function renderAll(fit=true){ renderRouteButtons(); renderSummary(); renderStops(); showRouteOnMap(activeRouteId, fit); }
+
+    function selectRoute(routeId, fit=true){
+      activeRouteId=routeId; activeStopOrder=null; renderAll(fit); ensureRoad(routeId,true);
+      if (window.innerWidth<=900) { document.body.classList.add('sidebar-collapsed'); setTimeout(()=>map.invalidateSize(),240); }
+    }
+
+    function toggleSidebar(){ document.body.classList.toggle('sidebar-collapsed'); setTimeout(()=>map.invalidateSize(),240); }
 
     edgeToggle.addEventListener('click', toggleSidebar);
-    window.addEventListener('resize', () => setTimeout(() => map.invalidateSize(), 220));
-    init();
+    focusRouteBtn.addEventListener('click', ()=>focusRoute(activeRouteId));
+    window.addEventListener('resize', ()=>setTimeout(()=>map.invalidateSize(),180));
+
+    ROUTES.forEach(route=>routeStates.set(route.id, createState(route)));
+    renderAll(true);
+    ensureRoad(activeRouteId,true);
+    queuePrefetchOthers();
+    if (window.innerWidth<=900) document.body.classList.add('sidebar-collapsed');
+    setTimeout(()=>map.invalidateSize(),160);
   </script>
 </body>
 </html>
-
-      
