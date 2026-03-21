@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聖心高中場地預約系統</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #18bc9c;
+            --hover-color: rgba(231, 76, 60, 0.4);
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h2 { text-align: center; color: var(--primary); }
+        
+        /* 地圖容器 */
+        .map-container {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto 30px auto;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #fff;
+        }
+        .map-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* 互動熱點區塊 */
+        .hotspot {
+            position: absolute;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .hotspot:hover {
+            background-color: var(--hover-color);
+            border-color: #e74c3c;
+        }
+
+        /* 浮動提示框 (Tooltip) */
+        .tooltip {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: 110%; /* 出現在熱點正上方 */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(44, 62, 80, 0.95);
+            color: #fff;
+            padding: 12px;
+            border-radius: 6px;
+            width: 220px;
+            font-size: 0.9em;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: opacity 0.3s;
+            pointer-events: none; /* 防止滑鼠干擾 Hover */
+            z-index: 10;
+        }
+        /* 畫一個小箭頭 */
+        .tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -6px;
+            border-width: 6px;
+            border-style: solid;
+            border-color: rgba(44, 62, 80, 0.95) transparent transparent transparent;
+        }
+        .hotspot:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* 預約總表 */
+        .summary-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th { background-color: var(--primary); color: white; }
+        tr:hover { background-color: #f5f5f5; }
+        .loading { text-align: center; color: #7f8c8d; padding: 20px; }
+        .status-dot {
+            display: inline-block;
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .status-free { background-color: #2ecc71; }
+        .status-busy { background-color: #e74c3c; }
+
+    </style>
+</head>
+<body>
+
+    <h2>📍 聖心高中 場地即時預約狀況</h2>
+
+    <div id="loading" class="loading">載入最新預約資料中...</div>
+
+    <div class="map-container" id="mapSection" style="display: none;">
+        <img src="你的平面圖網址.png" alt="校舍平面圖" class="map-image">
+
+        <div class="hotspot" data-venue="地下室活動中心" style="top: 40%; left: 26.5%; width: 12%; height: 6%;">
+            <div class="tooltip" id="tip-活動中心">讀取中...</div>
+        </div>
+
+        <div class="hotspot" data-venue="第二會議室" style="top: 24%; left: 34%; width: 4.5%; height: 2.5%;">
+            <div class="tooltip" id="tip-第二會議室">讀取中...</div>
+        </div>
+
+        <div class="hotspot" data-venue="圖書館" style="top: 31%; left: 45.3%; width: 2.2%; height: 5%;">
+            <div class="tooltip" id="tip-圖書館">讀取中...</div>
+        </div>
+
+        <div class="hotspot" data-venue="第一會議室" style="top: 38.5%; left: 45.3%; width: 2.2%; height: 5%;">
+            <div class="tooltip" id="tip-第一會議室">讀取中...</div>
+        </div>
+    </div>
+
+    <div class="summary-container" id="summarySection" style="display: none;">
+        <h3>📅 近期預約總表</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>借用場地</th>
+                    <th>日期</th>
+                    <th>時間</th>
+                    <th>借用單位</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                </tbody>
+        </table>
+    </div>
+
+    <script>
+        // 替換為你的 Google Apps Script 網址
+        const API_URL = '請替換成你的_APPS_SCRIPT_URL';
+
+        // 追蹤各場地的預約
+        const venueData = {
+            '活動中心': [],
+            '第一會議室': [],
+            '第二會議室': [],
+            '圖書館': []
+        };
+
+        async function fetchReservations() {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                processData(data);
+            } catch (error) {
+                document.getElementById('loading').innerText = '資料載入失敗，請重新整理。';
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        function processData(data) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('mapSection').style.display = 'block';
+            document.getElementById('summarySection').style.display = 'block';
+
+            const today = new Date().toISOString().split('T')[0];
+            const tableBody = document.getElementById('tableBody');
+            
+            // 排序資料：日期近的在上
+            data.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            data.forEach(item => {
+                if (item.date < today) return; // 略過過去的預約
+
+                // 1. 寫入表格
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${item.venue}</strong></td>
+                    <td>${item.date}</td>
+                    <td>${item.start} - ${item.end}</td>
+                    <td>${item.unit}</td>
+                `;
+                tableBody.appendChild(row);
+
+                // 2. 分類資料給 Tooltip 使用
+                // 注意表單欄位名稱對應，例如表單填 "地下室活動中心" 或 "活動中心"
+                let key = item.venue;
+                if(key.includes("活動中心")) key = "活動中心";
+                
+                if (venueData[key]) {
+                    venueData[key].push(item);
+                }
+            });
+
+            // 3. 更新 Tooltip 內容
+            updateTooltips();
+        }
+
+        function updateTooltips() {
+            const keys = ['活動中心', '第一會議室', '第二會議室', '圖書館'];
+            
+            keys.forEach(key => {
+                const tooltip = document.getElementById(`tip-${key}`);
+                if (!tooltip) return;
+
+                const reservations = venueData[key];
+                
+                if (reservations.length === 0) {
+                    tooltip.innerHTML = `<strong>${key}</strong><br><span class="status-dot status-free"></span>目前無近期預約，場地空閒`;
+                } else {
+                    let html = `<strong>${key}</strong><br><span class="status-dot status-busy"></span>即將到來：<br>`;
+                    // 只顯示最近的兩筆，避免框框太長
+                    const displayCount = Math.min(reservations.length, 2);
+                    for(let i=0; i<displayCount; i++){
+                        let r = reservations[i];
+                        html += `<div style="margin-top:5px; border-bottom:1px solid #555; padding-bottom:3px;">
+                                 ${r.date} ${r.start}-${r.end}<br>單位: ${r.unit}
+                                 </div>`;
+                    }
+                    if(reservations.length > 2) {
+                        html += `<div style="margin-top:3px; font-size:0.8em; color:#bdc3c7;">...還有 ${reservations.length - 2} 筆預約</div>`;
+                    }
+                    tooltip.innerHTML = html;
+                }
+            });
+        }
+
+        fetchReservations();
+    </script>
+</body>
+</html>
