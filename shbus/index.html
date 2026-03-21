@@ -3,482 +3,447 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>輔大聖心高中 校車路線系統｜精簡維修版</title>
+  <title>輔大聖心高中｜校車路線地圖（單一路線版）</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;800;900&display=swap" rel="stylesheet">
   <style>
-    html, body { margin:0; padding:0; width:100%; height:100dvh; overflow:hidden; font-family:'Noto Sans TC',sans-serif; background:#f8fafc; }
-    body { display:flex; flex-direction:column; }
-    #app { flex:1; display:flex; min-height:0; position:relative; }
+    :root {
+      --bg: #eef3fb;
+      --panel: rgba(255,255,255,.95);
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #dbe4f0;
+      --shadow: 0 14px 36px rgba(15,23,42,.12);
+      --topbar-h: 68px;
+      --sidebar-w: 332px;
+      --active: #005BFF;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Noto Sans TC', system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    body { display: flex; flex-direction: column; }
+    button { font: inherit; }
+    .topbar {
+      height: var(--topbar-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      background: linear-gradient(135deg, #0b1327 0%, #16233f 100%);
+      color: white;
+      box-shadow: 0 10px 28px rgba(11,19,39,.24);
+      z-index: 1000;
+    }
+    .brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .brand-icon {
+      width: 44px; height: 44px; border-radius: 14px;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      font-size: 22px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.28);
+      flex-shrink: 0;
+    }
+    .brand-title { font-size: 21px; font-weight: 900; letter-spacing: .02em; }
+    .brand-sub { font-size: 12px; opacity: .82; margin-top: 2px; }
+    .top-pill {
+      padding: 10px 14px; border-radius: 999px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.16);
+      font-size: 12px; font-weight: 800;
+      white-space: nowrap;
+    }
+
+    #app { flex: 1; min-height: 0; display: flex; position: relative; }
     #sidebar {
-      width: 350px; max-width: 88vw; background:#f8fafc; border-right:1px solid #e2e8f0;
-      display:flex; flex-direction:column; position:relative; z-index:1200; transition:transform .28s ease, margin-left .28s ease;
+      width: var(--sidebar-w);
+      min-width: var(--sidebar-w);
+      background: rgba(247,250,255,.96);
+      backdrop-filter: blur(18px);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 900;
+      transition: transform .26s ease;
     }
-    #map-wrap { flex:1; position:relative; min-width:0; }
-    #map { width:100%; height:100%; }
-    #edge-toggle {
-      position:absolute; top:50%; left:336px; width:28px; height:64px; border-radius:0 10px 10px 0;
-      background:#fff; border:1px solid #e2e8f0; border-left:none; box-shadow:4px 0 12px rgba(0,0,0,.08);
-      display:flex; align-items:center; justify-content:center; cursor:pointer; color:#64748b;
-      transform:translateY(-50%); z-index:1600; transition:left .28s ease, background-color .18s ease, color .18s ease;
+    #map-wrap { flex: 1; min-width: 0; position: relative; }
+    #map { width: 100%; height: 100%; }
+    #edgeToggle {
+      position: absolute;
+      left: calc(var(--sidebar-w) - 12px);
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 980;
+      width: 26px;
+      height: 78px;
+      border-radius: 0 14px 14px 0;
+      border: 1px solid var(--border);
+      border-left: none;
+      background: white;
+      box-shadow: 8px 0 24px rgba(15,23,42,.12);
+      cursor: pointer;
+      color: #334155;
+      font-size: 18px;
+      font-weight: 900;
     }
-    #edge-toggle:hover { background:#f8fafc; color:#2563eb; }
-    #edge-toggle i { transition:transform .28s ease; }
-    body.sidebar-collapsed #sidebar { transform:translateX(-100%); margin-left:-350px; }
-    body.sidebar-collapsed #edge-toggle { left:8px; }
-    body.sidebar-collapsed #edge-toggle i { transform:rotate(180deg); }
-    #mobile-mask {
-      display:none; position:absolute; inset:0; background:rgba(15,23,42,.22); z-index:1100; backdrop-filter:blur(1px);
+    body.sidebar-collapsed #sidebar { transform: translateX(-100%); }
+    body.sidebar-collapsed #edgeToggle { left: 8px; }
+    body.sidebar-collapsed #edgeToggle .arrow { transform: rotate(180deg); }
+    #edgeToggle .arrow { display: inline-block; transition: transform .2s ease; }
+
+    .sidebar-scroll { flex: 1; overflow: auto; padding: 16px 14px 22px; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: 0 8px 20px rgba(15,23,42,.05);
+      overflow: hidden;
+    }
+    .section-title {
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      color: #334155;
+      margin: 0 0 10px 2px;
+    }
+    .route-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
     }
     .route-btn {
-      width:100%; text-align:left; padding:14px 16px; background:#fff; border-bottom:1px solid #eef2f7;
-      transition:.18s; display:flex; flex-direction:column; gap:.35rem; cursor:pointer;
+      position: relative;
+      border: 1px solid var(--border);
+      background: white;
+      border-radius: 18px;
+      padding: 12px 12px 10px;
+      text-align: left;
+      cursor: pointer;
+      transition: .18s ease;
+      overflow: hidden;
     }
-    .route-btn:hover { background:#f8fbff; }
-    .route-btn.active { background:#eff6ff; border-left:4px solid #2563eb; padding-left:12px; }
-    .panel-card { background:#fff; border:1px solid #e2e8f0; border-radius:16px; box-shadow:0 4px 14px rgba(15,23,42,.06); }
-    .stop-card {
-      background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:12px; margin-bottom:10px; cursor:pointer; transition:.16s;
+    .route-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 7px;
+      background: var(--color);
     }
-    .stop-card:hover { border-color:#93c5fd; background:#f8fbff; }
-    .stop-card.active { border-color:#2563eb; background:#eff6ff; box-shadow:0 0 0 2px rgba(37,99,235,.08); }
-    .coord-input {
-      width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:8px 10px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
-      font-size:13px; outline:none;
+    .route-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 18px rgba(15,23,42,.08);
+      border-color: color-mix(in srgb, var(--color) 30%, white);
     }
-    .coord-input:focus { border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,.12); }
-    .tiny-note { font-size:12px; color:#64748b; }
-    .timeline-item { position:relative; padding-left:1.35rem; padding-bottom:.9rem; border-left:2px solid #93c5fd; margin-left:.45rem; }
-    .timeline-item:last-child { border-left-color:transparent; }
-    .timeline-item::before {
-      content:''; position:absolute; left:-0.34rem; top:.18rem; width:.58rem; height:.58rem; border-radius:999px; background:#fff; border:2px solid #3b82f6;
+    .route-btn.active {
+      background: linear-gradient(135deg, color-mix(in srgb, var(--color) 18%, white), white 65%);
+      border-color: var(--color);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--color) 18%, white), 0 14px 24px rgba(15,23,42,.10);
     }
-    .timeline-item.destination::before { background:#ef4444; border-color:#b91c1c; }
-    #user-info {
-      position:absolute; right:18px; top:18px; width:360px; max-width:calc(100% - 36px); max-height:calc(100% - 36px);
-      background:#fff; border-radius:18px; box-shadow:0 10px 28px rgba(15,23,42,.18); overflow:hidden; z-index:1000; display:none; flex-direction:column;
+    .route-btn.active .route-btn-name,
+    .route-btn.active .route-btn-meta { color: #0f172a; }
+    .route-btn-name { font-size: 18px; font-weight: 900; line-height: 1; padding-left: 10px; }
+    .route-btn-meta { font-size: 11px; color: var(--muted); padding-left: 10px; margin-top: 7px; line-height: 1.4; }
+    .route-btn-count {
+      position: absolute; right: 10px; top: 10px;
+      padding: 5px 8px; border-radius: 999px;
+      background: var(--color); color: white;
+      font-size: 11px; font-weight: 900;
     }
-    #user-info.show { display:flex; }
-    ::-webkit-scrollbar { width:6px; height:6px; }
-    ::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:999px; }
-    @media (max-width: 768px) {
-      #sidebar { position:absolute; left:0; top:0; bottom:0; box-shadow:6px 0 20px rgba(0,0,0,.12); }
-      #user-info {
-        right:0; left:0; top:auto; bottom:0; width:100%; max-width:100%; max-height:66vh; border-radius:20px 20px 0 0;
+
+    .summary-card {
+      margin-top: 14px;
+      padding: 16px 16px 14px;
+      border-radius: 22px;
+      color: white;
+      background: linear-gradient(135deg, var(--active), color-mix(in srgb, var(--active) 68%, white));
+      box-shadow: 0 14px 26px color-mix(in srgb, var(--active) 24%, rgba(15,23,42,.12));
+    }
+    .summary-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .summary-name { font-size: 26px; font-weight: 900; line-height: 1; }
+    .summary-region { font-size: 13px; opacity: .93; margin-top: 8px; }
+    .summary-chip {
+      padding: 7px 10px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.15);
+      font-size: 12px; font-weight: 800;
+      white-space: nowrap;
+    }
+    .summary-meta {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px;
+    }
+    .summary-meta span {
+      padding: 7px 10px; border-radius: 999px;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.14);
+      font-size: 12px; font-weight: 800;
+    }
+
+    .status-card {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.96);
+      color: #334155;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .status-card strong { color: #0f172a; }
+    .status-dot {
+      display: inline-block;
+      width: 9px; height: 9px; border-radius: 999px;
+      background: #f59e0b; margin-right: 6px;
+      vertical-align: middle;
+    }
+    .status-dot.ok { background: #10b981; }
+
+    .stops-panel { margin-top: 14px; }
+    .stops-head {
+      padding: 16px 16px 14px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,250,255,.92));
+    }
+    .stops-head-title { font-size: 16px; font-weight: 900; }
+    .stops-head-sub { font-size: 12px; color: var(--muted); margin-top: 6px; }
+    .stops-list {
+      padding: 12px 10px 14px;
+      max-height: 50vh;
+      overflow: auto;
+      background: rgba(255,255,255,.94);
+    }
+    .stop-item {
+      position: relative;
+      display: block;
+      width: 100%;
+      border: none;
+      background: transparent;
+      padding: 10px 10px 10px 38px;
+      text-align: left;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: .16s ease;
+    }
+    .stop-item:hover {
+      background: color-mix(in srgb, var(--active) 8%, white);
+    }
+    .stop-item.active {
+      background: color-mix(in srgb, var(--active) 12%, white);
+    }
+    .stop-dot {
+      position: absolute;
+      left: 10px; top: 10px;
+      width: 20px; height: 20px; border-radius: 999px;
+      background: var(--active);
+      color: white;
+      display: grid; place-items: center;
+      font-size: 10px; font-weight: 900;
+      box-shadow: 0 0 0 4px white;
+    }
+    .stop-item.school .stop-dot { background: #e11d48; }
+    .stop-name { font-size: 14px; font-weight: 800; color: #0f172a; line-height: 1.35; }
+    .stop-coord { margin-top: 4px; font-size: 11px; color: #64748b; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .stop-item.active .stop-name { color: var(--active); }
+
+    .map-hint {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 700;
+      background: rgba(255,255,255,.94);
+      border: 1px solid rgba(226,232,240,.95);
+      border-radius: 18px;
+      padding: 14px 16px;
+      box-shadow: 0 12px 26px rgba(15,23,42,.10);
+      max-width: min(400px, calc(100vw - 32px));
+    }
+    .map-hint-title { font-size: 14px; font-weight: 900; }
+    .map-hint-sub { font-size: 12px; color: var(--muted); line-height: 1.6; margin-top: 6px; }
+
+    .leaflet-control-zoom {
+      border: none !important;
+      box-shadow: 0 10px 24px rgba(15,23,42,.14);
+      overflow: hidden;
+      border-radius: 16px;
+    }
+    .leaflet-control-zoom a {
+      width: 38px !important;
+      height: 38px !important;
+      line-height: 38px !important;
+      font-size: 18px !important;
+    }
+    .leaflet-popup-content-wrapper {
+      border-radius: 18px;
+      box-shadow: 0 14px 34px rgba(15,23,42,.18);
+    }
+    .leaflet-popup-content { margin: 14px 16px; min-width: 200px; }
+    .stop-popup-title { font-size: 15px; font-weight: 900; color: #0f172a; }
+    .stop-popup-sub { margin-top: 6px; font-size: 12px; color: #64748b; line-height: 1.6; }
+    .leaflet-control-attribution { font-size: 11px; }
+
+    @media (max-width: 900px) {
+      :root { --sidebar-w: min(88vw, 340px); }
+      #sidebar {
+        position: absolute; left: 0; top: 0; bottom: 0;
+        box-shadow: 14px 0 30px rgba(15,23,42,.16);
       }
-      #mobile-mask { display:block; opacity:0; pointer-events:none; transition:opacity .25s ease; }
-      body:not(.sidebar-collapsed) #mobile-mask { opacity:1; pointer-events:auto; }
-      body.sidebar-collapsed #sidebar { transform:translateX(-100%); margin-left:-350px; }
-      #edge-toggle { width:26px; left:266px; }
-      body.sidebar-collapsed #edge-toggle { left:8px; }
+      .brand-title { font-size: 18px; }
+      .brand-sub { display: none; }
+      .top-pill { display: none; }
+      .map-hint { top: 12px; left: 12px; right: 12px; max-width: none; }
+      .stops-list { max-height: 44vh; }
     }
   </style>
 </head>
-<body class="sidebar-collapsed">
-  <div class="h-16 bg-slate-900 text-white flex items-center justify-between px-4 md:px-6 shadow-md z-[1400] shrink-0">
-    <div class="flex items-center gap-3 min-w-0">
-      <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-bus"></i></div>
-      <div class="min-w-0">
-        <div class="font-bold leading-tight truncate">輔大聖心高中 校車路線系統</div>
-        <div class="text-[11px] text-slate-300">精簡維修版｜拉點後下載 CSV 給管理者更新</div>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">🚌</div>
+      <div>
+        <div class="brand-title">輔大聖心高中 校車路線地圖</div>
+        <div class="brand-sub">單一路線切換版｜一次只顯示一條，顏色更明顯</div>
       </div>
     </div>
-    <div class="flex items-center gap-2 shrink-0">
-      <button id="userModeBtn" class="px-3 py-2 rounded-xl bg-blue-600 text-sm font-bold" onclick="switchMode('user')"><i class="fa-solid fa-map-location-dot mr-1"></i>前台</button>
-      <button id="adminModeBtn" class="px-3 py-2 rounded-xl bg-slate-700 text-sm font-bold" onclick="switchMode('admin')"><i class="fa-solid fa-screwdriver-wrench mr-1"></i>維修</button>
-    </div>
-  </div>
+    <div class="top-pill" id="topPill">目前顯示：甲車</div>
+  </header>
 
   <div id="app">
-    <div id="mobile-mask" onclick="closeSidebar()"></div>
-    <button id="edge-toggle" onclick="toggleSidebar()" title="切換側欄"><i class="fa-solid fa-chevron-left"></i></button>
-
     <aside id="sidebar">
+      <div class="sidebar-scroll">
+        <div class="section-title">路線切換</div>
+        <div class="route-grid" id="routeGrid"></div>
 
-      <section id="userSection" class="flex flex-col h-full">
-        <div class="p-4 border-b border-slate-200 bg-white sticky top-0 z-10">
-          <div class="panel-card p-4">
-            <div class="font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-route text-blue-600"></i>路線查詢</div>
-            <div class="tiny-note mt-1">搜尋路線或站牌名稱，點一下即可看全線。</div>
-            <div class="relative mt-3">
-              <input id="search-input" type="text" placeholder="搜尋路線或站牌名稱..." class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-slate-700">
-              <i class="fa-solid fa-magnifying-glass text-slate-400 absolute left-3 top-4"></i>
+        <section class="summary-card" id="summaryCard">
+          <div class="summary-top">
+            <div>
+              <div class="summary-name" id="summaryName">甲車</div>
+              <div class="summary-region" id="summaryRegion">中正、中山區</div>
             </div>
+            <div class="summary-chip" id="summaryBadge">載入中</div>
           </div>
-        </div>
-        <div id="route-list" class="flex-1 overflow-y-auto"></div>
-      </section>
+          <div class="summary-meta" id="summaryMeta"></div>
+        </section>
 
-      <section id="adminSection" class="hidden flex-col h-full">
-        <div class="p-4 border-b border-slate-200 bg-white sticky top-0 z-10 space-y-3">
-          <div class="panel-card p-4">
-            <div class="font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-screwdriver-wrench text-emerald-600"></i>總務處簡易維修</div>
-            <div class="tiny-note mt-1">只保留最常用功能：選路線、點站牌、拖曳修正、下載 CSV。</div>
-            <select id="route-select" class="mt-3 w-full px-3 py-3 rounded-xl border border-slate-200 bg-slate-50 outline-none focus:ring-2 focus:ring-emerald-500"></select>
-            <div class="grid grid-cols-2 gap-2 mt-3">
-              <button onclick="gotoPrevStop()" class="px-3 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold"><i class="fa-solid fa-arrow-up mr-1"></i>上一點</button>
-              <button onclick="gotoNextStop()" class="px-3 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold"><i class="fa-solid fa-arrow-down mr-1"></i>下一點</button>
-            </div>
-            <button onclick="downloadCSV()" class="mt-3 w-full px-3 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold">
-              <i class="fa-solid fa-file-csv mr-1"></i>下載最新 CSV
-            </button>
-            <div class="tiny-note mt-2">座標修改後會自動暫存本機，不用另外按儲存。</div>
-            <div class="tiny-note mt-2 flex items-start gap-2 leading-5">
-              <i class="fa-solid fa-circle-info text-sky-500 mt-[2px]"></i>
-              <span>座標可直接貼上，格式：<span class="font-semibold">25.12345, 121.67890</span>。</span>
-            </div>
-            <div class="tiny-note mt-1 text-slate-500 leading-5 pl-5">
-              Google 地圖搜尋地址或景點後，在正確位置<strong>按右鍵</strong>（手機<strong>長按</strong>）→ 點一下跳出的經緯度即可複製，再貼回欄位。
-            </div>
-          </div>
+        <div class="status-card" id="statusCard">
+          <div><span class="status-dot" id="statusDot"></span><strong id="statusText">道路路線載入中</strong></div>
+          <div id="statusSub">若道路資料稍慢，會先顯示站點直線，稍後自動改成沿道路版本。</div>
         </div>
-        <div id="admin-stop-list" class="flex-1 overflow-y-auto p-3"></div>
-      </section>
+
+        <section class="panel stops-panel">
+          <div class="stops-head">
+            <div class="stops-head-title">站點清單</div>
+            <div class="stops-head-sub">點任一站名，地圖會直接跳到該站位置。</div>
+          </div>
+          <div class="stops-list" id="stopsList"></div>
+        </section>
+      </div>
     </aside>
+
+    <button id="edgeToggle" aria-label="切換側欄"><span class="arrow">❮</span></button>
 
     <main id="map-wrap">
       <div id="map"></div>
-
-      <div id="toast" class="hidden absolute top-4 left-1/2 -translate-x-1/2 z-[1500] px-4 py-2 rounded-full bg-slate-900/90 text-white text-sm shadow-lg"></div>
-
-      <div id="user-info" class="">
-        <div class="bg-gradient-to-r from-blue-600 to-blue-400 text-white p-4 flex items-start justify-between gap-4">
-          <div>
-            <div id="panel-title" class="text-lg font-bold">請選擇路線</div>
-            <div id="panel-subtitle" class="text-xs opacity-90 mt-1">點左側路線即可顯示</div>
-          </div>
-          <button onclick="closeUserInfo()" class="hover:text-blue-100"><i class="fa-solid fa-xmark text-lg"></i></button>
-        </div>
-        <div id="stops-container" class="p-4 overflow-y-auto bg-white"></div>
+      <div class="map-hint">
+        <div class="map-hint-title">目前只顯示一條路線</div>
+        <div class="map-hint-sub">左側直接切換甲到辛車。每條線都會沿道路顯示；若道路資料尚未回來，會暫時用站點直線當備援。</div>
       </div>
     </main>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    const SCHOOL_COORD = [25.135329910295223, 121.73411787394417];
-    const STORAGE_KEY = 'school-bus-simple-draft-v1';
+    const SCHOOL = {
+      name: '輔大聖心高中',
+      lat: 25.135329910295223,
+      lng: 121.73411787394417
+    };
 
-    const DEFAULT_ROUTES = [
-      { id: "A", name: "甲車", region: "中正、中山區", stops: [["就業輔導中心",25.1370,121.7490],["中船路口OK店",25.1365,121.7510],["復興館",25.1380,121.7540],["巧味漢堡店",25.1395,121.7580],["安瀾橋7-11",25.1410,121.7610],["七海釣具",25.1430,121.7630],["鈺峰汽車",25.1450,121.7640],["武昌街OK店",25.1465,121.7655],["漁市場對面全家",25.1485,121.7675],["和平藥局",25.1520,121.7680],["海洋大學對面家鄉牛肉麵",25.1505,121.7745],["祥豐街合成診所",25.1460,121.7670],["祥豐市場對面公有停車場",25.1420,121.7630],["亨利幼稚園",25.1390,121.7580],["金田日照中心",25.1350,121.7500],["信五路橙品71",25.1330,121.7480],["義一路自來水公司",25.1310,121.7470],["中山二路全家對面",25.1350,121.7380],["中華路口站牌",25.1390,121.7390],["復興路郵局對面",25.1430,121.7380],["學校",25.135329910295223,121.73411787394417]] },
-      { id: "B", name: "乙車", region: "仁愛、信義區", stops: [["東和大樓",25.1285,121.7405],["仁一路華南銀行",25.1290,121.7445],["仁一路7-11",25.1292,121.7470],["白馬磁磚",25.1295,121.7500],["愛九路口",25.1280,121.7515],["仁一路OK店",25.1285,121.7535],["台肥停車場旁",25.1295,121.7565],["東明路77巷口",25.1290,121.7590],["重泰牙醫",25.1285,121.7620],["阿惠便當",25.1290,121.7650],["信義國中站牌",25.1295,121.7680],["愛買",25.1305,121.7715],["燦坤",25.1315,121.7740],["市立醫院OK店",25.1325,121.7680],["中船宿舍",25.1350,121.7600],["七星菁仔行(義九路口)",25.1340,121.7540],["信一路彰化銀行",25.1320,121.7480],["隆美窗簾",25.1310,121.7450],["信一路台新銀行",25.1300,121.7420],["海軍",25.1340,121.7390],["學校",25.135329910295223,121.73411787394417]] },
-      { id: "C", name: "丙車", region: "安樂區", stops: [["崇德路口",25.1210,121.7310],["安樂中學公車站牌",25.1230,121.7280],["國揚大地門口",25.1250,121.7250],["凱悅名宮",25.1270,121.7220],["武嶺街口",25.1300,121.7180],["采峰傢俱行",25.1320,121.7150],["龍騰大地",25.1350,121.7120],["國家新城",25.1380,121.7100],["天驕",25.1400,121.7130],["霸味薑母鴨",25.1420,121.7180],["橘郡",25.1430,121.7220],["建德眼鏡行",25.1420,121.7280],["學校",25.135329910295223,121.73411787394417]] },
-      { id: "D", name: "丁車", region: "信義、仁愛區", stops: [["培德高職對面站牌",25.1250,121.7650],["孝東路站牌",25.1270,121.7690],["愛買對面",25.1300,121.7710],["深美國小7-11",25.1320,121.7750],["深澳坑路6巷站牌",25.1340,121.7780],["美的世界(深美藥局)",25.1330,121.7820],["大香港對面站牌",25.1300,121.7800],["翠峰山莊",25.1270,121.7760],["信義大街",25.1260,121.7720],["土地公廟",25.1250,121.7680],["光華國宅對面(阿忠檳榔)",25.1230,121.7450],["學校",25.135329910295223,121.73411787394417]] },
-      { id: "E", name: "戊車", region: "七堵、仁愛區", stops: [["百福消防局",25.0830,121.6980],["福五街7-11",25.0850,121.7000],["全聯",25.0870,121.7020],["百三街7-11",25.0890,121.7050],["明德二路幸福人生",25.0920,121.7080],["陽明海運",25.0950,121.7120],["七堵郵局",25.0970,121.7150],["泰安診所",25.0990,121.7180],["阿忠檳榔",25.1050,121.7250],["八堵橋頭全家",25.1080,121.7280],["上好汽車借款",25.1120,121.7320],["南榮黃昏市場對面",25.1150,121.7350],["南榮路OK店",25.1180,121.7380],["南榮國小",25.1200,121.7400],["南榮路7-11",25.1230,121.7410],["南榮郵局對面",25.1260,121.7420],["天仁茗茶",25.1280,121.7430],["學校",25.135329910295223,121.73411787394417]] },
-      { id: "F", name: "己車", region: "暖暖區", stops: [["過港活動中心對面",25.1020,121.7380],["過港OK店對面",25.1000,121.7400],["碇內加油站對面7-11",25.0960,121.7460],["源遠國宅",25.0940,121.7490],["黃麵",25.0920,121.7520],["碇內國小旁(碇內五金行)",25.0900,121.7550],["碇內診所對面",25.0880,121.7570],["藝觀天下對面",25.0850,121.7520],["暖碇路7-11",25.0860,121.7480],["琉璃園",25.0880,121.7450],["羅傑天母對面",25.0920,121.7420],["碧嵐山水對面",25.0950,121.7390],["雲舞大廈對面",25.0980,121.7350],["暖暖區公所對面",25.1010,121.7320],["八堵國小",25.1050,121.7280],["富景天下",25.1150,121.7250],["學校",25.135329910295223,121.73411787394417]] },
-      { id: "G", name: "庚車", region: "汐止區", stops: [["樟樹灣(第一銀行前)",25.0610,121.6350],["中興路口(五金行前)",25.0630,121.6400],["樟樹一路路口",25.0650,121.6450],["中國信託",25.0660,121.6500],["消防隊對面",25.0680,121.6550],["汐止火車站旁公園",25.0685,121.6610],["行政中心對面",25.0670,121.6660],["汐止農會前",25.0690,121.6700],["連興路路口(屈臣氏)",25.0720,121.6750],["學校",25.135329910295223,121.73411787394417]] },
-      { id: "H", name: "辛車", region: "金山、萬里、大武崙", stops: [["金山中正路路口7-11",25.2210,121.6380],["中正路公車站牌",25.2200,121.6410],["金山區公所",25.2180,121.6430],["淡水一信合作社對面",25.2160,121.6450],["郵局(金山站)",25.2140,121.6470],["喜凱亞溫泉酒店",25.2100,121.6550],["頂寮(知味鄉玉米)",25.2050,121.6650],["野柳隧道口",25.2000,121.6750],["野柳農會",25.2030,121.6880],["東方美早餐店",25.1950,121.6820],["翡翠灣",25.1880,121.6860],["東澳公車站",25.1900,121.6920],["龜吼公車站",25.1920,121.6980],["石角公車站",25.1850,121.6950],["美崙公車站",25.1800,121.6920],["萬里區公有市場",25.1760,121.6880],["萬里分駐所",25.1740,121.6870],["萬里國小對面7-11",25.1720,121.6850],["磚廠公車站",25.1650,121.6900],["武聖街口(全家)",25.1580,121.7000],["藍天麗池對面",25.1550,121.7050],["石山公車站牌",25.1520,121.7100],["三層公車站牌",25.1480,121.7150],["武崙國中站牌",25.1450,121.7200],["情人湖路口",25.1420,121.7250],["學校",25.135329910295223,121.73411787394417]] }
-    ];
-
-    const map = L.map('map', { zoomControl: false, tap: true }).setView(SCHOOL_COORD, 13);
-    L.control.zoom({ position: 'bottomright' }).addTo(map);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', maxZoom: 19, minZoom: 10 }).addTo(map);
-
-    const schoolIcon = L.divIcon({
-      html: '<div style="background-color:#ef4444;color:white;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid white;box-shadow:0 4px 8px rgba(0,0,0,.28);"><i class="fa-solid fa-school"></i></div>',
-      className: '', iconSize: [38,38], iconAnchor: [19,19]
-    });
-    L.marker(SCHOOL_COORD, { icon: schoolIcon }).addTo(map).bindPopup("<b>🏫 輔大聖心高中</b><br>終點站");
-
-    let ROUTES_DATA = loadRoutes();
-    let activeMode = 'user';
-    let currentUserRouteId = null;
-    let currentAdminRouteId = null;
-    let currentAdminStopIndex = 0;
-    let adminMarker = null;
-    let routeLayer = L.featureGroup().addTo(map);
-
-    const routeList = document.getElementById('route-list');
-    const searchInput = document.getElementById('search-input');
-    const routeSelect = document.getElementById('route-select');
-    const adminStopList = document.getElementById('admin-stop-list');
-    const toast = document.getElementById('toast');
-
-    function deepCopy(v) { return JSON.parse(JSON.stringify(v)); }
-
-    function loadRoutes() {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) return JSON.parse(saved);
-      } catch(e) {}
-      return deepCopy(DEFAULT_ROUTES);
-    }
-
-    function saveRoutes() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(ROUTES_DATA));
-    }
-
-    function showToast(message) {
-      toast.textContent = message;
-      toast.classList.remove('hidden');
-      clearTimeout(showToast._t);
-      showToast._t = setTimeout(() => toast.classList.add('hidden'), 1800);
-    }
-
-    function syncMapAfterSidebar() {
-      setTimeout(() => map.invalidateSize(), 280);
-    }
-
-    function updateToggleTitle() {
-      const btn = document.getElementById('edge-toggle');
-      btn.title = document.body.classList.contains('sidebar-collapsed') ? '打開側欄' : '收起側欄';
-    }
-
-    function openSidebar() {
-      document.body.classList.remove('sidebar-collapsed');
-      updateToggleTitle();
-      syncMapAfterSidebar();
-    }
-
-    function closeSidebar() {
-      document.body.classList.add('sidebar-collapsed');
-      updateToggleTitle();
-      syncMapAfterSidebar();
-    }
-
-    function toggleSidebar(force) {
-      if (force === true) {
-        closeSidebar();
-        return;
-      }
-      if (force === false) {
-        openSidebar();
-        return;
-      }
-      document.body.classList.toggle('sidebar-collapsed');
-      updateToggleTitle();
-      syncMapAfterSidebar();
-    }
-
-    function switchMode(mode) {
-      activeMode = mode;
-      document.getElementById('userModeBtn').className = mode === 'user'
-        ? 'px-3 py-2 rounded-xl bg-blue-600 text-sm font-bold'
-        : 'px-3 py-2 rounded-xl bg-slate-700 text-sm font-bold';
-      document.getElementById('adminModeBtn').className = mode === 'admin'
-        ? 'px-3 py-2 rounded-xl bg-emerald-600 text-sm font-bold'
-        : 'px-3 py-2 rounded-xl bg-slate-700 text-sm font-bold';
-      document.getElementById('userSection').classList.toggle('hidden', mode !== 'user');
-      document.getElementById('adminSection').classList.toggle('hidden', mode !== 'admin');
-      document.getElementById('adminSection').classList.toggle('flex', mode === 'admin');
-      document.getElementById('userSection').classList.toggle('flex', mode === 'user');
-      closeUserInfo();
-      clearAdminMarker();
-      routeLayer.clearLayers();
-      if (mode === 'user') {
-        renderSidebar(searchInput.value.trim());
-      } else {
-        renderAdminSelect();
-        if (!currentAdminRouteId) routeSelect.value = '';
-      }
-      if (window.innerWidth <= 768) openSidebar();
-    }
-
-    function renderSidebar(filterText = '') {
-      routeList.innerHTML = '';
-      let hasResult = false;
-      ROUTES_DATA.forEach(route => {
-        const routeMatch = route.name.includes(filterText) || route.region.includes(filterText);
-        const stopMatch = route.stops.some(s => s[0].includes(filterText));
-        if (filterText && !routeMatch && !stopMatch) return;
-        hasResult = true;
-        const btn = document.createElement('button');
-        btn.className = 'route-btn' + (currentUserRouteId === route.id ? ' active' : '');
-        btn.innerHTML = `
-          <div class="flex justify-between items-center">
-            <span class="font-bold text-slate-800">${route.name}</span>
-            <span class="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">${route.stops.length} 站</span>
-          </div>
-          <div class="text-xs text-slate-500"><i class="fa-solid fa-map-location-dot mr-1"></i>${route.region}</div>
-        `;
-        btn.onclick = () => {
-          currentUserRouteId = route.id;
-          renderSidebar(filterText);
-          drawUserRoute(route.id);
-          if (window.innerWidth <= 768) closeSidebar();
-        };
-        routeList.appendChild(btn);
-      });
-      if (!hasResult) routeList.innerHTML = '<div class="p-8 text-center text-slate-400">找不到符合的路線</div>';
-    }
-
-    function drawUserRoute(routeId) {
-      const route = ROUTES_DATA.find(r => r.id === routeId);
-      if (!route) return;
-      routeLayer.clearLayers();
-      const latlngs = route.stops.map(s => [s[1], s[2]]);
-      const polyline = L.polyline(latlngs, { color:'#2563eb', weight:5, opacity:.82, lineJoin:'round' }).addTo(routeLayer);
-      route.stops.forEach((stop, idx) => {
-        if (idx < route.stops.length - 1) {
-          L.circleMarker([stop[1], stop[2]], {
-            radius:6, color:'#fff', weight:2, fillColor:'#f59e0b', fillOpacity:1
-          }).bindPopup(`<b>${idx + 1}. ${stop[0]}</b>`).addTo(routeLayer);
-        }
-      });
-      map.fitBounds(polyline.getBounds(), { padding:[40,40], maxZoom:15 });
-      document.getElementById('panel-title').textContent = route.name;
-      document.getElementById('panel-subtitle').textContent = route.region;
-      document.getElementById('stops-container').innerHTML = '<div class="pt-1">' + route.stops.map((stop, idx) => {
-        const isLast = idx === route.stops.length - 1;
-        return `<div class="timeline-item ${isLast ? 'destination' : ''}"><div class="text-[15px] ${isLast ? 'font-bold text-red-600' : 'text-slate-700'}">${stop[0]}</div></div>`;
-      }).join('') + '</div>';
-      document.getElementById('user-info').classList.add('show');
-    }
-
-    function closeUserInfo() {
-      document.getElementById('user-info').classList.remove('show');
-    }
-
-    function renderAdminSelect() {
-      routeSelect.innerHTML = '<option value="">請選擇要維修的路線</option>' + ROUTES_DATA.map(r => `<option value="${r.id}">${r.name}｜${r.region}</option>`).join('');
-      if (currentAdminRouteId) routeSelect.value = currentAdminRouteId;
-      renderAdminStops();
-    }
-
-    function renderAdminStops() {
-      adminStopList.innerHTML = '';
-      routeLayer.clearLayers();
-      clearAdminMarker();
-      if (!currentAdminRouteId) {
-        adminStopList.innerHTML = '<div class="p-6 text-center text-slate-400">請先選擇路線</div>';
-        map.flyTo(SCHOOL_COORD, 13);
-        return;
-      }
-      const route = ROUTES_DATA.find(r => r.id === currentAdminRouteId);
-      const latlngs = route.stops.map(s => [s[1], s[2]]);
-      const polyline = L.polyline(latlngs, { color:'#64748b', weight:4, opacity:.85 }).addTo(routeLayer);
-      route.stops.forEach((stop, idx) => {
-        const isSchool = idx === route.stops.length - 1;
-        const marker = L.circleMarker([stop[1], stop[2]], {
-          radius: isSchool ? 0 : 6,
-          color:'#fff', weight:2, fillColor: idx === currentAdminStopIndex ? '#2563eb' : '#f59e0b', fillOpacity:1
-        });
-        if (!isSchool) marker.addTo(routeLayer).bindPopup(`<b>${idx + 1}. ${stop[0]}</b>`);
-      });
-      map.fitBounds(polyline.getBounds(), { padding:[40,40], maxZoom:15 });
-
-      route.stops.forEach((stop, idx) => {
-        const isSchool = idx === route.stops.length - 1;
-        const card = document.createElement('div');
-        card.className = 'stop-card' + (idx === currentAdminStopIndex ? ' active' : '') + (isSchool ? ' opacity-60 cursor-not-allowed' : '');
-        card.innerHTML = `
-          <div class="flex items-center justify-between gap-3">
-            <div>
-              <div class="font-bold text-slate-800">${idx + 1}. ${stop[0]}</div>
-              <div class="tiny-note mt-1">${isSchool ? '終點站固定，不需調整' : '點此定位，拖曳地圖上的大頭針修正'}</div>
-            </div>
-            ${!isSchool && idx === currentAdminStopIndex ? '<span class="text-[11px] px-2 py-1 rounded-full bg-blue-100 text-blue-700 font-bold">目前編輯</span>' : ''}
-          </div>
-          <input ${isSchool ? 'disabled' : ''} id="coord-${idx}" class="coord-input mt-3" value="${stop[1].toFixed(6)}, ${stop[2].toFixed(6)}" />
-        `;
-        if (!isSchool) {
-          card.onclick = () => activateStop(idx);
-          const input = card.querySelector('input');
-          input.onclick = (e) => e.stopPropagation();
-          input.addEventListener('change', (e) => updateFromInput(idx, e.target.value));
-        }
-        adminStopList.appendChild(card);
-      });
-      if (currentAdminStopIndex >= route.stops.length - 1) currentAdminStopIndex = Math.max(0, route.stops.length - 2);
-      activateStop(currentAdminStopIndex, false);
-    }
-
-    function activateStop(idx, pan = true) {
-      const route = ROUTES_DATA.find(r => r.id === currentAdminRouteId);
-      if (!route || idx < 0 || idx >= route.stops.length - 1) return;
-      currentAdminStopIndex = idx;
-      [...adminStopList.querySelectorAll('.stop-card')].forEach((card, i) => card.classList.toggle('active', i === idx));
-      clearAdminMarker();
-      const stop = route.stops[idx];
-      adminMarker = L.marker([stop[1], stop[2]], { draggable:true }).addTo(routeLayer).bindPopup(`<b>${stop[0]}</b><br>拖曳即可修正`).openPopup();
-      if (pan) map.setView([stop[1], stop[2]], 16);
-      adminMarker.on('drag', () => {
-        const p = adminMarker.getLatLng();
-        const input = document.getElementById(`coord-${idx}`);
-        if (input) input.value = `${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}`;
-      });
-      adminMarker.on('dragend', () => {
-        const p = adminMarker.getLatLng();
-        route.stops[idx][1] = Number(p.lat.toFixed(6));
-        route.stops[idx][2] = Number(p.lng.toFixed(6));
-        saveRoutes();
-        renderAdminStops();
-        showToast('已更新站點座標');
-      });
-    }
-
-    function clearAdminMarker() {
-      if (adminMarker) {
-        routeLayer.removeLayer(adminMarker);
-        adminMarker = null;
-      }
-    }
-
-    function updateFromInput(idx, value) {
-      const route = ROUTES_DATA.find(r => r.id === currentAdminRouteId);
-      if (!route) return;
-      const parts = value.split(',').map(v => v.trim());
-      if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) {
-        showToast('請輸入正確格式：緯度, 經度');
-        const stop = route.stops[idx];
-        document.getElementById(`coord-${idx}`).value = `${stop[1].toFixed(6)}, ${stop[2].toFixed(6)}`;
-        return;
-      }
-      route.stops[idx][1] = Number(parseFloat(parts[0]).toFixed(6));
-      route.stops[idx][2] = Number(parseFloat(parts[1]).toFixed(6));
-      saveRoutes();
-      renderAdminStops();
-      activateStop(idx);
-      showToast('已套用手動座標');
-    }
-
-    function gotoPrevStop() {
-      const route = ROUTES_DATA.find(r => r.id === currentAdminRouteId);
-      if (!route) return showToast('請先選一條路線');
-      currentAdminStopIndex = Math.max(0, currentAdminStopIndex - 1);
-      activateStop(currentAdminStopIndex);
-    }
-
-    function gotoNextStop() {
-      const route = ROUTES_DATA.find(r => r.id === currentAdminRouteId);
-      if (!route) return showToast('請先選一條路線');
-      currentAdminStopIndex = Math.min(route.stops.length - 2, currentAdminStopIndex + 1);
-      activateStop(currentAdminStopIndex);
-    }
-
-    function downloadCSV() {
-      const rows = [['路線編號','路線名稱','行駛區域','站牌順序','站牌名稱','緯度','經度']];
-      ROUTES_DATA.forEach(route => {
-        route.stops.forEach((stop, idx) => rows.push([route.id, route.name, route.region, idx + 1, stop[0], stop[1], stop[2]]));
-      });
-      const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = '聖心校車路線最新座標.csv';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(a.href);
-      showToast('CSV 已下載');
-    }
-
-    routeSelect.addEventListener('change', (e) => {
-      currentAdminRouteId = e.target.value || null;
-      currentAdminStopIndex = 0;
-      renderAdminStops();
-    });
-
-    searchInput.addEventListener('input', e => renderSidebar(e.target.value.trim()));
-
-    window.addEventListener('resize', () => setTimeout(() => map.invalidateSize(), 200));
-
-    renderSidebar();
-    switchMode('user');
-    if (window.innerWidth > 768) document.body.classList.remove('sidebar-collapsed');
-    updateToggleTitle();
-  </script>
-</body>
-</html>
+    const ROUTES = [
+  {
+    "id": "A",
+    "name": "甲車",
+    "region": "中正、中山區",
+    "color": "#005BFF",
+    "stops": [
+      {
+        "order": 1,
+        "name": "就業輔導中心",
+        "lat": 25.137547,
+        "lng": 121.749582,
+        "confirmed": true
+      },
+      {
+        "order": 2,
+        "name": "中船路口OK店",
+        "lat": 25.138433,
+        "lng": 121.751198,
+        "confirmed": true
+      },
+      {
+        "order": 3,
+        "name": "復興館",
+        "lat": 25.139524,
+        "lng": 121.754164,
+        "confirmed": true
+      },
+      {
+        "order": 4,
+        "name": "巧味漢堡店",
+        "lat": 25.141681,
+        "lng": 121.75988,
+        "confirmed": true
+      },
+      {
+        "order": 5,
+        "name": "安瀾橋7-11",
+        "lat": 25.14276,
+        "lng": 121.760877,
+        "confirmed": true
+      },
+      {
+        "order": 6,
+        "name": "七海釣具",
+        "lat": 25.145729,
+        "lng": 121.761716,
+        "confirmed": true
+      },
+      {
+        "order": 7,
+        "name": "鈺峰汽車",
+        "lat": 25.14752368286546,
+        "lng": 121.76180143934072,
+        "confirmed": true
+      },
+      {
+        "order": 8,
+        "name": "武昌街OK店",
+        "lat": 25.148961,
+        "lng": 121.763709,
+        "confirmed": true
+      },
+      {
+        "order": 9,
+        "name": "漁市場對面全家",
+        "lat": 25.15106197246964,
+        "lng": 121.76713833722805,
+        "confirmed": true
+      },
+      {
+        "order": 10,
+        "name": "和平藥局",
+        "lat": 25.1523,
+        "lng": 121.7699,
+        "confirmed": true
+      },
+      {
+        "order": 11,
+        "name": "海洋大學對面家鄉牛肉麵",
+        "lat": 25.151091,
+        "lng": 121.772065,
+        "confirmed": true
+      },
