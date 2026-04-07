@@ -120,93 +120,23 @@ th:first-child, td:first-child { width: 85px; text-align: center; }
   .wall-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
 }
 @media (max-width:768px){
-
-  header{
-    padding:14px;
-  }
-
-  main{
-    padding:14px;
-  }
-
-  /* tabs 滑動 */
-  .tabs{
-    flex-wrap:nowrap;
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
-    gap:8px;
-  }
-
-  .tab-btn{
-    flex-shrink:0;
-    padding:10px 12px;
-    font-size:.9rem;
-  }
-
-  /* select 滿版 */
-  .controls select{
-    min-width:100%;
-  }
-
-  /* 表格容器 */
-  .table-wrap{
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
-  }
-
-  /* 表格寬度自適應 */
-  table{
-    min-width:600px;
-    font-size:.9rem;
-  }
-
-  th{
-    font-size:.85rem;
-    padding:8px 6px;
-  }
-
-  td{
-    padding:8px 6px;
-  }
-
-  /* cell 卡片縮小 */
-  .cell-box{
-    padding:6px;
-    margin-bottom:4px;
-  }
-
-  .cell-main{
-    font-size:.85rem;
-    line-height:1.2;
-  }
-
-  .cell-sub{
-    font-size:.75rem;
-  }
-
-  /* dashboard 卡片 */
-  .wall-grid{
-    grid-template-columns:1fr;
-  }
-
-  .class-name{
-    font-size:1rem;
-  }
-
-  .subject{
-    font-size:.95rem;
-  }
-
-  .teacher{
-    font-size:.8rem;
-  }
-
-  /* badge */
-  .badge{
-    font-size:.85rem;
-    padding:5px 10px;
-  }
-
+  header{ padding:14px; }
+  main{ padding:14px; }
+  .tabs{ flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; gap:8px; }
+  .tab-btn{ flex-shrink:0; padding:10px 12px; font-size:.9rem; }
+  .controls select{ min-width:100%; }
+  .table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  table{ min-width:600px; font-size:.9rem; }
+  th{ font-size:.85rem; padding:8px 6px; }
+  td{ padding:8px 6px; }
+  .cell-box{ padding:6px; margin-bottom:4px; }
+  .cell-main{ font-size:.85rem; line-height:1.2; }
+  .cell-sub{ font-size:.75rem; }
+  .wall-grid{ grid-template-columns:1fr; }
+  .class-name{ font-size:1rem; }
+  .subject{ font-size:.95rem; }
+  .teacher{ font-size:.8rem; }
+  .badge{ font-size:.85rem; padding:5px 10px; }
 }
   
 </style>
@@ -219,6 +149,7 @@ th:first-child, td:first-child { width: 85px; text-align: center; }
     <div class="badge ok" id="teacherBadge">計算中...</div>
     <div class="badge ok" id="classBadge">計算中...</div>
     <div class="badge ok" id="roomBadge">計算中...</div>
+    <button class="badge" id="previewBtn" onclick="togglePreview()" style="cursor:pointer; background:rgba(255,255,255,.05); border:1px solid var(--border); color:var(--text); transition: all 0.2s ease;">👁️ 預覽新生銜接課表</button>
   </div>
 </header>
 
@@ -274,6 +205,7 @@ th:first-child, td:first-child { width: 85px; text-align: center; }
       <div class="controls" style="margin-bottom:16px;">
         <select id="teacherSelect"></select>
         <button class="primary" onclick="renderTeacher()">查詢教師</button>
+        <button onclick="exportTableToCSV('teacherTable', '教師課表_' + document.getElementById('teacherSelect').value)">下載課表 (CSV)</button>
       </div>
       <div id="teacherCurrent" class="lesson-list"></div>
       <div class="table-wrap" style="margin-top:16px;"><table id="teacherTable"></table></div>
@@ -285,6 +217,7 @@ th:first-child, td:first-child { width: 85px; text-align: center; }
       <div class="controls" style="margin-bottom:16px;">
         <select id="classSelect"></select>
         <button class="primary" onclick="renderClass()">查詢班級</button>
+        <button onclick="exportTableToCSV('classTable', '班級課表_' + document.getElementById('classSelect').value)">下載課表 (CSV)</button>
       </div>
       <div id="classCurrent" class="lesson-list"></div>
       <div class="table-wrap" style="margin-top:16px;"><table id="classTable"></table></div>
@@ -296,6 +229,7 @@ th:first-child, td:first-child { width: 85px; text-align: center; }
       <div class="controls" style="margin-bottom:16px;">
         <select id="roomSelect"></select>
         <button class="primary" onclick="renderRoom()">查詢教室</button>
+        <button onclick="exportTableToCSV('roomTable', '教室課表_' + document.getElementById('roomSelect').value)">下載課表 (CSV)</button>
       </div>
       <div id="roomCurrent" class="lesson-list"></div>
       <div class="table-wrap" style="margin-top:16px;"><table id="roomTable"></table></div>
@@ -432,14 +366,35 @@ function isClassMatch(sheetClass, systemClass) {
 function findSubForClass(dateStr, period, className) { return substituteData.find(sub => sub.date === dateStr && sub.period === period && isClassMatch(sub.className, className)); }
 
 /* =========================================================
-   2. 核心排版與渲染邏輯
+   2. 核心排版與渲染邏輯 (加入新生銜接判斷)
 ========================================================= */
-const TEACHERS = DATA.teachers; const CLASSES = DATA.classes; const ROOMS = DATA.rooms;
-const DAYS = ["星期一","星期二","星期三","星期四","星期五"]; const PERIODS = DATA.periods;
+const DAYS = ["星期一","星期二","星期三","星期四","星期五"];
 
-document.getElementById('teacherBadge').textContent = `教師 ${TEACHERS.length} 位`;
-document.getElementById('classBadge').textContent = `班級 ${CLASSES.length} 個`;
-document.getElementById('roomBadge').textContent = `教室 ${ROOMS.length} 間`;
+let isPreviewMode = false;
+// 自動判斷抓取新生銜接課表的日期
+const BRIDGING_DATES = ["6/15", "6/16", "6/17", "6/18", "6/22", "6/23", "6/24", "6/25"];
+
+// 動態資料來源獲取
+function getActiveData() {
+    const info = getTaipeiDateParts();
+    const isBridgingDay = BRIDGING_DATES.includes(info.todayStr);
+    
+    if (isPreviewMode || isBridgingDay) {
+        if (typeof BRIDGING_DATA !== 'undefined') {
+            return BRIDGING_DATA;
+        } else if (isPreviewMode) {
+            alert("請先在 data.js 中定義 const BRIDGING_DATA = { ... } 才能使用新生銜接課表喔！");
+            isPreviewMode = false; // 取消預覽狀態以防破圖
+            document.getElementById('previewBtn').textContent = "👁️ 預覽新生銜接課表";
+        }
+    }
+    return DATA;
+}
+
+function getTeachers() { return getActiveData().teachers; }
+function getClasses() { return getActiveData().classes; }
+function getRooms() { return getActiveData().rooms; }
+function getPeriods() { return getActiveData().periods || DATA.periods; }
 
 function parseHM(hm) { const [h,m] = hm.split(':').map(Number); return h * 60 + m; }
 
@@ -450,7 +405,8 @@ function getTaipeiDateParts() {
   const day = {"Monday":"星期一","Tuesday":"星期二","Wednesday":"星期三","Thursday":"星期四","Friday":"星期五"}[obj.weekday] || obj.weekday;
   const hm = Number(obj.hour)*60 + Number(obj.minute);
   let current = null, next = null;
-  for (const p of PERIODS) {
+  // 這裡確保即便換了資料，也能抓到對的 periods
+  for (const p of (typeof BRIDGING_DATA !== 'undefined' ? (DATA.periods || []) : DATA.periods)) {
     const start = parseHM(p.start), end = parseHM(p.end);
     if (hm >= start && hm <= end) { current = p; break; }
     if (!current && hm < start && !next) next = p;
@@ -465,9 +421,9 @@ function currentLabel(info) {
   return `${info.day} 今日課程已結束`;
 }
 
-function slotClassEntries(className, day, period) { return (((DATA.classSchedule[className] || {})[day] || {})[String(period)] || []); }
-function slotTeacherEntries(teacher, day, period) { return (((DATA.teacherSchedule[teacher] || {})[day] || {})[String(period)] || []); }
-function slotRoomEntries(room, day, period) { return (((DATA.roomSchedule[room] || {})[day] || {})[String(period)] || []); }
+function slotClassEntries(className, day, period) { return (((getActiveData().classSchedule[className] || {})[day] || {})[String(period)] || []); }
+function slotTeacherEntries(teacher, day, period) { return (((getActiveData().teacherSchedule[teacher] || {})[day] || {})[String(period)] || []); }
+function slotRoomEntries(room, day, period) { return (((getActiveData().roomSchedule[room] || {})[day] || {})[String(period)] || []); }
 function roomText(rooms) { return rooms && rooms.length ? rooms.join('、') : '未指定'; }
 
 function gradeClass(name) {
@@ -503,7 +459,7 @@ function buildCell(entries, kind) {
 
 function buildWeeklyTable(headLabel, rowsBuilder) {
   let html = `<thead><tr><th>${headLabel}</th>${DAYS.map(d => `<th>${d}</th>`).join('')}</tr></thead><tbody>`;
-  for (const p of PERIODS) {
+  for (const p of getPeriods()) {
     html += `<tr><td>第${p.period}節<br><span class="cell-sub">${p.start}-${p.end}</span></td>`;
     for (const d of DAYS) html += `<td>${rowsBuilder(d, p.period)}</td>`;
     html += `</tr>`;
@@ -512,16 +468,16 @@ function buildWeeklyTable(headLabel, rowsBuilder) {
 }
 
 function findNextTeacherLesson(teacher, info) {
-  const schedule = DATA.teacherSchedule[teacher] || {}; if (!info.day) return null;
+  const schedule = getActiveData().teacherSchedule[teacher] || {}; if (!info.day) return null;
   const sIdx = DAYS.indexOf(info.day); if (sIdx < 0) return null;
   for (let di = sIdx; di < DAYS.length; di++) {
-    for (const p of PERIODS) {
+    for (const p of getPeriods()) {
       if ((di > sIdx || (!info.current ? (info.next ? p.period >= info.next.period : true) : p.period > info.current.period)) && (schedule[DAYS[di]]?.[String(p.period)]?.length)) 
         return { day: DAYS[di], period: p.period, time: p, entries: schedule[DAYS[di]][String(p.period)], nextWeek: false };
     }
   }
   for (let di = 0; di < sIdx; di++) {
-    for (const p of PERIODS) {
+    for (const p of getPeriods()) {
       if (schedule[DAYS[di]]?.[String(p.period)]?.length) 
         return { day: DAYS[di], period: p.period, time: p, entries: schedule[DAYS[di]][String(p.period)], nextWeek: true };
     }
@@ -550,20 +506,44 @@ function renderRoom() {
 }
 function renderDayTable() {
   const day = document.getElementById('daySelect').value;
-  let html = `<thead><tr><th>節次</th>${CLASSES.map(c => `<th class="${gradeClass(c)}">${c}</th>`).join('')}</tr></thead><tbody>`;
-  for (const p of PERIODS) {
+  const activeClasses = getClasses();
+  let html = `<thead><tr><th>節次</th>${activeClasses.map(c => `<th class="${gradeClass(c)}">${c}</th>`).join('')}</tr></thead><tbody>`;
+  for (const p of getPeriods()) {
     html += `<tr><td>第${p.period}節</td>`;
-    for (const c of CLASSES) html += `<td>${buildCell(slotClassEntries(c, day, p.period).map(e=>({...e,rawClass:c})), 'day')}</td>`;
+    for (const c of activeClasses) html += `<td>${buildCell(slotClassEntries(c, day, p.period).map(e=>({...e,rawClass:c})), 'day')}</td>`;
     html += `</tr>`;
   }
   document.getElementById('dayTable').innerHTML = html + '</tbody>';
 }
 
+// 供「查詢頁面」使用的新版表格轉 CSV 工具函式
+function exportTableToCSV(tableId, fileName) {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+    const rows = [];
+    for (const tr of table.rows) {
+        const rowData = [];
+        for (const cell of tr.cells) {
+            // 過濾並替換多餘空行格式
+            let text = cell.innerText.replace(/\n/g, ' / ').trim();
+            rowData.push('"' + text.replace(/"/g, '""') + '"');
+        }
+        rows.push(rowData.join(','));
+    }
+    const csv = '\ufeff' + rows.join('\n');
+    const a = document.createElement('a'); 
+    a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'})); 
+    a.download = `${fileName}.csv`; 
+    a.click();
+}
+
 function exportCurrentDayTable() {
-  const day = document.getElementById('daySelect').value; const rows = [['節次 / 時間', ...CLASSES]];
-  for (const p of PERIODS) {
+  const day = document.getElementById('daySelect').value; 
+  const activeClasses = getClasses();
+  const rows = [['節次 / 時間', ...activeClasses]];
+  for (const p of getPeriods()) {
     const row = [`第${p.period}節`];
-    for (const c of CLASSES) {
+    for (const c of activeClasses) {
       const e = slotClassEntries(c, day, p.period);
       row.push(e.length ? e.map(x=>`${x.subject}｜${x.teacher}`).join(' / ') : '');
     }
@@ -578,6 +558,7 @@ function exportCurrentDayTable() {
 // ======================
 function renderDashboard() {
   const info = getTaipeiDateParts();
+  const activeClasses = getClasses();
   document.getElementById('heroPeriod').textContent = currentLabel(info);
   
   // 今日調代課
@@ -598,21 +579,20 @@ function renderDashboard() {
       subBox.innerHTML = `<div class="lesson-item"><div class="main" style="color: #c5f5d2;">✅ 今日目前無調代課資訊</div></div>`;
   }
 
-  // 渲染即時上課顯示牆 (加入下課預覽邏輯)
+  // 渲染即時上課顯示牆
   const wall = document.getElementById('wallGrid');
-  
   let targetPeriodInfo = info.current ? info.current : info.next;
   let isNext = !info.current && info.next;
 
   if (!targetPeriodInfo) {
     document.getElementById('displaySub').textContent = "今日課程已結束";
-    wall.innerHTML = CLASSES.map(c => `<div class="wall-card empty ${gradeClass(c)}"><div class="class-name">${c}</div><div class="subject">今日課程已結束 / 非上課日</div><div class="teacher">-</div></div>`).join('');
+    wall.innerHTML = activeClasses.map(c => `<div class="wall-card empty ${gradeClass(c)}"><div class="class-name">${c}</div><div class="subject">今日課程已結束 / 非上課日</div><div class="teacher">-</div></div>`).join('');
     return;
   }
 
   document.getElementById('displaySub').textContent = isNext ? `下課中 ➔ 預覽第${targetPeriodInfo.period}節` : `第${targetPeriodInfo.period}節 進行中`;
   
-  wall.innerHTML = CLASSES.map(c => {
+  wall.innerHTML = activeClasses.map(c => {
     const entries = slotClassEntries(c, info.day, targetPeriodInfo.period);
     const subInfo = findSubForClass(info.todayStr, targetPeriodInfo.period, c);
     
@@ -641,7 +621,7 @@ function renderDashboard() {
   }).join('');
 }
 
-// 獨立的即時時鐘更新 (每1秒跳動)
+// 獨立的即時時鐘更新
 function startLiveClock() {
     setInterval(() => {
         const info = getTaipeiDateParts();
@@ -655,6 +635,31 @@ function startLiveClock() {
             renderDashboard();
         }
     }, 1000);
+}
+
+// 預覽按鈕切換邏輯
+function togglePreview() {
+    isPreviewMode = !isPreviewMode;
+    const btn = document.getElementById('previewBtn');
+    
+    if (isPreviewMode) {
+        // 先防呆檢查 data.js 到底準備好新變數沒
+        if (typeof BRIDGING_DATA === 'undefined') {
+            alert("請先在 data.js 中定義 const BRIDGING_DATA = { ... } 才能切換銜接課表喔！");
+            isPreviewMode = false;
+            return;
+        }
+        btn.style.color = "#ffcf86";
+        btn.style.borderColor = "#ffcf86";
+        btn.innerHTML = "👁️ 取消預覽 (目前為銜接課表)";
+    } else {
+        btn.style.color = "var(--text)";
+        btn.style.borderColor = "var(--border)";
+        btn.innerHTML = "👁️ 預覽新生銜接課表";
+    }
+    
+    initSelects();
+    refreshAll();
 }
 
 // 強制立刻刷新所有內容
@@ -674,10 +679,19 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 });
 
 function initSelects() {
-  document.getElementById('teacherSelect').innerHTML = TEACHERS.map(t => `<option value="${t}">${t}</option>`).join('');
-  document.getElementById('classSelect').innerHTML = CLASSES.map(c => `<option value="${c}">${c}</option>`).join('');
-  document.getElementById('roomSelect').innerHTML = ROOMS.map(r => `<option value="${r}">${r}</option>`).join('');
+  const activeTeachers = getTeachers();
+  const activeClasses = getClasses();
+  const activeRooms = getRooms();
+    
+  document.getElementById('teacherSelect').innerHTML = activeTeachers.map(t => `<option value="${t}">${t}</option>`).join('');
+  document.getElementById('classSelect').innerHTML = activeClasses.map(c => `<option value="${c}">${c}</option>`).join('');
+  document.getElementById('roomSelect').innerHTML = activeRooms.map(r => `<option value="${r}">${r}</option>`).join('');
   document.getElementById('daySelect').innerHTML = DAYS.map(d => `<option value="${d}">${d}</option>`).join('');
+  
+  document.getElementById('teacherBadge').textContent = `教師 ${activeTeachers.length} 位`;
+  document.getElementById('classBadge').textContent = `班級 ${activeClasses.length} 個`;
+  document.getElementById('roomBadge').textContent = `教室 ${activeRooms.length} 間`;
+    
   const info = getTaipeiDateParts(); if (DAYS.includes(info.day)) document.getElementById('daySelect').value = info.day;
 }
 
@@ -691,12 +705,12 @@ function convertTables() {
   });
 }
 
-// 啟動流程：綁定選單 -> 啟動每秒時鐘 -> 立刻渲染一次 -> 抓資料 -> 定時重整排版
+// 啟動流程
 initSelects();
 startLiveClock();
 refreshAll(); 
 loadSubstituteData();
-setInterval(refreshAll, 60000); // 改為每 60 秒背景同步一次最新試算表資料
+setInterval(refreshAll, 60000);
 </script>
 
 <script>
