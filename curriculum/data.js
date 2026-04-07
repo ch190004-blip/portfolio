@@ -1863,34 +1863,35 @@ const DATA = {
 // 自動產生銜接週課表 (BRIDGING_DATA)
 // ==========================================
 const BRIDGING_DATA = (function() {
-    // 1. 深拷貝原始資料
+    if (typeof DATA === 'undefined') return null; // 防呆
     const data = JSON.parse(JSON.stringify(DATA));
     
-    // 2. 定義要移除的畢業班，以及要被覆蓋的新生銜接班
     const graduatingClasses = ["國九A", "國九B", "高三理組", "高三文組"];
     const bridgingClasses = ["國七A", "國七B", "高一"];
     const classesToClear = [...graduatingClasses, ...bridgingClasses];
     
-    // 3. 從班級清單中徹底移除畢業班
+    // 3. 從班級清單中移除畢業班
     data.classes = data.classes.filter(c => !graduatingClasses.includes(c));
-    
-    // 移除畢業班的專屬課表
     graduatingClasses.forEach(c => delete data.classSchedule[c]);
     
-    // 清理所有教師與教室課表中，關於「畢業班」與「舊國七/舊高一」的紀錄，騰出空堂
+    // 修正：同時相容 teacherSchedule (.classes 陣列) 與 roomSchedule (.rawClass 字串)
     ['teacherSchedule', 'roomSchedule'].forEach(scheduleType => {
+        if (!data[scheduleType]) return;
         for (let entity in data[scheduleType]) {
             for (let day in data[scheduleType][entity]) {
                 for (let period in data[scheduleType][entity][day]) {
                     data[scheduleType][entity][day][period] = data[scheduleType][entity][day][period]
                         .map(lesson => {
-                            // 過濾掉畢業班與即將被覆蓋的新生班
-                            lesson.classes = lesson.classes.filter(c => !classesToClear.includes(c));
+                            if (lesson.classes) {
+                                lesson.classes = lesson.classes.filter(c => !classesToClear.includes(c));
+                            }
+                            if (lesson.rawClass && classesToClear.includes(lesson.rawClass)) {
+                                lesson._remove = true;
+                            }
                             return lesson;
                         })
-                        .filter(lesson => lesson.classes.length > 0);
+                        .filter(lesson => !lesson._remove && (lesson.classes ? lesson.classes.length > 0 : true));
                     
-                    // 如果該節課的班級被清空了，就直接把這節課刪掉變成完美空堂
                     if (data[scheduleType][entity][day][period].length === 0) {
                         delete data[scheduleType][entity][day][period];
                     }
@@ -1899,7 +1900,7 @@ const BRIDGING_DATA = (function() {
         }
     });
     
-    // 4. 定義新生銜接週的新課表簡碼 (完美對照排課圖片)
+    // 4. 定義新生銜接週的新課表簡碼
     const bridgingInput = {
         "高一": {
             "星期一": { 1: "秀玫", 2: "秀玫", 3: "瑋筠", 4: "美芝", 5: "之宇", 6: "之宇", 7: "玉良" },
@@ -1921,7 +1922,6 @@ const BRIDGING_DATA = (function() {
         }
     };
 
-    // 輔助字典：將課表上的簡稱還原為正式教師名單與預設科目
     const parseLesson = (code) => {
         const map = {
             "秀玫": { t: ["張秀玫"], s: "國語文" },
@@ -1942,7 +1942,6 @@ const BRIDGING_DATA = (function() {
             "妤文+3外": { t: ["王妤文", "Roja", "Chad", "Gina"], s: "ESL" },
             "雯菁": { t: ["吳雯菁"], s: "公民與社會" },
             "校長": { t: ["校長"], s: "校長時間" },
-            // 處理週三 6/17 與 6/24 不同課的情況
             "妤文+3外(17) / 美芝(24)": { t: ["王妤文", "Roja", "Chad", "Gina", "曾美芝"], s: "ESL(17) / 數學(24)" },
             "世宗(17) / 美芝(24)": { t: ["王世宗", "曾美芝"], s: "生物(17) / 數學(24)" },
             "霂歖(17) / 校長(24)": { t: ["江霂歖", "校長"], s: "體育(17) / 校長(24)" },
@@ -1951,36 +1950,31 @@ const BRIDGING_DATA = (function() {
         return map[code] || { t: [code], s: "銜接課程" };
     };
 
-    // 確保新出現的老師有被加入下拉式選單
     const newTeachers = ["江明岳", "校長"];
     newTeachers.forEach(t => {
         if (!data.teachers.includes(t)) data.teachers.push(t);
     });
 
-    // 5. 將新生銜接課表反向寫入班級與教師的課表陣列中
     for (let className in bridgingInput) {
-        data.classSchedule[className] = {}; // 覆蓋舊班級課表
+        data.classSchedule[className] = {};
         for (let day in bridgingInput[className]) {
             data.classSchedule[className][day] = {};
             for (let period in bridgingInput[className][day]) {
                 const code = bridgingInput[className][day][period];
                 const info = parseLesson(code);
                 
-                // 寫入 classSchedule (多師協同教學時，在班級課表以斜線呈現)
                 data.classSchedule[className][day][period] = [{
                     teacher: info.t.join(" / "),
                     subject: info.s,
-                    rooms: [] // 銜接週沒特別標示教室，預設空白
+                    rooms: [] 
                 }];
                 
-                // 寫入 teacherSchedule
                 info.t.forEach(teacherName => {
                     if (!data.teacherSchedule[teacherName]) data.teacherSchedule[teacherName] = {};
                     if (!data.teacherSchedule[teacherName][day]) data.teacherSchedule[teacherName][day] = {};
                     if (!data.teacherSchedule[teacherName][day][period]) data.teacherSchedule[teacherName][day][period] = [];
                     
-                    // 避免重複寫入同一位老師
-                    const alreadyHasClass = data.teacherSchedule[teacherName][day][period].some(l => l.classes.includes(className));
+                    const alreadyHasClass = data.teacherSchedule[teacherName][day][period].some(l => l.classes && l.classes.includes(className));
                     if (!alreadyHasClass) {
                         data.teacherSchedule[teacherName][day][period].push({
                             subject: info.s,
