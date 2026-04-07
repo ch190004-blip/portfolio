@@ -1858,3 +1858,141 @@ const DATA = {
     }
   }
 };
+
+// ==========================================
+// 自動產生銜接週課表 (BRIDGING_DATA)
+// ==========================================
+const BRIDGING_DATA = (function() {
+    // 1. 深拷貝原始資料
+    const data = JSON.parse(JSON.stringify(DATA));
+    
+    // 2. 定義要移除的畢業班，以及要被覆蓋的新生銜接班
+    const graduatingClasses = ["國九A", "國九B", "高三理組", "高三文組"];
+    const bridgingClasses = ["國七A", "國七B", "高一"];
+    const classesToClear = [...graduatingClasses, ...bridgingClasses];
+    
+    // 3. 從班級清單中徹底移除畢業班
+    data.classes = data.classes.filter(c => !graduatingClasses.includes(c));
+    
+    // 移除畢業班的專屬課表
+    graduatingClasses.forEach(c => delete data.classSchedule[c]);
+    
+    // 清理所有教師與教室課表中，關於「畢業班」與「舊國七/舊高一」的紀錄，騰出空堂
+    ['teacherSchedule', 'roomSchedule'].forEach(scheduleType => {
+        for (let entity in data[scheduleType]) {
+            for (let day in data[scheduleType][entity]) {
+                for (let period in data[scheduleType][entity][day]) {
+                    data[scheduleType][entity][day][period] = data[scheduleType][entity][day][period]
+                        .map(lesson => {
+                            // 過濾掉畢業班與即將被覆蓋的新生班
+                            lesson.classes = lesson.classes.filter(c => !classesToClear.includes(c));
+                            return lesson;
+                        })
+                        .filter(lesson => lesson.classes.length > 0);
+                    
+                    // 如果該節課的班級被清空了，就直接把這節課刪掉變成完美空堂
+                    if (data[scheduleType][entity][day][period].length === 0) {
+                        delete data[scheduleType][entity][day][period];
+                    }
+                }
+            }
+        }
+    });
+    
+    // 4. 定義新生銜接週的新課表簡碼 (完美對照排課圖片)
+    const bridgingInput = {
+        "高一": {
+            "星期一": { 1: "秀玫", 2: "秀玫", 3: "瑋筠", 4: "美芝", 5: "之宇", 6: "之宇", 7: "玉良" },
+            "星期二": { 1: "秀玫", 2: "霂歖", 3: "美芝", 4: "玉良", 5: "玉良", 6: "玉良", 7: "瑋筠" },
+            "星期三": { 1: "瑋筠", 2: "江明岳", 3: "江明岳", 4: "江明岳", 5: "李牧", 6: "李牧", 7: "秀玫" },
+            "星期四": { 1: "瑋筠", 2: "霂歖", 3: "李牧", 4: "李牧", 5: "之宇", 6: "之宇", 7: "珮瑜" }
+        },
+        "國七A": {
+            "星期一": { 1: "霂歖", 2: "莊/羅/邱", 3: "斌", 4: "玉華", 5: "美芝/桂/宇綸", 6: "美芝/桂/宇綸", 7: "NANA" },
+            "星期二": { 1: "世宗", 2: "玉華", 3: "妤文+3外", 4: "妤文+3外", 5: "霂歖", 6: "美芝/桂/宇綸", 7: "美芝/桂/宇綸" },
+            "星期三": { 1: "雯菁", 2: "玉華", 3: "瑋筠", 4: "莊/羅/邱", 5: "妤文+3外", 6: "妤文+3外(17) / 美芝(24)", 7: "世宗(17) / 美芝(24)" },
+            "星期四": { 1: "玉華", 2: "雯菁", 3: "NANA", 4: "妤文+3外", 5: "瑋筠", 6: "莊/羅/邱", 7: "校長" }
+        },
+        "國七B": {
+            "星期一": { 1: "世宗", 2: "莊/羅/邱", 3: "秀玫", 4: "NANA", 5: "美芝/桂/宇綸", 6: "美芝/桂/宇綸", 7: "世宗" },
+            "星期二": { 1: "雯菁", 2: "秀玫", 3: "妤文+3外", 4: "妤文+3外", 5: "瑋筠", 6: "美芝/桂/宇綸", 7: "美芝/桂/宇綸" },
+            "星期三": { 1: "秀玫", 2: "雯菁", 3: "霂歖(17) / 校長(24)", 4: "莊/羅/邱", 5: "妤文+3外", 6: "妤文+3外(17) / NANA(24)", 7: "瑋筠" },
+            "星期四": { 1: "秀玫", 2: "美芝", 3: "美芝", 4: "妤文+3外", 5: "斌", 6: "莊/羅/邱", 7: "霂歖" }
+        }
+    };
+
+    // 輔助字典：將課表上的簡稱還原為正式教師名單與預設科目
+    const parseLesson = (code) => {
+        const map = {
+            "秀玫": { t: ["張秀玫"], s: "國語文" },
+            "瑋筠": { t: ["陳瑋筠"], s: "歷史" },
+            "美芝": { t: ["曾美芝"], s: "數學" },
+            "之宇": { t: ["之宇"], s: "英語文" },
+            "玉良": { t: ["蔡玉良"], s: "物理" },
+            "霂歖": { t: ["江霂歖"], s: "體育" },
+            "李牧": { t: ["李牧"], s: "數學" },
+            "珮瑜": { t: ["簡珮瑜"], s: "輔導活動" },
+            "江明岳": { t: ["江明岳"], s: "銜接課程" },
+            "莊/羅/邱": { t: ["莊旭惠", "羅雅苓", "邱千芸"], s: "英語文" },
+            "斌": { t: ["倪世斌"], s: "資訊/生科" },
+            "玉華": { t: ["劉玉華"], s: "國語文" },
+            "美芝/桂/宇綸": { t: ["曾美芝", "桂松山", "吳宇綸"], s: "數學" },
+            "NANA": { t: ["莊旭惠"], s: "英語文" },
+            "世宗": { t: ["王世宗"], s: "健康/生物" },
+            "妤文+3外": { t: ["王妤文", "Roja", "Chad", "Gina"], s: "ESL" },
+            "雯菁": { t: ["吳雯菁"], s: "公民與社會" },
+            "校長": { t: ["校長"], s: "校長時間" },
+            // 處理週三 6/17 與 6/24 不同課的情況
+            "妤文+3外(17) / 美芝(24)": { t: ["王妤文", "Roja", "Chad", "Gina", "曾美芝"], s: "ESL(17) / 數學(24)" },
+            "世宗(17) / 美芝(24)": { t: ["王世宗", "曾美芝"], s: "生物(17) / 數學(24)" },
+            "霂歖(17) / 校長(24)": { t: ["江霂歖", "校長"], s: "體育(17) / 校長(24)" },
+            "妤文+3外(17) / NANA(24)": { t: ["王妤文", "Roja", "Chad", "Gina", "莊旭惠"], s: "ESL(17) / 英文(24)" }
+        };
+        return map[code] || { t: [code], s: "銜接課程" };
+    };
+
+    // 確保新出現的老師有被加入下拉式選單
+    const newTeachers = ["江明岳", "校長"];
+    newTeachers.forEach(t => {
+        if (!data.teachers.includes(t)) data.teachers.push(t);
+    });
+
+    // 5. 將新生銜接課表反向寫入班級與教師的課表陣列中
+    for (let className in bridgingInput) {
+        data.classSchedule[className] = {}; // 覆蓋舊班級課表
+        for (let day in bridgingInput[className]) {
+            data.classSchedule[className][day] = {};
+            for (let period in bridgingInput[className][day]) {
+                const code = bridgingInput[className][day][period];
+                const info = parseLesson(code);
+                
+                // 寫入 classSchedule (多師協同教學時，在班級課表以斜線呈現)
+                data.classSchedule[className][day][period] = [{
+                    teacher: info.t.join(" / "),
+                    subject: info.s,
+                    rooms: [] // 銜接週沒特別標示教室，預設空白
+                }];
+                
+                // 寫入 teacherSchedule
+                info.t.forEach(teacherName => {
+                    if (!data.teacherSchedule[teacherName]) data.teacherSchedule[teacherName] = {};
+                    if (!data.teacherSchedule[teacherName][day]) data.teacherSchedule[teacherName][day] = {};
+                    if (!data.teacherSchedule[teacherName][day][period]) data.teacherSchedule[teacherName][day][period] = [];
+                    
+                    // 避免重複寫入同一位老師
+                    const alreadyHasClass = data.teacherSchedule[teacherName][day][period].some(l => l.classes.includes(className));
+                    if (!alreadyHasClass) {
+                        data.teacherSchedule[teacherName][day][period].push({
+                            subject: info.s,
+                            classes: [className],
+                            rooms: []
+                        });
+                    }
+                });
+            }
+        }
+    }
+    
+    data.meta.note = "已加入新生銜接週課表，並移除畢業班級";
+    return data;
+})();
