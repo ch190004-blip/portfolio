@@ -115,6 +115,24 @@ th:first-child, td:first-child { width: 85px; text-align: center; }
   vertical-align: middle; letter-spacing: 0.05em;
 }
 
+
+/* 銜接課表生效日期提示框 */
+.bridging-dates {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(123, 200, 255, 0.12);
+  border: 1px solid var(--accent);
+  color: #c6d6ee;
+  margin-left: auto; /* 將元素推至 topbar 最右側 */
+}
+.bridging-dates strong { color: #fff; }
+.bridging-dates .title { color: var(--accent); font-weight: bold; margin-bottom: 4px; font-size: 0.9rem; }
+
+
+
+  
 @media (max-width: 1100px) {
   .col-6 { grid-column: span 12; }
   .wall-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
@@ -142,6 +160,7 @@ th:first-child, td:first-child { width: 85px; text-align: center; }
 </style>
 </head>
 <body>
+  
 <header>
   <h1>聖心高中課表查詢系統</h1>
   <div class="topbar">
@@ -150,8 +169,15 @@ th:first-child, td:first-child { width: 85px; text-align: center; }
     <div class="badge ok" id="classBadge">計算中...</div>
     <div class="badge ok" id="roomBadge">計算中...</div>
     <button class="badge" id="previewBtn" onclick="togglePreview()" style="cursor:pointer; background:rgba(255,255,255,.05); border:1px solid var(--border); color:var(--text); transition: all 0.2s ease;">👁️ 預覽新生銜接課表</button>
+    
+    <div id="bridgingDates" class="bridging-dates" style="display: none; flex-direction: column;">
+      <div class="title">🗓️ 銜接課表生效日期</div>
+      <div><strong>(新七A、新七B)</strong> 6/17(三)、6/18(四)、6/22(一)、6/23(二)、6/24(三)</div>
+      <div><strong>(新高一)</strong> 6/15(一)~6/18(四)、6/22(一)~6/25(四)</div>
+    </div>
   </div>
 </header>
+  
 
 <main>
   <div class="tabs">
@@ -641,9 +667,9 @@ function startLiveClock() {
 function togglePreview() {
     isPreviewMode = !isPreviewMode;
     const btn = document.getElementById('previewBtn');
+    const datesBadge = document.getElementById('bridgingDates'); // 抓取日期提示框
     
     if (isPreviewMode) {
-        // 先防呆檢查 data.js 到底準備好新變數沒
         if (typeof BRIDGING_DATA === 'undefined') {
             alert("請先在 data.js 中定義 const BRIDGING_DATA = { ... } 才能切換銜接課表喔！");
             isPreviewMode = false;
@@ -652,10 +678,12 @@ function togglePreview() {
         btn.style.color = "#ffcf86";
         btn.style.borderColor = "#ffcf86";
         btn.innerHTML = "👁️ 取消預覽 (目前為銜接課表)";
+        datesBadge.style.display = "flex"; // 顯示日期提示
     } else {
         btn.style.color = "var(--text)";
         btn.style.borderColor = "var(--border)";
         btn.innerHTML = "👁️ 預覽新生銜接課表";
+        datesBadge.style.display = "none"; // 隱藏日期提示
     }
     
     initSelects();
