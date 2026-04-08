@@ -1860,13 +1860,12 @@ const DATA = {
 };
 
 // ==========================================
-// 自動產生銜接週課表 (BRIDGING_DATA) - 科目精準版 & 新生獨立版
+// 自動產生銜接週課表 (BRIDGING_DATA) - 雙週分離精準版
 // ==========================================
 const BRIDGING_DATA = (function() {
-    if (typeof DATA === 'undefined') return null; // 防呆
+    if (typeof DATA === 'undefined') return null;
     const data = JSON.parse(JSON.stringify(DATA));
     
-    // 畢業班(讓出空堂) 與 新生班(全新加入)
     const graduatingClasses = ["國九A", "國九B", "高三理組", "高三文組"];
     const bridgingClasses = ["新七A", "新七B", "新高一"];
     
@@ -1903,7 +1902,7 @@ const BRIDGING_DATA = (function() {
         }
     });
     
-    // 3. 全新定義新生銜接週的精準課表 (包含孔令堅老師取代校長)
+    // 3. 全新定義新生銜接週的精準課表 (星期三不同課的節次改用陣列分離)
     const bridgingInput = {
         "新高一": {
             "星期一": {
@@ -1968,8 +1967,14 @@ const BRIDGING_DATA = (function() {
                 3: { t: ["陳瑋筠"], s: "走讀聖心校園" },
                 4: { t: ["莊旭惠", "羅雅苓", "邱千芸"], s: "英文分組學習" },
                 5: { t: ["王妤文", "Roja", "Chad", "Gina"], s: "ESL分組學習" },
-                6: { t: ["王妤文", "Roja", "Chad", "Gina", "曾美芝"], s: "ESL分組學習(17) / 學習策略與自我管理(24)" },
-                7: { t: ["王世宗", "曾美芝"], s: "自然銜接學習(17) / 學習策略與自我管理(24)" }
+                6: [
+                    { t: ["王妤文", "Roja", "Chad", "Gina"], s: "ESL分組學習(17)" },
+                    { t: ["曾美芝"], s: "學習策略與自我管理(24)" }
+                ],
+                7: [
+                    { t: ["王世宗"], s: "自然銜接學習(17)" },
+                    { t: ["曾美芝"], s: "學習策略與自我管理(24)" }
+                ]
             },
             "星期四": {
                 1: { t: ["劉玉華"], s: "國文素養" },
@@ -2001,13 +2006,25 @@ const BRIDGING_DATA = (function() {
                 7: { t: ["曾美芝", "桂松山", "吳宇綸"], s: "數學銜接學習" }
             },
             "星期三": {
-                1: { t: ["張秀玫", "孔令堅"], s: "國文素養(17) / 社會情緒學習(24)" },
+                1: [
+                    { t: ["張秀玫"], s: "國文素養(17)" },
+                    { t: ["孔令堅"], s: "社會情緒學習(24)" }
+                ],
                 2: { t: ["吳雯菁"], s: "走讀聖心校園" },
-                3: { t: ["江霂歖", "陳瑋筠"], s: "體育(17) / 走讀聖心校園(24)" },
+                3: [
+                    { t: ["江霂歖"], s: "體育(17)" },
+                    { t: ["陳瑋筠"], s: "走讀聖心校園(24)" }
+                ],
                 4: { t: ["莊旭惠", "羅雅苓", "邱千芸"], s: "英文分組學習" },
                 5: { t: ["王妤文", "Roja", "Chad", "Gina"], s: "ESL分組學習" },
-                6: { t: ["王妤文", "Roja", "Chad", "Gina", "莊旭惠"], s: "ESL分組學習(17) / 品德力與生活素養(24)" },
-                7: { t: ["陳瑋筠"], s: "走讀聖心校園(17) / 導師時間(24)" }
+                6: [
+                    { t: ["王妤文", "Roja", "Chad", "Gina"], s: "ESL分組學習(17)" },
+                    { t: ["莊旭惠"], s: "品德力與生活素養(24)" }
+                ],
+                7: [
+                    { t: ["陳瑋筠"], s: "走讀聖心校園(17)" },
+                    { t: ["陳瑋筠"], s: "導師時間(24)" }
+                ]
             },
             "星期四": {
                 1: { t: ["張秀玫"], s: "國文素養" },
@@ -2021,46 +2038,52 @@ const BRIDGING_DATA = (function() {
         }
     };
 
-    // 確保有把新老師加入清單 (這裡移除了"校長")
     const newTeachers = ["江明岳"];
     newTeachers.forEach(t => {
         if (!data.teachers.includes(t)) data.teachers.push(t);
     });
 
-    // 4. 將新生課表反向推回總資料中
+    // 4. 將新生課表推回總資料中 (支援陣列拆分邏輯)
     for (let className in bridgingInput) {
         data.classSchedule[className] = {};
         for (let day in bridgingInput[className]) {
             data.classSchedule[className][day] = {};
             for (let period in bridgingInput[className][day]) {
-                const info = bridgingInput[className][day][period];
+                // 如果是一般的物件，就包成陣列統一處理
+                const infoOrArray = bridgingInput[className][day][period];
+                const infoArray = Array.isArray(infoOrArray) ? infoOrArray : [infoOrArray];
                 
-                // 寫入 classSchedule
+                // 處理 classSchedule：將多筆資料合併成一行顯示字串
+                const combinedSubject = infoArray.map(info => info.s).join(" / ");
+                const uniqueTeachers = [...new Set(infoArray.flatMap(info => info.t))];
+                
                 data.classSchedule[className][day][period] = [{
-                    teacher: info.t.join(" / "),
-                    subject: info.s,
+                    teacher: uniqueTeachers.join(" / "),
+                    subject: combinedSubject,
                     rooms: [] 
                 }];
                 
-                // 寫入 teacherSchedule
-                info.t.forEach(teacherName => {
-                    if (!data.teacherSchedule[teacherName]) data.teacherSchedule[teacherName] = {};
-                    if (!data.teacherSchedule[teacherName][day]) data.teacherSchedule[teacherName][day] = {};
-                    if (!data.teacherSchedule[teacherName][day][period]) data.teacherSchedule[teacherName][day][period] = [];
-                    
-                    const alreadyHasClass = data.teacherSchedule[teacherName][day][period].some(l => l.classes && l.classes.includes(className));
-                    if (!alreadyHasClass) {
-                        data.teacherSchedule[teacherName][day][period].push({
-                            subject: info.s,
-                            classes: [className],
-                            rooms: []
-                        });
-                    }
+                // 處理 teacherSchedule：分別寫入每位老師「專屬」的那一節課
+                infoArray.forEach(info => {
+                    info.t.forEach(teacherName => {
+                        if (!data.teacherSchedule[teacherName]) data.teacherSchedule[teacherName] = {};
+                        if (!data.teacherSchedule[teacherName][day]) data.teacherSchedule[teacherName][day] = {};
+                        if (!data.teacherSchedule[teacherName][day][period]) data.teacherSchedule[teacherName][day][period] = [];
+                        
+                        const alreadyHasClass = data.teacherSchedule[teacherName][day][period].some(l => l.classes && l.classes.includes(className));
+                        if (!alreadyHasClass) {
+                            data.teacherSchedule[teacherName][day][period].push({
+                                subject: info.s, // <-- 這裡只會寫入該老師負責的科目 (包含 17 或 24)
+                                classes: [className],
+                                rooms: []
+                            });
+                        }
+                    });
                 });
             }
         }
     }
     
-    data.meta.note = "已獨立加入 新七A, 新七B, 新高一 銜接週課表，並保留原在校生";
+    data.meta.note = "已獨立加入 新七A, 新七B, 新高一 銜接週課表，雙週三不同科目已分離寫入教師課表";
     return data;
 })();
