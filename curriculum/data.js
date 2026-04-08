@@ -1860,7 +1860,7 @@ const DATA = {
 };
 
 // ==========================================
-// 自動產生銜接週課表 (BRIDGING_DATA) - 雙週分離精準版
+// 自動產生銜接週課表 (BRIDGING_DATA) - 雙週分離精準版 (含新高一週三/週四調課更新)
 // ==========================================
 const BRIDGING_DATA = (function() {
     if (typeof DATA === 'undefined') return null;
@@ -1902,12 +1902,12 @@ const BRIDGING_DATA = (function() {
         }
     });
     
-    // 3. 全新定義新生銜接週的精準課表 (星期三不同課的節次改用陣列分離)
+    // 3. 全新定義新生銜接週的精準課表
     const bridgingInput = {
         "新高一": {
             "星期一": {
                 1: { t: ["張秀玫"], s: "導師時間" },
-                2: { t: ["張秀玫"], s: "國文素養" },
+                2: { t: ["陳瑋筠"], s: "社會探究與踏查" },
                 3: { t: ["陳瑋筠"], s: "社會探究與踏查" },
                 4: { t: ["曾美芝"], s: "學習實踐與行動管理" },
                 5: { t: ["之宇"], s: "英文銜接強化" },
@@ -1924,7 +1924,7 @@ const BRIDGING_DATA = (function() {
                 7: { t: ["陳瑋筠"], s: "社會探究與踏查" }
             },
             "星期三": {
-                1: { t: ["陳瑋筠"], s: "社會探究與踏查" },
+                1: { t: ["簡珮瑜"], s: "學習歷程與生涯探索" }, // <-- 已與星期四第7節對調
                 2: { t: ["江明岳"], s: "創意思考與跨域探索" },
                 3: { t: ["江明岳"], s: "創意思考與跨域探索" },
                 4: { t: ["江明岳"], s: "創意思考與跨域探索" },
@@ -1933,20 +1933,20 @@ const BRIDGING_DATA = (function() {
                 7: { t: ["張秀玫"], s: "國文素養" }
             },
             "星期四": {
-                1: { t: ["陳瑋筠"], s: "社會探究與踏查" },
+                1: { t: ["張秀玫"], s: "國文素養" },
                 2: { t: ["江霂歖"], s: "體育" },
                 3: { t: ["李牧"], s: "數學銜接強化" },
                 4: { t: ["李牧"], s: "數學銜接強化" },
                 5: { t: ["之宇"], s: "英文銜接強化" },
                 6: { t: ["之宇"], s: "英文銜接強化" },
-                7: { t: ["簡珮瑜"], s: "學習歷程與生涯探索" }
+                7: { t: ["陳瑋筠"], s: "社會探究與踏查" } // <-- 已與星期三第1節對調
             }
         },
         "新七A": {
             "星期一": {
-                1: { t: ["江霂歖"], s: "體育" },
+                1: { t: ["倪世斌"], s: "科技" },
                 2: { t: ["莊旭惠", "羅雅苓", "邱千芸"], s: "英文分組學習" },
-                3: { t: ["倪世斌"], s: "科技" },
+                3: { t: ["江霂歖"], s: "體育" },
                 4: { t: ["劉玉華"], s: "國文素養" },
                 5: { t: ["曾美芝", "桂松山", "吳宇綸"], s: "數學銜接學習" },
                 6: { t: ["曾美芝", "桂松山", "吳宇綸"], s: "數學銜接學習" },
@@ -2043,17 +2043,15 @@ const BRIDGING_DATA = (function() {
         if (!data.teachers.includes(t)) data.teachers.push(t);
     });
 
-    // 4. 將新生課表推回總資料中 (支援陣列拆分邏輯)
+    // 4. 將新生課表推回總資料中
     for (let className in bridgingInput) {
         data.classSchedule[className] = {};
         for (let day in bridgingInput[className]) {
             data.classSchedule[className][day] = {};
             for (let period in bridgingInput[className][day]) {
-                // 如果是一般的物件，就包成陣列統一處理
                 const infoOrArray = bridgingInput[className][day][period];
                 const infoArray = Array.isArray(infoOrArray) ? infoOrArray : [infoOrArray];
                 
-                // 處理 classSchedule：將多筆資料合併成一行顯示字串
                 const combinedSubject = infoArray.map(info => info.s).join(" / ");
                 const uniqueTeachers = [...new Set(infoArray.flatMap(info => info.t))];
                 
@@ -2063,7 +2061,6 @@ const BRIDGING_DATA = (function() {
                     rooms: [] 
                 }];
                 
-                // 處理 teacherSchedule：分別寫入每位老師「專屬」的那一節課
                 infoArray.forEach(info => {
                     info.t.forEach(teacherName => {
                         if (!data.teacherSchedule[teacherName]) data.teacherSchedule[teacherName] = {};
@@ -2073,7 +2070,7 @@ const BRIDGING_DATA = (function() {
                         const alreadyHasClass = data.teacherSchedule[teacherName][day][period].some(l => l.classes && l.classes.includes(className));
                         if (!alreadyHasClass) {
                             data.teacherSchedule[teacherName][day][period].push({
-                                subject: info.s, // <-- 這裡只會寫入該老師負責的科目 (包含 17 或 24)
+                                subject: info.s, 
                                 classes: [className],
                                 rooms: []
                             });
@@ -2084,6 +2081,6 @@ const BRIDGING_DATA = (function() {
         }
     }
     
-    data.meta.note = "已獨立加入 新七A, 新七B, 新高一 銜接週課表，雙週三不同科目已分離寫入教師課表";
+    data.meta.note = "已更新最新調課進度 (新高一週一、三、四；新七A週一)";
     return data;
 })();
