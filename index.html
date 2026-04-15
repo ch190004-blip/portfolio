@@ -465,22 +465,25 @@
         <button class="ai-close" onclick="toggleAIPanel()">&times;</button>
       </div>
       <p>免費額度用到淋漓盡致</p>
-      <div class="ai-tabs">
-        <button class="ai-tab active" onclick="switchAITab('online')">線上工具</button>
-        <button class="ai-tab" onclick="switchAITab('desktop')">桌面應用</button>
+      <div class="ai-tabs" style="flex-wrap:wrap">
+        <button class="ai-tab active" onclick="switchAITab('online')">AI 聊天</button>
+        <button class="ai-tab" onclick="switchAITab('devtools')">開發平台</button>
+        <button class="ai-tab" onclick="switchAITab('design')">設計工具</button>
+        <button class="ai-tab" onclick="switchAITab('ide')">IDE</button>
+        <button class="ai-tab" onclick="switchAITab('opensource')">開源模型</button>
       </div>
     </div>
 
     <div class="ai-panel-content">
-      <!-- 線上工具 Tab -->
+      <!-- AI 聊天 Tab -->
       <div class="ai-tab-content active" id="tab-online">
-        <h3 class="ai-section-title"><span>&#127760;</span> 線上 AI 模型 (Top 10)</h3>
+        <h3 class="ai-section-title"><span>&#127941;</span> AI 聊天 Top 10</h3>
         <div class="ai-tool-list">
           <a class="ai-tool" href="https://chat.openai.com" target="_blank" rel="noopener">
             <div class="ai-tool-icon" style="background:rgba(16,163,127,.15)">&#129302;</div>
             <div class="ai-tool-info">
               <div class="ai-tool-name">ChatGPT</div>
-              <div class="ai-tool-desc">OpenAI GPT-5.4 Pro - 質量指數 97，綜合排名第一</div>
+              <div class="ai-tool-desc">GPT-5.4 Pro - 質量指數 97，綜合第一</div>
             </div>
             <span class="ai-tool-arrow">&#8599;</span>
           </a>
@@ -488,7 +491,7 @@
             <div class="ai-tool-icon" style="background:rgba(217,119,6,.15)">&#129504;</div>
             <div class="ai-tool-info">
               <div class="ai-tool-name">Claude</div>
-              <div class="ai-tool-desc">Anthropic Claude Opus 4.6 - Chat Arena 排行榜冠軍</div>
+              <div class="ai-tool-desc">Opus 4.6 - Arena 排行榜冠軍</div>
             </div>
             <span class="ai-tool-arrow">&#8599;</span>
           </a>
@@ -496,31 +499,7 @@
             <div class="ai-tool-icon" style="background:rgba(66,133,244,.15)">&#10024;</div>
             <div class="ai-tool-info">
               <div class="ai-tool-name">Gemini</div>
-              <div class="ai-tool-desc">Google Gemini 3.1 Pro - 多模態能力最強，性價比高</div>
-            </div>
-            <span class="ai-tool-arrow">&#8599;</span>
-          </a>
-          <a class="ai-tool" href="https://v0.dev" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(0,0,0,.3)">&#9650;</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">v0</div>
-              <div class="ai-tool-desc">Vercel AI - 專注前端開發與 UI 生成</div>
-            </div>
-            <span class="ai-tool-arrow">&#8599;</span>
-          </a>
-          <a class="ai-tool" href="https://qwen.ai" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(99,102,241,.15)">&#127760;</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Qwen</div>
-              <div class="ai-tool-desc">阿里雲通義千問 Qwen 3 - 中文理解能力頂尖</div>
-            </div>
-            <span class="ai-tool-arrow">&#8599;</span>
-          </a>
-          <a class="ai-tool" href="https://perplexity.ai" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(32,178,170,.15)">&#128269;</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Perplexity</div>
-              <div class="ai-tool-desc">AI 搜尋引擎 - 即時網路搜尋與引用</div>
+              <div class="ai-tool-desc">3.1 Pro - 多模態最強，免費額度多</div>
             </div>
             <span class="ai-tool-arrow">&#8599;</span>
           </a>
@@ -528,7 +507,31 @@
             <div class="ai-tool-icon" style="background:rgba(29,161,242,.15)">&#9889;</div>
             <div class="ai-tool-info">
               <div class="ai-tool-name">Grok</div>
-              <div class="ai-tool-desc">xAI Grok 3.5 - 即時資訊與幽默風格</div>
+              <div class="ai-tool-desc">xAI Grok 3.5 - 排名#4，即時資訊</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+          <a class="ai-tool" href="https://qwen.ai" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(99,102,241,.15)">&#127760;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">Qwen</div>
+              <div class="ai-tool-desc">通義千問 3 - 中文理解頂尖</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+          <a class="ai-tool" href="https://perplexity.ai" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(32,178,170,.15)">&#128269;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">Perplexity</div>
+              <div class="ai-tool-desc">AI 搜尋引擎 - 即時搜尋與引用</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+          <a class="ai-tool" href="https://poe.com" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(139,92,246,.15)">&#128172;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">POE</div>
+              <div class="ai-tool-desc">排名#7 多模型聚合平台，一站用多 AI</div>
             </div>
             <span class="ai-tool-arrow">&#8599;</span>
           </a>
@@ -536,7 +539,7 @@
             <div class="ai-tool-icon" style="background:rgba(124,58,237,.15)">&#128302;</div>
             <div class="ai-tool-info">
               <div class="ai-tool-name">DeepSeek</div>
-              <div class="ai-tool-desc">DeepSeek V3 - 開源模型效能領先</div>
+              <div class="ai-tool-desc">V3/R1 - 開源效能領先，免費</div>
             </div>
             <span class="ai-tool-arrow">&#8599;</span>
           </a>
@@ -544,7 +547,7 @@
             <div class="ai-tool-icon" style="background:rgba(249,115,22,.15)">&#127744;</div>
             <div class="ai-tool-info">
               <div class="ai-tool-name">Mistral</div>
-              <div class="ai-tool-desc">Mistral Large 3 - 歐洲頂尖開源模型</div>
+              <div class="ai-tool-desc">Large 3 - 歐洲頂尖開源</div>
             </div>
             <span class="ai-tool-arrow">&#8599;</span>
           </a>
@@ -552,58 +555,252 @@
             <div class="ai-tool-icon" style="background:rgba(0,120,212,.15)">&#129695;</div>
             <div class="ai-tool-info">
               <div class="ai-tool-name">Copilot</div>
-              <div class="ai-tool-desc">Microsoft Copilot - 整合 Office 與 Windows</div>
+              <div class="ai-tool-desc">Microsoft - 整合 Office/Windows</div>
             </div>
             <span class="ai-tool-arrow">&#8599;</span>
           </a>
         </div>
 
-        <h3 class="ai-section-title"><span>&#9881;</span> 自動化工具</h3>
+        <h3 class="ai-section-title"><span>&#128218;</span> AI 筆記 / 研究</h3>
+        <div class="ai-tool-list">
+          <a class="ai-tool" href="https://notebooklm.google.com" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(251,191,36,.15)">&#128214;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">NotebookLM</div>
+              <div class="ai-tool-desc">Google AI 筆記本 - 文件理解與 Podcast 生成</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+        </div>
+
+        <h3 class="ai-section-title"><span>&#9881;</span> 自動化</h3>
         <div class="ai-tool-list">
           <a class="ai-tool" href="https://app.n8n.cloud" target="_blank" rel="noopener">
             <div class="ai-tool-icon" style="background:rgba(234,75,113,.15)">&#128279;</div>
             <div class="ai-tool-info">
               <div class="ai-tool-name">n8n</div>
-              <div class="ai-tool-desc">工作流程自動化平台 - 串接各種 API 與服務</div>
+              <div class="ai-tool-desc">工作流程自動化 - 串接 API 與服務</div>
             </div>
             <span class="ai-tool-arrow">&#8599;</span>
           </a>
         </div>
       </div>
 
-      <!-- 桌面應用 Tab -->
-      <div class="ai-tab-content" id="tab-desktop">
-        <h3 class="ai-section-title"><span>&#128190;</span> 桌面 AI 應用</h3>
-        <p class="ai-desktop-note">這些是桌面應用程式，需在本機安裝執行</p>
+      <!-- 開發平台 Tab -->
+      <div class="ai-tab-content" id="tab-devtools">
+        <h3 class="ai-section-title"><span>&#128187;</span> AI 開發平台</h3>
+        <div class="ai-tool-list">
+          <a class="ai-tool" href="https://v0.dev" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(0,0,0,.3)">&#9650;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">v0</div>
+              <div class="ai-tool-desc">Vercel - 前端 UI 生成專家</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+          <a class="ai-tool" href="https://aistudio.google.com" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(66,133,244,.15)">&#128300;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">AI Studio</div>
+              <div class="ai-tool-desc">Google - Gemini API 測試與開發</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+          <a class="ai-tool" href="https://firebase.google.com/products/studio" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(255,196,0,.15)">&#128293;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">Firebase Studio</div>
+              <div class="ai-tool-desc">全端 AI 工作區 - 快速原型開發</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+          <a class="ai-tool" href="https://lovable.dev" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(236,72,153,.15)">&#128156;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">Lovable</div>
+              <div class="ai-tool-desc">AI 全端應用生成 - 從描述到部署</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+          <a class="ai-tool" href="https://bolt.new" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(99,102,241,.15)">&#9889;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">Bolt.new</div>
+              <div class="ai-tool-desc">StackBlitz - AI 即時程式生成</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+          <a class="ai-tool" href="https://replit.com" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(249,115,22,.15)">&#128736;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">Replit</div>
+              <div class="ai-tool-desc">雲端 IDE + AI Agent 輔助開發</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+        </div>
+
+        <h3 class="ai-section-title"><span>&#128230;</span> 協作平台</h3>
+        <div class="ai-tool-list">
+          <a class="ai-tool" href="https://github.com" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(36,41,46,.3)">&#128025;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">GitHub</div>
+              <div class="ai-tool-desc">程式碼託管 - 本網站架設平台</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+          <a class="ai-tool" href="https://console.firebase.google.com" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(255,196,0,.15)">&#128293;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">Firebase</div>
+              <div class="ai-tool-desc">Google - 即時資料庫與後端服務</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+          <a class="ai-tool" href="https://vercel.com" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(0,0,0,.3)">&#9650;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">Vercel</div>
+              <div class="ai-tool-desc">前端部署平台 - 秒速上線</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+          <a class="ai-tool" href="https://supabase.com" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(62,207,142,.15)">&#128215;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">Supabase</div>
+              <div class="ai-tool-desc">開源 Firebase 替代 - PostgreSQL</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- 設計工具 Tab -->
+      <div class="ai-tab-content" id="tab-design">
+        <h3 class="ai-section-title"><span>&#127912;</span> AI 設計工具 Top 10</h3>
+        <div class="ai-tool-list">
+          <a class="ai-tool" href="https://www.figma.com" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(162,89,255,.15)">&#127912;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">Figma</div>
+              <div class="ai-tool-desc">業界標準 UI 設計 - AI 輔助功能</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+          <a class="ai-tool" href="https://stitch.withgoogle.com" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(66,133,244,.15)">&#129526;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">Google Stitch</div>
+              <div class="ai-tool-desc">Vibe Design - 語音設計、即時原型</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+          <a class="ai-tool" href="https://www.framer.com" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(0,0,0,.3)">&#128444;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">Framer</div>
+              <div class="ai-tool-desc">AI 網站建構 - 快速發布響應式網站</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+          <a class="ai-tool" href="https://www.canva.com" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(0,196,204,.15)">&#127752;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">Canva</div>
+              <div class="ai-tool-desc">Magic Studio - AI 圖像與簡報</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+          <a class="ai-tool" href="https://gamma.app" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(124,58,237,.15)">&#128196;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">Gamma</div>
+              <div class="ai-tool-desc">AI 簡報生成 - 一鍵產出精美簡報</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+          <a class="ai-tool" href="https://midjourney.com" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(255,255,255,.1)">&#127756;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">Midjourney</div>
+              <div class="ai-tool-desc">AI 圖像生成 - 藝術風格領先</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+          <a class="ai-tool" href="https://www.adobe.com/products/firefly.html" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(255,0,0,.15)">&#128293;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">Adobe Firefly</div>
+              <div class="ai-tool-desc">商用安全 AI 圖像 - 整合 Creative Cloud</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+          <a class="ai-tool" href="https://ideogram.ai" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(168,85,247,.15)">&#127775;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">Ideogram</div>
+              <div class="ai-tool-desc">AI 圖像 - 文字渲染能力最強</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+          <a class="ai-tool" href="https://leonardo.ai" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(139,92,246,.15)">&#127917;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">Leonardo.Ai</div>
+              <div class="ai-tool-desc">遊戲素材 AI - 角色與場景生成</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+          <a class="ai-tool" href="https://runway.ml" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(59,130,246,.15)">&#127909;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">Runway</div>
+              <div class="ai-tool-desc">AI 影片生成 - Gen-3 Alpha 領先</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- IDE 整合 Tab -->
+      <div class="ai-tab-content" id="tab-ide">
+        <h3 class="ai-section-title"><span>&#128187;</span> AI 整合開發環境</h3>
+        <p class="ai-desktop-note">需在本機安裝，整合 AI 輔助編程功能</p>
 
         <div class="ai-desktop-card">
           <div class="ai-desktop-header">
             <div class="ai-desktop-icon" style="background:rgba(124,58,237,.15)">&#9000;</div>
             <div>
               <div class="ai-desktop-name">Cursor</div>
-              <div class="ai-desktop-desc">AI-First 程式編輯器</div>
+              <div class="ai-desktop-desc">AI-First 程式編輯器，內建多模型支援</div>
             </div>
           </div>
           <div class="ai-model-tags">
             <span class="ai-model-tag">Claude Opus 4.6</span>
-            <span class="ai-model-tag">GPT-5.4</span>
-            <span class="ai-model-tag">Cursor-Small</span>
             <span class="ai-model-tag">Claude Sonnet 4</span>
+            <span class="ai-model-tag">GPT-5.4</span>
+            <span class="ai-model-tag">GPT-5.4 Mini</span>
+            <span class="ai-model-tag">Cursor-Small</span>
+            <span class="ai-model-tag">Gemini 3.1 Pro</span>
           </div>
         </div>
 
         <div class="ai-desktop-card">
           <div class="ai-desktop-header">
-            <div class="ai-desktop-icon" style="background:rgba(0,122,204,.15)">&#128187;</div>
+            <div class="ai-desktop-icon" style="background:rgba(0,122,204,.15)">&#128421;</div>
             <div>
               <div class="ai-desktop-name">VS Code</div>
-              <div class="ai-desktop-desc">微軟程式編輯器 + AI 擴充</div>
+              <div class="ai-desktop-desc">微軟編輯器 + GitHub Copilot 擴充</div>
             </div>
           </div>
           <div class="ai-model-tags">
             <span class="ai-model-tag">GitHub Copilot</span>
-            <span class="ai-model-tag">Codex GPT-5.4</span>
             <span class="ai-model-tag">Copilot Chat</span>
+            <span class="ai-model-tag">Codex GPT-5.4</span>
+            <span class="ai-model-tag">Claude (擴充)</span>
+            <span class="ai-model-tag">Continue (本地)</span>
           </div>
         </div>
 
@@ -612,32 +809,43 @@
             <div class="ai-desktop-icon" style="background:rgba(34,197,94,.15)">&#128640;</div>
             <div>
               <div class="ai-desktop-name">Antigravity</div>
-              <div class="ai-desktop-desc">多模型桌面 AI 客戶端</div>
+              <div class="ai-desktop-desc">多模型桌面 AI 客戶端，免費額度整合</div>
             </div>
           </div>
           <div class="ai-model-tags">
             <span class="ai-model-tag">Gemini 3.1 Pro</span>
             <span class="ai-model-tag">Gemini 3.1 Flash</span>
-            <span class="ai-model-tag">Claude Opus</span>
+            <span class="ai-model-tag">Claude Opus 4.6</span>
+            <span class="ai-model-tag">Claude Sonnet 4</span>
             <span class="ai-model-tag">GPT-5.4</span>
+            <span class="ai-model-tag">Mistral Large</span>
           </div>
         </div>
+      </div>
+
+      <!-- 開源模型 Tab -->
+      <div class="ai-tab-content" id="tab-opensource">
+        <h3 class="ai-section-title"><span>&#129302;</span> 本地運行工具</h3>
+        <p class="ai-desktop-note">搭配終端機或 GUI，適合強大主機離線使用</p>
 
         <div class="ai-desktop-card">
           <div class="ai-desktop-header">
             <div class="ai-desktop-icon" style="background:rgba(245,158,11,.15)">&#129433;</div>
             <div>
               <div class="ai-desktop-name">Ollama</div>
-              <div class="ai-desktop-desc">本地運行開源 LLM</div>
+              <div class="ai-desktop-desc">終端機運行，輕量快速部署開源 LLM</div>
             </div>
           </div>
           <div class="ai-model-tags">
             <span class="ai-model-tag">Llama 4</span>
+            <span class="ai-model-tag">Llama 3.3 70B</span>
             <span class="ai-model-tag">Qwen 3</span>
-            <span class="ai-model-tag">Mistral</span>
+            <span class="ai-model-tag">Mistral Large</span>
+            <span class="ai-model-tag">DeepSeek-V3</span>
             <span class="ai-model-tag">DeepSeek-Coder</span>
-            <span class="ai-model-tag">Phi-4</span>
             <span class="ai-model-tag">Gemma 3</span>
+            <span class="ai-model-tag">Phi-4</span>
+            <span class="ai-model-tag">CodeLlama</span>
           </div>
         </div>
 
@@ -646,15 +854,149 @@
             <div class="ai-desktop-icon" style="background:rgba(6,182,212,.15)">&#127899;</div>
             <div>
               <div class="ai-desktop-name">LM Studio</div>
-              <div class="ai-desktop-desc">本地 LLM 圖形化管理工具</div>
+              <div class="ai-desktop-desc">圖形化介面，支援 GGUF 格式模型管理</div>
             </div>
           </div>
           <div class="ai-model-tags">
-            <span class="ai-model-tag">支援 GGUF 格式</span>
-            <span class="ai-model-tag">Llama</span>
-            <span class="ai-model-tag">Mistral</span>
-            <span class="ai-model-tag">Qwen</span>
-            <span class="ai-model-tag">自訂模型</span>
+            <span class="ai-model-tag">GGUF 格式</span>
+            <span class="ai-model-tag">Llama 系列</span>
+            <span class="ai-model-tag">Mistral 系列</span>
+            <span class="ai-model-tag">Qwen 系列</span>
+            <span class="ai-model-tag">Yi 系列</span>
+            <span class="ai-model-tag">自訂量化模型</span>
+          </div>
+        </div>
+
+        <h3 class="ai-section-title" style="margin-top:20px"><span>&#128293;</span> 熱門開源模型</h3>
+        <p class="ai-desktop-note">可在 Ollama / LM Studio 下載運行</p>
+
+        <div class="ai-desktop-card">
+          <div class="ai-desktop-header">
+            <div class="ai-desktop-icon" style="background:rgba(99,102,241,.15)">&#129412;</div>
+            <div>
+              <div class="ai-desktop-name">Llama 系列</div>
+              <div class="ai-desktop-desc">Meta 開源，效能頂尖</div>
+            </div>
+          </div>
+          <div class="ai-model-tags">
+            <span class="ai-model-tag">Llama 4</span>
+            <span class="ai-model-tag">Llama 3.3 70B</span>
+            <span class="ai-model-tag">Llama 3.2 Vision</span>
+            <span class="ai-model-tag">CodeLlama 70B</span>
+          </div>
+        </div>
+
+        <div class="ai-desktop-card">
+          <div class="ai-desktop-header">
+            <div class="ai-desktop-icon" style="background:rgba(66,133,244,.15)">&#10024;</div>
+            <div>
+              <div class="ai-desktop-name">Gemma 系列</div>
+              <div class="ai-desktop-desc">Google 開源輕量模型</div>
+            </div>
+          </div>
+          <div class="ai-model-tags">
+            <span class="ai-model-tag">Gemma 3 27B</span>
+            <span class="ai-model-tag">Gemma 3 9B</span>
+            <span class="ai-model-tag">Gemma 3 4B</span>
+            <span class="ai-model-tag">CodeGemma</span>
+          </div>
+        </div>
+
+        <div class="ai-desktop-card">
+          <div class="ai-desktop-header">
+            <div class="ai-desktop-icon" style="background:rgba(249,115,22,.15)">&#127744;</div>
+            <div>
+              <div class="ai-desktop-name">Mistral 系列</div>
+              <div class="ai-desktop-desc">歐洲頂尖開源，高效能</div>
+            </div>
+          </div>
+          <div class="ai-model-tags">
+            <span class="ai-model-tag">Mistral Large 3</span>
+            <span class="ai-model-tag">Mistral Nemo</span>
+            <span class="ai-model-tag">Mixtral 8x22B</span>
+            <span class="ai-model-tag">Codestral</span>
+          </div>
+        </div>
+
+        <div class="ai-desktop-card">
+          <div class="ai-desktop-header">
+            <div class="ai-desktop-icon" style="background:rgba(139,92,246,.15)">&#127760;</div>
+            <div>
+              <div class="ai-desktop-name">Qwen 系列</div>
+              <div class="ai-desktop-desc">阿里雲開源，中文能力強</div>
+            </div>
+          </div>
+          <div class="ai-model-tags">
+            <span class="ai-model-tag">Qwen 3 72B</span>
+            <span class="ai-model-tag">Qwen 3 32B</span>
+            <span class="ai-model-tag">Qwen-Coder</span>
+            <span class="ai-model-tag">Qwen-VL</span>
+          </div>
+        </div>
+
+        <div class="ai-desktop-card">
+          <div class="ai-desktop-header">
+            <div class="ai-desktop-icon" style="background:rgba(124,58,237,.15)">&#128302;</div>
+            <div>
+              <div class="ai-desktop-name">DeepSeek 系列</div>
+              <div class="ai-desktop-desc">深度求索開源，程式碼能力優秀</div>
+            </div>
+          </div>
+          <div class="ai-model-tags">
+            <span class="ai-model-tag">DeepSeek-V3</span>
+            <span class="ai-model-tag">DeepSeek-R1</span>
+            <span class="ai-model-tag">DeepSeek-Coder-V2</span>
+            <span class="ai-model-tag">DeepSeek-Math</span>
+          </div>
+        </div>
+
+        <div class="ai-desktop-card">
+          <div class="ai-desktop-header">
+            <div class="ai-desktop-icon" style="background:rgba(234,179,8,.15)">&#128171;</div>
+            <div>
+              <div class="ai-desktop-name">Hermes 系列</div>
+              <div class="ai-desktop-desc">NousResearch 微調，指令遵循強</div>
+            </div>
+          </div>
+          <div class="ai-model-tags">
+            <span class="ai-model-tag">Hermes 3 Llama 70B</span>
+            <span class="ai-model-tag">Hermes 3 Llama 8B</span>
+            <span class="ai-model-tag">Hermes-Pro</span>
+          </div>
+        </div>
+
+        <div class="ai-desktop-card">
+          <div class="ai-desktop-header">
+            <div class="ai-desktop-icon" style="background:rgba(16,185,129,.15)">&#129302;</div>
+            <div>
+              <div class="ai-desktop-name">OpenHermes / OpenClaw</div>
+              <div class="ai-desktop-desc">社群微調版本，對話能力優化</div>
+            </div>
+          </div>
+          <div class="ai-model-tags">
+            <span class="ai-model-tag">OpenHermes 2.5</span>
+            <span class="ai-model-tag">OpenClaw 7B</span>
+            <span class="ai-model-tag">Nous-Hermes-2</span>
+          </div>
+        </div>
+
+        <div class="ai-desktop-card">
+          <div class="ai-desktop-header">
+            <div class="ai-desktop-icon" style="background:rgba(59,130,246,.15)">&#128300;</div>
+            <div>
+              <div class="ai-desktop-name">其他熱門模型</div>
+              <div class="ai-desktop-desc">各有特色的開源選擇</div>
+            </div>
+          </div>
+          <div class="ai-model-tags">
+            <span class="ai-model-tag">Phi-4 (微軟)</span>
+            <span class="ai-model-tag">Yi-34B (01.AI)</span>
+            <span class="ai-model-tag">Command-R (Cohere)</span>
+            <span class="ai-model-tag">Falcon 180B</span>
+            <span class="ai-model-tag">StarCoder2</span>
+            <span class="ai-model-tag">WizardCoder</span>
+            <span class="ai-model-tag">Vicuna</span>
+            <span class="ai-model-tag">Orca 2</span>
           </div>
         </div>
       </div>
@@ -882,7 +1224,10 @@
       document.querySelectorAll('.ai-tab-content').forEach(function(content){
         content.classList.remove('active');
       });
-      document.getElementById('tab-' + tab).classList.add('active');
+      var targetTab = document.getElementById('tab-' + tab);
+      if(targetTab){
+        targetTab.classList.add('active');
+      }
     }
 
     // 按 ESC 關閉面板
