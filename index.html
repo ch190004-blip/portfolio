@@ -444,20 +444,19 @@
       .section-title{font-size:22px}
       .ai-panel{max-width:100%}
       .ai-fab{bottom:16px;right:16px;width:50px;height:50px;font-size:16px}
+      .ai-tabs{gap:4px;}
+      .ai-tab{padding:8px; font-size:12px;}
     }
   </style>
 </head>
 <body>
 
-  <!-- AI 浮動按鈕 -->
   <button class="ai-fab" onclick="toggleAIPanel()" title="AI 工具箱">
     <span>AI</span>
   </button>
 
-  <!-- AI 遮罩 -->
   <div class="ai-overlay" id="aiOverlay" onclick="toggleAIPanel()"></div>
 
-  <!-- AI 側邊面板 -->
   <div class="ai-panel" id="aiPanel">
     <div class="ai-panel-header">
       <div class="ai-panel-header-top">
@@ -467,15 +466,15 @@
       <p>免費額度用到淋漓盡致</p>
       <div class="ai-tabs" style="flex-wrap:wrap">
         <button class="ai-tab active" onclick="switchAITab('online')">AI 聊天</button>
-        <button class="ai-tab" onclick="switchAITab('devtools')">開發平台</button>
-        <button class="ai-tab" onclick="switchAITab('design')">設計工具</button>
+        <button class="ai-tab" onclick="switchAITab('devtools')">開發</button>
+        <button class="ai-tab" onclick="switchAITab('design')">設計</button>
+        <button class="ai-tab" onclick="switchAITab('media')">影音創作</button>
         <button class="ai-tab" onclick="switchAITab('ide')">IDE</button>
-        <button class="ai-tab" onclick="switchAITab('opensource')">開源模型</button>
+        <button class="ai-tab" onclick="switchAITab('opensource')">開源</button>
       </div>
     </div>
 
     <div class="ai-panel-content">
-      <!-- AI 聊天 Tab -->
       <div class="ai-tab-content active" id="tab-online">
         <h3 class="ai-section-title"><span>&#127941;</span> AI 聊天 Top 10</h3>
         <div class="ai-tool-list">
@@ -500,6 +499,14 @@
             <div class="ai-tool-info">
               <div class="ai-tool-name">Gemini</div>
               <div class="ai-tool-desc">3.1 Pro - 多模態最強，免費額度多</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+          <a class="ai-tool" href="https://kimi.moonshot.cn/" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(34,211,238,.15)">&#127769;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">Kimi</div>
+              <div class="ai-tool-desc">月之暗面 - 超長文本解析，中文語境極佳</div>
             </div>
             <span class="ai-tool-arrow">&#8599;</span>
           </a>
@@ -531,7 +538,7 @@
             <div class="ai-tool-icon" style="background:rgba(139,92,246,.15)">&#128172;</div>
             <div class="ai-tool-info">
               <div class="ai-tool-name">POE</div>
-              <div class="ai-tool-desc">排名#7 多模型聚合平台，一站用多 AI</div>
+              <div class="ai-tool-desc">多模型聚合平台，一站用多 AI</div>
             </div>
             <span class="ai-tool-arrow">&#8599;</span>
           </a>
@@ -586,7 +593,6 @@
         </div>
       </div>
 
-      <!-- 開發平台 Tab -->
       <div class="ai-tab-content" id="tab-devtools">
         <h3 class="ai-section-title"><span>&#128187;</span> AI 開發平台</h3>
         <div class="ai-tool-list">
@@ -670,10 +676,17 @@
         </div>
       </div>
 
-      <!-- 設計工具 Tab -->
       <div class="ai-tab-content" id="tab-design">
-        <h3 class="ai-section-title"><span>&#127912;</span> AI 設計工具 Top 10</h3>
+        <h3 class="ai-section-title"><span>&#127912;</span> AI 設計工具</h3>
         <div class="ai-tool-list">
+          <a class="ai-tool" href="https://www.canva.com" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(0,196,204,.15)">&#127752;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">Canva</div>
+              <div class="ai-tool-desc">Magic Studio - 簡報與圖像設計救星</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
           <a class="ai-tool" href="https://www.figma.com" target="_blank" rel="noopener">
             <div class="ai-tool-icon" style="background:rgba(162,89,255,.15)">&#127912;</div>
             <div class="ai-tool-info">
@@ -695,14 +708,6 @@
             <div class="ai-tool-info">
               <div class="ai-tool-name">Framer</div>
               <div class="ai-tool-desc">AI 網站建構 - 快速發布響應式網站</div>
-            </div>
-            <span class="ai-tool-arrow">&#8599;</span>
-          </a>
-          <a class="ai-tool" href="https://www.canva.com" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(0,196,204,.15)">&#127752;</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Canva</div>
-              <div class="ai-tool-desc">Magic Studio - AI 圖像與簡報</div>
             </div>
             <span class="ai-tool-arrow">&#8599;</span>
           </a>
@@ -746,18 +751,67 @@
             </div>
             <span class="ai-tool-arrow">&#8599;</span>
           </a>
+        </div>
+      </div>
+
+      <div class="ai-tab-content" id="tab-media">
+        <h3 class="ai-section-title"><span>&#127925;</span> 音樂與音效 AI</h3>
+        <div class="ai-tool-list">
+          <a class="ai-tool" href="https://suno.com" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(234,88,12,.15)">&#127928;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">Suno AI</div>
+              <div class="ai-tool-desc">地表最強音樂生成 - 流行歌與配樂神器</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+          <a class="ai-tool" href="https://www.udio.com" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(59,130,246,.15)">&#127911;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">Udio</div>
+              <div class="ai-tool-desc">高音質音樂 AI - 結構與段落控制力極佳</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+          <a class="ai-tool" href="https://elevenlabs.io" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(16,185,129,.15)">&#127897;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">ElevenLabs</div>
+              <div class="ai-tool-desc">最強人聲與音效生成 - 角色配音首選</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+        </div>
+
+        <h3 class="ai-section-title"><span>&#127909;</span> 影片與動畫 AI</h3>
+        <div class="ai-tool-list">
           <a class="ai-tool" href="https://runwayml.com" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(59,130,246,.15)">&#127909;</div>
+            <div class="ai-tool-icon" style="background:rgba(99,102,241,.15)">&#127909;</div>
             <div class="ai-tool-info">
               <div class="ai-tool-name">Runway</div>
-              <div class="ai-tool-desc">AI 影片生成 - Gen-3 Alpha 領先</div>
+              <div class="ai-tool-desc">AI 影片生成 - Gen-3 Alpha 畫質領先</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+          <a class="ai-tool" href="https://klingai.com/" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(239,68,68,.15)">&#127916;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">Kling (可靈)</div>
+              <div class="ai-tool-desc">快手出品 - 動態與物理規律表現極致</div>
+            </div>
+            <span class="ai-tool-arrow">&#8599;</span>
+          </a>
+          <a class="ai-tool" href="https://www.heygen.com" target="_blank" rel="noopener">
+            <div class="ai-tool-icon" style="background:rgba(139,92,246,.15)">&#128100;</div>
+            <div class="ai-tool-info">
+              <div class="ai-tool-name">HeyGen</div>
+              <div class="ai-tool-desc">AI 數位人主播 - 教學影片與簡報神隊友</div>
             </div>
             <span class="ai-tool-arrow">&#8599;</span>
           </a>
         </div>
       </div>
 
-      <!-- IDE 整合 Tab -->
       <div class="ai-tab-content" id="tab-ide">
         <h3 class="ai-section-title"><span>&#128187;</span> AI 整合開發環境</h3>
         <p class="ai-desktop-note">需在本機安裝，整合 AI 輔助編程功能</p>
@@ -777,6 +831,21 @@
             <span class="ai-model-tag">GPT-5.4 Mini</span>
             <span class="ai-model-tag">Cursor-Small</span>
             <span class="ai-model-tag">Gemini 3.1 Pro</span>
+          </div>
+        </div>
+
+        <div class="ai-desktop-card">
+          <div class="ai-desktop-header">
+            <div class="ai-desktop-icon" style="background:rgba(14,165,233,.15)">&#127744;</div>
+            <div>
+              <div class="ai-desktop-name">Windsurf</div>
+              <div class="ai-desktop-desc">Codeium 出品，強大的 Agent 協作 IDE</div>
+            </div>
+          </div>
+          <div class="ai-model-tags">
+            <span class="ai-model-tag">Cascade Agent</span>
+            <span class="ai-model-tag">Claude Sonnet 4</span>
+            <span class="ai-model-tag">GPT-5.4</span>
           </div>
         </div>
 
@@ -816,7 +885,6 @@
         </div>
       </div>
 
-      <!-- 開源模型 Tab -->
       <div class="ai-tab-content" id="tab-opensource">
         <h3 class="ai-section-title"><span>&#129302;</span> 本地運行工具</h3>
         <p class="ai-desktop-note">搭配終端機或 GUI，適合強大主機離線使用</p>
@@ -1101,7 +1169,7 @@
         <div class="card external-only">
           <div>
             <h3>數學RPG網站（封測中）</h3>
-            <p>遊戲化數學題庫與互動闘關體驗。</p>
+            <p>遊戲化數學題庫與互動闖關體驗。</p>
           </div>
           <div class="buttons">
             <button class="open" onclick="window.open('https://math-rpg-test.web.app/')">開啟網站</button>
