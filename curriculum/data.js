@@ -780,8 +780,9 @@ const DATA = {
       "星期三": {
         "1": [{"subject": "音樂", "classes": ["高三理組", "高三文組"], "rooms": ["4F 音樂教室"]}],
         "2": [{"subject": "音樂", "classes": ["國八A"], "rooms": ["4F 音樂教室"]}],
-        "3": [{"subject": "音樂", "classes": ["國九A"], "rooms": ["4F 音樂教室"]}],
-             },
+        "3": [{"subject": "音樂", "classes": ["國九A"], "rooms": ["4F 音樂教室"]}]
+          },
+     
       "星期四": {
         "1": [{"subject": "音樂", "classes": ["高二理組", "高二文組"], "rooms": ["4F 音樂教室"]}],
         "2": [{"subject": "音樂", "classes": ["國八B"], "rooms": ["4F 音樂教室"]}],
