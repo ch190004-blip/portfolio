@@ -937,7 +937,7 @@ const DATA = {
       },
       "星期三": {
         "7": [{"teacher": "張秀玫", "subject": "語文表達與傳播應用", "rooms": []}],
-        "8": [{"teacher": "張秀玫", "subject": "自主學習", "rooms": []}, 
+        "8": [{"teacher": "張秀玫", "subject": "自主學習", "rooms": []}], 
         "3": [{"teacher": "孔令堅", "subject": "藝術生活", "rooms": []}],
         "4": [{"teacher": "孔令堅", "subject": "藝術生活", "rooms": []}],
         "2": [{"teacher": "江霂歖", "subject": "體育", "rooms": []}],
