@@ -781,8 +781,7 @@ const DATA = {
         "1": [{"subject": "音樂", "classes": ["高三理組", "高三文組"], "rooms": ["4F 音樂教室"]}],
         "2": [{"subject": "音樂", "classes": ["國八A"], "rooms": ["4F 音樂教室"]}],
         "3": [{"subject": "音樂", "classes": ["國九A"], "rooms": ["4F 音樂教室"]}],
-        "8": [{"subject": "音樂", "classes": ["高三理組"], "rooms": ["4F 音樂教室"]}]
-      },
+             },
       "星期四": {
         "1": [{"subject": "音樂", "classes": ["高二理組", "高二文組"], "rooms": ["4F 音樂教室"]}],
         "2": [{"subject": "音樂", "classes": ["國八B"], "rooms": ["4F 音樂教室"]}],
@@ -937,7 +936,7 @@ const DATA = {
       },
       "星期三": {
         "7": [{"teacher": "張秀玫", "subject": "語文表達與傳播應用", "rooms": []}],
-        "8": [{"teacher": "張秀玫", "subject": "自主學習", "rooms": []}, {"teacher": "翟洛嫻", "subject": "音樂", "rooms": ["4F 音樂教室"]}],
+        "8": [{"teacher": "張秀玫", "subject": "自主學習", "rooms": []}, 
         "3": [{"teacher": "孔令堅", "subject": "藝術生活", "rooms": []}],
         "4": [{"teacher": "孔令堅", "subject": "藝術生活", "rooms": []}],
         "2": [{"teacher": "江霂歖", "subject": "體育", "rooms": []}],
