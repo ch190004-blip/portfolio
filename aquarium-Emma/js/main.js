@@ -15,9 +15,10 @@ document.body.style.pointerEvents = "auto";
 window.currentMode = 'yuyun'; 
 
 const examBells = {
-    "4/21": [ { time: "08:50", msg: "搖鈴 (國九)" },
-              { time: "10:35", msg: "搖鈴 (國九)" },
-              { time: "13:35", msg: "搖鈴 (國九)" }, ],
+    "4/29": [ { time: "13:25", msg: "搖鈴 (國九)" },
+              { time: "13:35", msg: "搖鈴 (高三)" },
+              { time: "13:50", msg: "搖鈴 (高三)" },
+			  { time: "14:50", msg: "搖鈴 (高三)" },],
     "4/22": [ { time: "08:50", msg: "搖鈴 (國九)" },
               { time: "11:10", msg: "搖鈴 (國九)" },
               { time: "11:20", msg: "搖鈴 (國九)" }, ]
@@ -265,7 +266,7 @@ if(myClock) myClock.addEventListener("click", summonWhale);
    行事曆與【每日金句】系統
 ========================================================= */
 const waveQuotes = [
-        "🌞 我從來一向擁有超級心智", 
+    "🌞 我從來一向擁有超級心智", 
 	"💪 我從來一向是個天才",
 	"🏃 我從來一向化未知為已知", 
 	"✨ 我從來一向煥發健康", 
@@ -307,6 +308,7 @@ const schoolEvents = [
     { name: "國九.高三畢業考", start: "04/29", end: "04/30", display: "04/29.30" },
     { name: "勞動節連假", start: "05/01", end: "05/03", type: "holiday" },
     { name: "國七新生登記", start: "05/09", end: "05/09" },
+	{ name: "國九高三補考", start: "05/11", end: "05/11" },
     { name: "第二次段考", start: "05/13", end: "05/14", display: "05/13.14" },
     { name: "國中教育會考", start: "05/16", end: "05/17", display: "05/16.17" },
     { name: "假日營隊(七)", start: "05/16", end: "05/16" },
