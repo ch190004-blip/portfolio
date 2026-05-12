@@ -15,10 +15,10 @@ document.body.style.pointerEvents = "auto";
 window.currentMode = 'yuyun'; 
 
 const examBells = {
-    "5/12": [ { time: "09:50", msg: "搖鈴 (高一)" }, ]
+    "5/12": [ { time: "09:50", msg: "搖鈴 (高一)" }, ],
     "5/13": [ { time: "08:50", msg: "搖鈴 (高二)" },
               { time: "10:40", msg: "搖鈴 (國七八)" },
-              { time: "12:50", msg: "搖鈴 (高一二)" }, ]
+              { time: "12:50", msg: "搖鈴 (高一二)" }, ],
 	 "5/14": [ { time: "08:00", msg: "搖鈴 (高一二)" }, ]
 };
 
