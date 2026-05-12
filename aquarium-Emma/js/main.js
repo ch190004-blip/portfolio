@@ -15,13 +15,11 @@ document.body.style.pointerEvents = "auto";
 window.currentMode = 'yuyun'; 
 
 const examBells = {
-    "4/29": [ { time: "13:25", msg: "搖鈴 (國九)" },
-              { time: "13:35", msg: "搖鈴 (高三)" },
-              { time: "13:50", msg: "搖鈴 (高三)" },
-			  { time: "14:50", msg: "搖鈴 (高三)" },],
-    "4/22": [ { time: "08:50", msg: "搖鈴 (國九)" },
-              { time: "11:10", msg: "搖鈴 (國九)" },
-              { time: "11:20", msg: "搖鈴 (國九)" }, ]
+    "5/12": [ { time: "09:50", msg: "搖鈴 (高一)" },],
+    "5/13": [ { time: "08:50", msg: "搖鈴 (高二)" },
+              { time: "10:40", msg: "搖鈴 (國七八)" },
+              { time: "12:50", msg: "搖鈴 (高一二)" }, ]
+	 "5/14": [ { time: "08:00", msg: "搖鈴 (高一二)" }, ]
 };
 
 const modes = ['chienyun', 'yuyun', 'yuwen', 'exam'];
