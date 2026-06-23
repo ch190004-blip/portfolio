@@ -197,12 +197,12 @@ th:first-child, td:first-child { width: 85px; text-align: center; }
     <div class="badge ok" id="teacherBadge">計算中...</div>
     <div class="badge ok" id="classBadge">計算中...</div>
     <div class="badge ok" id="roomBadge">計算中...</div>
-    <button class="badge" id="previewBtn" onclick="togglePreview()" style="cursor:pointer; background:rgba(255,255,255,.05); border:1px solid var(--border); color:var(--text); transition: all 0.2s ease;">👁️ 預覽新生銜接課表</button>
+    <button class="badge" id="previewBtn" onclick="togglePreview()" style="cursor:pointer; background:rgba(255,255,255,.05); border:1px solid var(--border); color:var(--text); transition: all 0.2s ease;">👁️ 預覽暑輔課表</button>
     
     <div id="bridgingDates" class="bridging-dates" style="display: none; flex-direction: column;">
-      <div class="title">🗓️ 銜接課表生效日期</div>
-      <div><strong>(新七A、新七B)</strong> 6/17(三)、6/18(四)、6/22(一)、6/23(二)、6/24(三)</div>
-      <div><strong>(新高一)</strong> 6/15(一)~6/18(四)、6/22(一)~6/25(四)</div>
+      <div class="title">🗓️ 暑期輔導上課期間</div>
+      <div><strong>114學年度暑輔</strong> 115.07.01(二)~115.07.28(一)</div>
+      <div>共 4 週，每週一至週五，第1~7節課</div>
     </div>
   </div>
 </header>
@@ -426,27 +426,77 @@ function findSubForClass(dateStr, period, className) { return substituteData.fin
 const DAYS = ["星期一","星期二","星期三","星期四","星期五"];
 
 let isPreviewMode = false;
-// 自動判斷抓取新生銜接課表的日期
-const BRIDGING_DATES = ["6/15", "6/16", "6/17", "6/18", "6/22", "6/23", "6/24", "6/25"];
+
+// 根據 todayStr (M/D) 判斷目前屬於哪一個排課階段
+function getSchedulePeriod(todayStr) {
+    const parts = todayStr.split('/');
+    if (parts.length !== 2) return 'regular';
+    const m = parseInt(parts[0], 10);
+    const d = parseInt(parts[1], 10);
+    
+    // 7/1 ~ 7/28 暑期輔導期間
+    if (m === 7 && d >= 1 && d <= 28) {
+        return 'summer';
+    }
+    // 6/26 ~ 6/30 期末考期間 (過濾已畢業班級)
+    else if (m === 6 && d >= 26 && d <= 30) {
+        return 'final_exam';
+    }
+    // 6/25 之前 (含 6/15 ~ 6/25 新生銜接期間)
+    else if ((m === 6 && d <= 25) || m < 6) {
+        return 'bridging';
+    }
+    return 'regular';
+}
 
 // 動態資料來源獲取
 function getActiveData() {
     const info = getTaipeiDateParts();
-    const isBridgingDay = BRIDGING_DATES.includes(info.todayStr);
+    const currentPeriod = getSchedulePeriod(info.todayStr);
     
-    if (isPreviewMode || isBridgingDay) {
-        if (typeof BRIDGING_DATA !== 'undefined') {
-            return BRIDGING_DATA;
-        } else if (isPreviewMode) {
-            alert("請先在 data.js 中定義 const BRIDGING_DATA = { ... } 才能使用新生銜接課表喔！");
-            isPreviewMode = false; // 取消預覽狀態以防破圖
-            document.getElementById('previewBtn').textContent = "👁️ 預覽新生銜接課表";
+    if (currentPeriod === 'summer') {
+        // 暑輔期間：預覽模式開啟時，顯示學期課表 (DATA)；否則顯示暑輔課表 (SUMMER_DATA)
+        if (isPreviewMode) {
+            return DATA;
         }
+        return typeof SUMMER_DATA !== 'undefined' ? SUMMER_DATA : DATA;
+    } else {
+        // 非暑輔期間：預覽模式開啟時，預覽暑輔課表 (SUMMER_DATA)；否則依日期顯示銜接或期末考
+        if (isPreviewMode) {
+            if (typeof SUMMER_DATA !== 'undefined') {
+                return SUMMER_DATA;
+            } else {
+                alert("請先在 data.js 中定義 const SUMMER_DATA = { ... } 才能切換暑輔課表喔！");
+                isPreviewMode = false;
+                return DATA;
+            }
+        }
+        
+        if (currentPeriod === 'final_exam') {
+            return typeof FINAL_EXAM_DATA !== 'undefined' ? FINAL_EXAM_DATA : DATA;
+        } else if (currentPeriod === 'bridging') {
+            return typeof BRIDGING_DATA !== 'undefined' ? BRIDGING_DATA : DATA;
+        }
+        return DATA;
     }
-    return DATA;
 }
 
-function getTeachers() { return getActiveData().teachers; }
+function getTeachers() {
+    const rawTeachers = getActiveData().teachers;
+    if (typeof DATA === 'undefined' || !DATA.teachers) return rawTeachers;
+    
+    const refMap = {};
+    DATA.teachers.forEach((t, idx) => {
+        refMap[t] = idx;
+    });
+    
+    return [...rawTeachers].sort((a, b) => {
+        const idxA = refMap[a] !== undefined ? refMap[a] : 9999;
+        const idxB = refMap[b] !== undefined ? refMap[b] : 9999;
+        if (idxA !== idxB) return idxA - idxB;
+        return a.localeCompare(b, 'zh-hant');
+    });
+}
 function getClasses() { return getActiveData().classes; }
 function getRooms() { return getActiveData().rooms; }
 function getPeriods() { return getActiveData().periods || DATA.periods; }
@@ -459,14 +509,20 @@ function getTaipeiDateParts() {
   const obj = Object.fromEntries(parts.map(p => [p.type, p.value]));
   const day = {"Monday":"星期一","Tuesday":"星期二","Wednesday":"星期三","Thursday":"星期四","Friday":"星期五"}[obj.weekday] || obj.weekday;
   const hm = Number(obj.hour)*60 + Number(obj.minute);
+  const todayStr = `${parseInt(obj.month, 10)}/${parseInt(obj.day, 10)}`;
+  
+  // 依據是否為暑輔期間或預覽暑輔，動態決定使用的節次表，避免 getPeriods/getActiveData 循環調用
+  const currentPeriodType = getSchedulePeriod(todayStr);
+  const isSummer = (currentPeriodType === 'summer' && !isPreviewMode) || (currentPeriodType !== 'summer' && isPreviewMode);
+  const activePeriods = (isSummer && typeof SUMMER_DATA !== 'undefined') ? SUMMER_DATA.periods : (DATA.periods || []);
+  
   let current = null, next = null;
-  // 這裡確保即便換了資料，也能抓到對的 periods
-  for (const p of (typeof BRIDGING_DATA !== 'undefined' ? (DATA.periods || []) : DATA.periods)) {
+  for (const p of activePeriods) {
     const start = parseHM(p.start), end = parseHM(p.end);
     if (hm >= start && hm <= end) { current = p; break; }
     if (!current && hm < start && !next) next = p;
   }
-  return { date:`${obj.year}/${obj.month}/${obj.day}`, time:`${obj.hour}:${obj.minute}:${obj.second}`, day, current, next, todayStr: `${parseInt(obj.month, 10)}/${parseInt(obj.day, 10)}` };
+  return { date:`${obj.year}/${obj.month}/${obj.day}`, time:`${obj.hour}:${obj.minute}:${obj.second}`, day, current, next, todayStr };
 }
 
 // 狀態字眼優化
@@ -695,32 +751,113 @@ function startLiveClock() {
 // 預覽按鈕切換邏輯
 function togglePreview() {
     isPreviewMode = !isPreviewMode;
-    const btn = document.getElementById('previewBtn');
-    const datesBadge = document.getElementById('bridgingDates'); // 抓取日期提示框
     
     if (isPreviewMode) {
-        if (typeof BRIDGING_DATA === 'undefined') {
-            alert("請先在 data.js 中定義 const BRIDGING_DATA = { ... } 才能切換銜接課表喔！");
-            isPreviewMode = false;
-            return;
+        const info = getTaipeiDateParts();
+        const currentPeriod = getSchedulePeriod(info.todayStr);
+        if (currentPeriod === 'summer') {
+            if (typeof DATA === 'undefined') {
+                alert("未定義 DATA，無法切換預覽");
+                isPreviewMode = false;
+                return;
+            }
+        } else {
+            if (typeof SUMMER_DATA === 'undefined') {
+                alert("請先在 data.js 中定義 const SUMMER_DATA = { ... } 才能切換暑輔課表喔！");
+                isPreviewMode = false;
+                return;
+            }
         }
-        btn.style.color = "#ffcf86";
-        btn.style.borderColor = "#ffcf86";
-        btn.innerHTML = "👁️ 取消預覽 (目前為銜接課表)";
-        datesBadge.style.display = "flex"; // 顯示日期提示
-    } else {
-        btn.style.color = "var(--text)";
-        btn.style.borderColor = "var(--border)";
-        btn.innerHTML = "👁️ 預覽新生銜接課表";
-        datesBadge.style.display = "none"; // 隱藏日期提示
     }
     
     initSelects();
     refreshAll();
 }
 
+// 根據日期與預覽狀態動態更新上方的日期看板與按鈕文字
+function updatePeriodBannerAndButton() {
+    const info = getTaipeiDateParts();
+    const currentPeriod = getSchedulePeriod(info.todayStr);
+    const btn = document.getElementById('previewBtn');
+    const banner = document.getElementById('bridgingDates');
+    
+    if (!btn || !banner) return;
+    
+    banner.style.display = "flex"; // 確保提示框永遠顯示
+    
+    if (currentPeriod === 'summer') {
+        if (isPreviewMode) {
+            btn.style.color = "#ffcf86";
+            btn.style.borderColor = "#ffcf86";
+            btn.innerHTML = "👁️ 取消預覽學期課表";
+            
+            banner.innerHTML = `
+                <div class="title" style="color: #ffcf86;">🗓️ 學期課表預覽中</div>
+                <div><strong>114學年度第二學期</strong> (原學期課表)</div>
+                <div>班級包含高三及國九等已畢業班級</div>
+            `;
+        } else {
+            btn.style.color = "var(--text)";
+            btn.style.borderColor = "var(--border)";
+            btn.innerHTML = "👁️ 預覽原學期課表";
+            
+            banner.innerHTML = `
+                <div class="title">🗓️ 暑期輔導期間</div>
+                <div><strong>114學年度暑輔</strong> 115.07.01(二)~115.07.28(一)</div>
+                <div>共 4 週，用新學年班級，第1~7節課</div>
+            `;
+        }
+    } else if (currentPeriod === 'final_exam') {
+        if (isPreviewMode) {
+            btn.style.color = "#ffcf86";
+            btn.style.borderColor = "#ffcf86";
+            btn.innerHTML = "👁️ 取消預覽暑輔課表";
+            
+            banner.innerHTML = `
+                <div class="title" style="color: #ffcf86;">🗓️ 暑期輔導預覽中</div>
+                <div><strong>114學年度暑輔</strong> 115.07.01(二)~115.07.28(一)</div>
+                <div>共 4 週，用新學年班級，第1~7節課</div>
+            `;
+        } else {
+            btn.style.color = "var(--text)";
+            btn.style.borderColor = "var(--border)";
+            btn.innerHTML = "👁️ 預覽暑輔課表";
+            
+            banner.innerHTML = `
+                <div class="title">🗓️ 期末考週</div>
+                <div><strong>114學年度期末考</strong> 06.26(五)、06.29(一)、06.30(二)</div>
+                <div>班級為國七、國八、高一、高二各班級</div>
+            `;
+        }
+    } else {
+        // 銜接課表期間 (now ~ 6/25) 或其他
+        if (isPreviewMode) {
+            btn.style.color = "#ffcf86";
+            btn.style.borderColor = "#ffcf86";
+            btn.innerHTML = "👁️ 取消預覽暑輔課表";
+            
+            banner.innerHTML = `
+                <div class="title" style="color: #ffcf86;">🗓️ 暑期輔導預覽中</div>
+                <div><strong>114學年度暑輔</strong> 115.07.01(二)~115.07.28(一)</div>
+                <div>共 4 週，用新學年班級，第1~7節課</div>
+            `;
+        } else {
+            btn.style.color = "var(--text)";
+            btn.style.borderColor = "var(--border)";
+            btn.innerHTML = "👁️ 預覽暑輔課表";
+            
+            banner.innerHTML = `
+                <div class="title">🗓️ 新生銜接課程期間</div>
+                <div><strong>114學年度銜接課程</strong> 至 115.06.25(四)</div>
+                <div>含新七A、新七B、新高一及原學期班級</div>
+            `;
+        }
+    }
+}
+
 // 強制立刻刷新所有內容
 function refreshAll() {
+  updatePeriodBannerAndButton();
   updateWeekDates(); 
   renderDashboard(); renderTeacher(); renderClass(); renderRoom(); renderDayTable();
   convertTables(); 

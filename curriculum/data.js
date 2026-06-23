@@ -1862,6 +1862,1273 @@ const DATA = {
 // ==========================================
 // 自動產生銜接週課表 (BRIDGING_DATA) - 雙週分離精準版 (含新高一週三/週四調課更新)
 // ==========================================
+// ===== 暑期輔導課程資料 (114學年度, 115.07.01~115.07.28) =====
+const SUMMER_DATA = {
+  "teachers": ["Chad", "Gina", "Roja", "之宇", "何文達", "劉玉華", "名敦", "吳宇綸", "吳雯菁", "呂宜霖", "呂行", "唐祥程", "張秀玫", "曾美芝", "李偉", "李牧", "林全", "桂松山", "楊志元", "楊恆", "江霂歖", "王世宗", "王妤文", "王志遠", "羅雅苓", "聯合報", "莊旭惠", "蔡佳玲", "蔡玉良", "蘇試", "趙明", "邱千芸", "鄒湘平", "陳昱澐", "陳瑋筠"],
+  "classes": ["國七A", "國七B", "國八A", "國八B", "國九A", "國九B", "高一", "高二理組", "高二文組", "高三理組", "高三文組"],
+  "periods": [
+    {"period": 1, "start": "08:10", "end": "09:00"},
+    {"period": 2, "start": "09:10", "end": "10:00"},
+    {"period": 3, "start": "10:10", "end": "11:00"},
+    {"period": 4, "start": "11:05", "end": "11:55"},
+    {"period": 5, "start": "12:55", "end": "13:45"},
+    {"period": 6, "start": "13:55", "end": "14:45"},
+    {"period": 7, "start": "14:50", "end": "15:40"}
+  ],
+  "teacherSchedule": {
+    "張秀玫": {
+      "星期一": {
+        "1": [{"subject": "國語文", "classes": [], "rooms": []}],
+        "2": [{"subject": "國語文", "classes": ["高一", "高二文組"], "rooms": []}]
+      },
+      "星期二": {
+        "1": [{"subject": "自主學習", "classes": [], "rooms": []}],
+        "2": [{"subject": "國語文", "classes": ["高一", "高二理組", "高二文組"], "rooms": []}],
+        "4": [{"subject": "國語文", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}]
+      },
+      "星期三": {
+        "1": [{"subject": "國語文", "classes": [], "rooms": []}],
+        "2": [{"subject": "國語文", "classes": ["高二理組", "高二文組", "高一"], "rooms": []}],
+        "3": [{"subject": "國語文", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "4": [{"subject": "導師時間", "classes": ["高一"], "rooms": []}],
+        "7": [{"subject": "自主學習", "classes": ["高一"], "rooms": []}]
+      },
+      "星期四": {
+        "1": [{"subject": "國語文", "classes": [], "rooms": []}],
+        "2": [{"subject": "國語文", "classes": ["高二理組", "高二文組", "高一"], "rooms": []}],
+        "4": [{"subject": "國語文", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}]
+      },
+      "星期五": {
+        "1": [{"subject": "自主學習", "classes": [], "rooms": []}],
+        "2": [{"subject": "國語文", "classes": ["高一"], "rooms": []}],
+        "4": [{"subject": "國語文", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}]
+      }
+    },
+    "曾美芝": {
+      "星期一": {
+        "1": [{"subject": "數學", "classes": [], "rooms": []}],
+        "2": [{"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "數學", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}],
+        "5": [{"subject": "—", "classes": ["高一"], "rooms": []}],
+        "6": [{"subject": "—", "classes": ["高一"], "rooms": []}],
+        "7": [{"subject": "—", "classes": ["高一"], "rooms": []}]
+      },
+      "星期二": {
+        "1": [{"subject": "數學", "classes": [], "rooms": []}],
+        "2": [{"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}]
+      },
+      "星期四": {
+        "1": [{"subject": "數學", "classes": [], "rooms": []}],
+        "2": [{"subject": "國七", "classes": ["高二文組", "高二理組"], "rooms": []}, {"subject": "國七", "classes": ["高二文組", "高二理組"], "rooms": []}, {"subject": "自主學習", "classes": ["高二文組", "高二理組"], "rooms": []}]
+      },
+      "星期五": {
+        "1": [{"subject": "導師時間", "classes": [], "rooms": []}],
+        "2": [{"subject": "—", "classes": ["高二理組", "高二文組"], "rooms": []}],
+        "3": [{"subject": "數學", "classes": ["高一"], "rooms": []}],
+        "4": [{"subject": "數學", "classes": ["高一"], "rooms": []}],
+        "5": [{"subject": "數學", "classes": ["高二文組"], "rooms": []}],
+        "6": [{"subject": "數學", "classes": ["高二文組"], "rooms": []}],
+        "7": [{"subject": "自主學習", "classes": ["高二理組", "高二文組"], "rooms": []}]
+      },
+      "星期三": {
+        "2": [{"subject": "自主學習", "classes": ["高二文組", "高二理組"], "rooms": []}],
+        "3": [{"subject": "數學", "classes": ["高二文組"], "rooms": []}],
+        "4": [{"subject": "數學", "classes": ["高二文組"], "rooms": []}],
+        "5": [{"subject": "數學", "classes": ["高一"], "rooms": []}],
+        "6": [{"subject": "數學", "classes": ["高一"], "rooms": []}]
+      }
+    },
+    "莊旭惠": {
+      "星期一": {
+        "1": [{"subject": "英語文", "classes": [], "rooms": []}],
+        "2": [{"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}],
+        "3": [{"subject": "英語文", "classes": ["高二文組"], "rooms": []}],
+        "4": [{"subject": "英語文", "classes": ["高二文組"], "rooms": []}]
+      },
+      "星期二": {
+        "1": [{"subject": "英語文", "classes": [], "rooms": []}],
+        "2": [{"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "導師時間", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}],
+        "3": [{"subject": "英語文", "classes": ["高二理組", "高二文組"], "rooms": []}],
+        "4": [{"subject": "英語文", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}]
+      },
+      "星期三": {
+        "1": [{"subject": "英語文", "classes": [], "rooms": []}],
+        "2": [{"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "英語文", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "4": [{"subject": "英語文", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}]
+      },
+      "星期四": {
+        "1": [{"subject": "英語文", "classes": [], "rooms": []}],
+        "2": [{"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "英語文", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "3": [{"subject": "導師時間", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}],
+        "4": [{"subject": "英語文", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}]
+      },
+      "星期五": {
+        "1": [{"subject": "英語文", "classes": [], "rooms": []}],
+        "2": [{"subject": "國九", "classes": ["高二理組", "高二文組"], "rooms": []}, {"subject": "國九", "classes": ["高二理組", "高二文組"], "rooms": []}, {"subject": "英語文", "classes": ["高二理組", "高二文組"], "rooms": []}],
+        "3": [{"subject": "英語文", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "4": [{"subject": "英語文", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}]
+      }
+    },
+    "陳瑋筠": {
+      "星期三": {
+        "1": [{"subject": "歷史", "classes": [], "rooms": []}],
+        "2": [{"subject": "國七", "classes": [], "rooms": []}],
+        "3": [{"subject": "導師時間", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}],
+        "4": [{"subject": "歷史", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "5": [{"subject": "歷史", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}],
+        "6": [{"subject": "歷史", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}],
+        "7": [{"subject": "歷史", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}]
+      },
+      "星期四": {
+        "1": [{"subject": "歷史", "classes": [], "rooms": []}],
+        "2": [{"subject": "國八", "classes": [], "rooms": []}, {"subject": "導師時間", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}],
+        "3": [{"subject": "歷史", "classes": ["高二文組"], "rooms": []}],
+        "5": [{"subject": "公民與社會", "classes": ["高二文組"], "rooms": []}],
+        "6": [{"subject": "公民與社會", "classes": ["高二文組"], "rooms": []}],
+        "7": [{"subject": "公民與社會", "classes": ["高二文組"], "rooms": []}]
+      },
+      "星期五": {
+        "1": [{"subject": "歷史", "classes": [], "rooms": []}],
+        "2": [{"subject": "國七", "classes": [], "rooms": []}],
+        "3": [{"subject": "歷史", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}]
+      },
+      "星期一": {
+        "3": [{"subject": "歷史", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}],
+        "4": [{"subject": "歷史", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "5": [{"subject": "歷史", "classes": ["高二文組"], "rooms": []}],
+        "6": [{"subject": "歷史", "classes": ["高二文組"], "rooms": []}],
+        "7": [{"subject": "歷史", "classes": ["高二文組"], "rooms": []}]
+      },
+      "星期二": {
+        "3": [{"subject": "歷史", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "5": [{"subject": "歷史", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}],
+        "6": [{"subject": "歷史", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}],
+        "7": [{"subject": "歷史", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}]
+      }
+    },
+    "王世宗": {
+      "星期一": {
+        "2": [{"subject": "生物", "classes": [], "rooms": []}],
+        "3": [{"subject": "生物", "classes": ["國九B"], "rooms": []}],
+        "4": [{"subject": "生物", "classes": ["國九A"], "rooms": []}],
+        "5": [{"subject": "生物", "classes": ["國八B"], "rooms": []}],
+        "6": [{"subject": "生物", "classes": ["國八B"], "rooms": []}],
+        "7": [{"subject": "生物", "classes": ["國八B"], "rooms": []}]
+      },
+      "星期二": {
+        "2": [{"subject": "生物", "classes": ["高三理組"], "rooms": []}],
+        "3": [{"subject": "生物", "classes": ["國七B"], "rooms": []}],
+        "5": [{"subject": "生物", "classes": ["高二理組"], "rooms": []}],
+        "6": [{"subject": "生物", "classes": ["高二理組"], "rooms": []}],
+        "7": [{"subject": "生物", "classes": ["高三理組"], "rooms": []}]
+      },
+      "星期三": {
+        "3": [{"subject": "生物", "classes": ["國七A"], "rooms": []}],
+        "5": [{"subject": "學習回饋", "classes": ["國九A"], "rooms": []}],
+        "6": [{"subject": "學習回饋", "classes": ["國九A"], "rooms": []}],
+        "7": [{"subject": "生物", "classes": ["高二理組"], "rooms": []}]
+      },
+      "星期四": {
+        "2": [{"subject": "生物", "classes": ["國九B"], "rooms": []}],
+        "3": [{"subject": "生物", "classes": ["國七B"], "rooms": []}],
+        "5": [{"subject": "生物", "classes": ["國八A"], "rooms": []}],
+        "6": [{"subject": "生物", "classes": ["國八A"], "rooms": []}],
+        "7": [{"subject": "生物", "classes": ["國八A"], "rooms": []}]
+      },
+      "星期五": {
+        "2": [{"subject": "生物", "classes": ["國七A"], "rooms": []}],
+        "3": [{"subject": "生物", "classes": ["國九A"], "rooms": []}]
+      }
+    },
+    "蔡佳玲": {
+      "星期五": {
+        "1": [{"subject": "數學", "classes": [], "rooms": []}],
+        "2": [{"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "數學", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "5": [{"subject": "理化", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}],
+        "6": [{"subject": "理化", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}],
+        "7": [{"subject": "理化", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}]
+      },
+      "星期二": {
+        "2": [{"subject": "數學", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "5": [{"subject": "理化", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "6": [{"subject": "理化", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "7": [{"subject": "理化", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}]
+      },
+      "星期四": {
+        "3": [{"subject": "數學", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "5": [{"subject": "理化", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "6": [{"subject": "理化", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "7": [{"subject": "理化", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}]
+      },
+      "星期一": {
+        "4": [{"subject": "導師時間", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "5": [{"subject": "物理", "classes": ["高二理組"], "rooms": []}],
+        "6": [{"subject": "物理", "classes": ["高二理組"], "rooms": []}],
+        "7": [{"subject": "物理", "classes": ["高二理組"], "rooms": []}]
+      }
+    },
+    "邱千芸": {
+      "星期一": {
+        "1": [{"subject": "學習回饋", "classes": [], "rooms": []}],
+        "2": [{"subject": "—", "classes": ["高二文組"], "rooms": []}]
+      },
+      "星期二": {
+        "4": [{"subject": "英語文", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}]
+      },
+      "星期三": {
+        "4": [{"subject": "英語文", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}]
+      },
+      "星期四": {
+        "4": [{"subject": "英語文", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}]
+      },
+      "星期五": {
+        "4": [{"subject": "英語文", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}],
+        "7": [{"subject": "學習回饋", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}]
+      }
+    },
+    "劉玉華": {
+      "星期一": {
+        "1": [{"subject": "國語文", "classes": [], "rooms": []}],
+        "2": [{"subject": "國語文", "classes": ["高三文組"], "rooms": []}, {"subject": "國八", "classes": ["高三文組"], "rooms": []}],
+        "3": [{"subject": "國語文", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}]
+      },
+      "星期二": {
+        "1": [{"subject": "學習回饋", "classes": [], "rooms": []}],
+        "2": [{"subject": "—", "classes": ["高三理組", "高三文組"], "rooms": []}],
+        "4": [{"subject": "國語文", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}]
+      },
+      "星期三": {
+        "1": [{"subject": "國語文", "classes": [], "rooms": []}],
+        "2": [{"subject": "—", "classes": ["高三理組", "高三文組"], "rooms": []}],
+        "3": [{"subject": "國語文", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "4": [{"subject": "國語文", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}]
+      },
+      "星期四": {
+        "1": [{"subject": "國語文", "classes": [], "rooms": []}],
+        "2": [{"subject": "國語文", "classes": ["高三理組", "高三文組"], "rooms": []}, {"subject": "國九", "classes": ["高三理組", "高三文組"], "rooms": []}],
+        "3": [{"subject": "國語文", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}],
+        "4": [{"subject": "國語文", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}]
+      },
+      "星期五": {
+        "1": [{"subject": "導師時間", "classes": [], "rooms": []}],
+        "2": [{"subject": "國語文", "classes": ["高三理組", "高三文組"], "rooms": []}, {"subject": "國九", "classes": ["高三理組", "高三文組"], "rooms": []}],
+        "4": [{"subject": "國語文", "classes": ["高三理組", "高三文組"], "rooms": []}]
+      }
+    },
+    "桂松山": {
+      "星期一": {
+        "1": [{"subject": "數學", "classes": [], "rooms": []}],
+        "2": [{"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "數學", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}]
+      },
+      "星期二": {
+        "1": [{"subject": "數學", "classes": [], "rooms": []}],
+        "2": [{"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "數學", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}]
+      },
+      "星期三": {
+        "1": [{"subject": "數學", "classes": [], "rooms": []}],
+        "2": [{"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "數學", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}],
+        "3": [{"subject": "數學", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}]
+      },
+      "星期四": {
+        "1": [{"subject": "數學", "classes": [], "rooms": []}],
+        "2": [{"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}],
+        "3": [{"subject": "數學", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "4": [{"subject": "數學", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}]
+      },
+      "星期五": {
+        "1": [{"subject": "數學", "classes": [], "rooms": []}],
+        "2": [{"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "數學", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "4": [{"subject": "數學", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}]
+      }
+    },
+    "吳雯菁": {
+      "星期一": {
+        "1": [{"subject": "公民與社會", "classes": ["國八B"], "rooms": []}],
+        "2": [{"subject": "—", "classes": ["國八A"], "rooms": []}],
+        "4": [{"subject": "公民與社會", "classes": ["國七B"], "rooms": []}],
+        "5": [{"subject": "—", "classes": ["國九A"], "rooms": []}],
+        "6": [{"subject": "公民與社會", "classes": ["國九A"], "rooms": []}],
+        "7": [{"subject": "公民與社會", "classes": ["國九A"], "rooms": []}]
+      },
+      "星期二": {
+        "1": [{"subject": "—", "classes": ["國八A"], "rooms": []}],
+        "5": [{"subject": "—", "classes": ["國九B"], "rooms": []}],
+        "6": [{"subject": "—", "classes": ["國九B"], "rooms": []}],
+        "7": [{"subject": "—", "classes": ["國九B"], "rooms": []}]
+      },
+      "星期五": {
+        "2": [{"subject": "公民與社會", "classes": ["國七B"], "rooms": []}, {"subject": "公民與社會", "classes": ["國七B"], "rooms": []}],
+        "3": [{"subject": "—", "classes": ["國七A"], "rooms": []}],
+        "4": [{"subject": "導師時間", "classes": ["國八B"], "rooms": []}],
+        "5": [{"subject": "學習回饋", "classes": ["國八B"], "rooms": []}],
+        "6": [{"subject": "學習回饋", "classes": ["國八B"], "rooms": []}],
+        "7": [{"subject": "學習回饋", "classes": ["國八B"], "rooms": []}]
+      },
+      "星期三": {
+        "2": [{"subject": "公民與社會", "classes": ["國七A"], "rooms": []}],
+        "3": [{"subject": "公民與社會", "classes": [], "rooms": []}],
+        "4": [{"subject": "—", "classes": ["國八B"], "rooms": []}]
+      }
+    },
+    "呂宜霖": {
+      "星期二": {
+        "1": [{"subject": "學習回饋", "classes": [], "rooms": []}],
+        "2": [{"subject": "國語文", "classes": ["高二理組", "高二文組"], "rooms": []}, {"subject": "國七", "classes": ["高二理組", "高二文組"], "rooms": []}],
+        "3": [{"subject": "國語文", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}]
+      },
+      "星期三": {
+        "1": [{"subject": "國語文", "classes": [], "rooms": []}],
+        "2": [{"subject": "國七", "classes": [], "rooms": []}, {"subject": "國語文", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}],
+        "4": [{"subject": "國語文", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}]
+      },
+      "星期四": {
+        "1": [{"subject": "學習回饋", "classes": [], "rooms": []}],
+        "2": [{"subject": "國語文", "classes": ["高一"], "rooms": []}, {"subject": "國七", "classes": ["高一"], "rooms": []}],
+        "3": [{"subject": "國語文", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}]
+      },
+      "星期五": {
+        "1": [{"subject": "國語文", "classes": [], "rooms": []}],
+        "2": [{"subject": "國七", "classes": [], "rooms": []}, {"subject": "國語文", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}],
+        "3": [{"subject": "國語文", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}],
+        "5": [{"subject": "學習回饋", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}]
+      },
+      "星期一": {
+        "2": [{"subject": "國語文", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}],
+        "3": [{"subject": "國語文", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}],
+        "4": [{"subject": "國語文", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}]
+      }
+    },
+    "江霂歖": {
+      "星期三": {
+        "1": [{"subject": "體育", "classes": [], "rooms": []}],
+        "2": [{"subject": "—", "classes": ["高一"], "rooms": []}],
+        "4": [{"subject": "體育", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}]
+      },
+      "星期一": {
+        "2": [{"subject": "體育", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}],
+        "3": [{"subject": "體育", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "4": [{"subject": "體育", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}]
+      },
+      "星期五": {
+        "3": [{"subject": "體育", "classes": ["高三理組", "高三文組"], "rooms": []}],
+        "4": [{"subject": "體育", "classes": ["高二理組", "高二文組"], "rooms": []}]
+      },
+      "星期二": {
+        "4": [{"subject": "體育", "classes": ["高二理組", "高二文組"], "rooms": []}]
+      },
+      "星期四": {
+        "4": [{"subject": "體育", "classes": ["高一"], "rooms": []}]
+      }
+    },
+    "陳昱澐": {
+      "星期四": {
+        "5": [{"subject": "AI", "classes": ["高一"], "rooms": []}],
+        "6": [{"subject": "AI", "classes": ["高一"], "rooms": []}],
+        "7": [{"subject": "AI", "classes": ["高一"], "rooms": []}]
+      }
+    },
+    "羅雅苓": {
+      "星期四": {
+        "1": [{"subject": "英語文", "classes": ["國九A", "國九B"], "rooms": []}],
+        "2": [{"subject": "英語文", "classes": ["國八A", "國八B"], "rooms": []}],
+        "3": [{"subject": "英語文", "classes": ["高一"], "rooms": []}],
+        "4": [{"subject": "英語文", "classes": ["國七A", "國七B"], "rooms": []}],
+        "5": [{"subject": "學習回饋", "classes": ["國九B"], "rooms": []}],
+        "6": [{"subject": "學習回饋", "classes": ["國九B"], "rooms": []}],
+        "7": [{"subject": "學習回饋", "classes": ["國九B"], "rooms": []}]
+      },
+      "星期一": {
+        "1": [{"subject": "—", "classes": ["國九A", "國九B"], "rooms": []}],
+        "2": [{"subject": "—", "classes": ["高一"], "rooms": []}],
+        "4": [{"subject": "—", "classes": ["國七A", "國七B"], "rooms": []}]
+      },
+      "星期三": {
+        "1": [{"subject": "英語文", "classes": ["國八A", "國八B"], "rooms": []}],
+        "2": [{"subject": "英語文", "classes": ["國八A", "國八B"], "rooms": []}],
+        "3": [{"subject": "英語文", "classes": ["高一"], "rooms": []}],
+        "4": [{"subject": "英語文", "classes": ["國七A", "國七B"], "rooms": []}]
+      },
+      "星期五": {
+        "1": [{"subject": "英語文", "classes": ["國九A", "國九B"], "rooms": []}],
+        "3": [{"subject": "英語文", "classes": ["國八A", "國八B"], "rooms": []}],
+        "4": [{"subject": "英語文", "classes": ["國七A", "國七B"], "rooms": []}]
+      },
+      "星期二": {
+        "1": [{"subject": "英語文", "classes": [], "rooms": []}],
+        "2": [{"subject": "英語文", "classes": ["高一"], "rooms": []}],
+        "4": [{"subject": "英語文", "classes": [], "rooms": []}]
+      }
+    },
+    "何文達": {
+      "星期一": {
+        "1": [{"subject": "地理", "classes": ["國八A"], "rooms": []}],
+        "3": [{"subject": "地理", "classes": ["國八B"], "rooms": []}],
+        "5": [{"subject": "地理", "classes": ["國九B"], "rooms": []}],
+        "6": [{"subject": "地理", "classes": ["國九B"], "rooms": []}],
+        "7": [{"subject": "地理", "classes": ["國九B"], "rooms": []}]
+      },
+      "星期二": {
+        "1": [{"subject": "地理", "classes": ["國八B"], "rooms": []}],
+        "3": [{"subject": "地理", "classes": ["國八A"], "rooms": []}],
+        "5": [{"subject": "地理", "classes": ["高二文組"], "rooms": []}],
+        "6": [{"subject": "地理", "classes": ["高二文組"], "rooms": []}],
+        "7": [{"subject": "地理", "classes": ["高二文組"], "rooms": []}]
+      },
+      "星期四": {
+        "5": [{"subject": "地理", "classes": ["國九A"], "rooms": []}],
+        "6": [{"subject": "地理", "classes": ["國九A"], "rooms": []}],
+        "7": [{"subject": "地理", "classes": ["國九A"], "rooms": []}]
+      },
+      "星期三": {
+        "5": [{"subject": "地理", "classes": ["高二文組"], "rooms": []}],
+        "6": [{"subject": "地理", "classes": ["高二文組"], "rooms": []}]
+      }
+    },
+    "唐祥程": {
+      "星期二": {
+        "5": [{"subject": "智造創客", "classes": ["高一"], "rooms": []}],
+        "6": [{"subject": "智造創客", "classes": ["高一"], "rooms": []}],
+        "7": [{"subject": "智造創客", "classes": ["高一"], "rooms": []}]
+      },
+      "星期四": {
+        "5": [{"subject": "AI", "classes": ["高一"], "rooms": []}],
+        "6": [{"subject": "AI", "classes": ["高一"], "rooms": []}],
+        "7": [{"subject": "AI", "classes": ["高一"], "rooms": []}]
+      }
+    },
+    "聯合報": {
+      "星期一": {
+        "5": [{"subject": "國寫思辨", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "6": [{"subject": "國寫思辨", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "7": [{"subject": "國寫思辨", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}]
+      },
+      "星期二": {
+        "5": [{"subject": "國寫思辨", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "6": [{"subject": "國寫思辨", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "7": [{"subject": "國寫思辨", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}]
+      },
+      "星期五": {
+        "5": [{"subject": "國寫思辨", "classes": ["高一"], "rooms": []}],
+        "6": [{"subject": "國寫思辨", "classes": ["高一"], "rooms": []}],
+        "7": [{"subject": "國寫思辨", "classes": ["高一"], "rooms": []}]
+      }
+    },
+    "王妤文": {
+      "星期一": {
+        "7": [{"subject": "—", "classes": ["高二理組", "高二文組"], "rooms": []}]
+      },
+      "星期三": {
+        "4": [{"subject": "—", "classes": ["高二理組", "高二文組"], "rooms": []}],
+        "7": [{"subject": "學習回饋", "classes": ["國九A"], "rooms": []}]
+      },
+      "星期二": {
+        "7": [{"subject": "學習回饋", "classes": [], "rooms": []}]
+      },
+      "星期五": {
+        "2": [{"subject": "學習回饋", "classes": [], "rooms": []}],
+        "3": [{"subject": "學習回饋", "classes": [], "rooms": []}],
+        "6": [{"subject": "學習回饋", "classes": ["國八A"], "rooms": []}]
+      },
+      "星期四": {
+        "2": [{"subject": "—", "classes": ["高三理組", "高三文組"], "rooms": []}],
+        "3": [{"subject": "—", "classes": ["高二理組", "高二文組"], "rooms": []}],
+        "4": [{"subject": "學習回饋", "classes": [], "rooms": []}]
+      }
+    },
+    "Roja": {
+      "星期一": {
+        "3": [{"subject": "ESL", "classes": ["高一"], "rooms": []}],
+        "4": [{"subject": "ESL", "classes": ["高一"], "rooms": []}],
+        "5": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}],
+        "6": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}],
+        "7": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}]
+      },
+      "星期二": {
+        "3": [{"subject": "ESL", "classes": ["高一"], "rooms": []}],
+        "4": [{"subject": "ESL", "classes": ["高一"], "rooms": []}],
+        "5": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}],
+        "6": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}],
+        "7": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}]
+      },
+      "星期三": {
+        "5": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "6": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "7": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}]
+      }
+    },
+    "Chad": {
+      "星期一": {
+        "3": [{"subject": "ESL", "classes": ["高一"], "rooms": []}],
+        "4": [{"subject": "ESL", "classes": ["高一"], "rooms": []}],
+        "5": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}],
+        "6": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}],
+        "7": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}]
+      },
+      "星期二": {
+        "3": [{"subject": "ESL", "classes": ["高一"], "rooms": []}],
+        "4": [{"subject": "ESL", "classes": ["高一"], "rooms": []}],
+        "5": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}],
+        "6": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}],
+        "7": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}]
+      },
+      "星期三": {
+        "5": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "6": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "7": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}]
+      }
+    },
+    "Gina": {
+      "星期一": {
+        "3": [{"subject": "ESL", "classes": ["高一"], "rooms": []}],
+        "4": [{"subject": "ESL", "classes": ["高一"], "rooms": []}],
+        "5": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}],
+        "6": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}],
+        "7": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}]
+      },
+      "星期二": {
+        "3": [{"subject": "ESL", "classes": ["高一"], "rooms": []}],
+        "4": [{"subject": "ESL", "classes": ["高一"], "rooms": []}],
+        "5": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}],
+        "6": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}],
+        "7": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}]
+      },
+      "星期三": {
+        "5": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "6": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "7": [{"subject": "ESL", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}]
+      }
+    },
+    "楊志元": {
+      "星期三": {
+        "2": [{"subject": "化學", "classes": ["高三理組"], "rooms": []}],
+        "3": [{"subject": "化學", "classes": ["高三理組"], "rooms": []}]
+      },
+      "星期四": {
+        "2": [{"subject": "化學", "classes": ["高三理組"], "rooms": []}],
+        "3": [{"subject": "化學", "classes": ["高三理組"], "rooms": []}],
+        "5": [{"subject": "化學", "classes": ["高二理組"], "rooms": []}],
+        "6": [{"subject": "化學", "classes": ["高二理組"], "rooms": []}],
+        "7": [{"subject": "化學", "classes": ["高二理組"], "rooms": []}]
+      }
+    },
+    "鄒湘平": {
+      "星期一": {
+        "1": [{"subject": "英語文", "classes": [], "rooms": []}],
+        "2": [{"subject": "國九", "classes": ["高一"], "rooms": []}, {"subject": "國九", "classes": ["高一"], "rooms": []}, {"subject": "英語文", "classes": ["高一"], "rooms": []}],
+        "3": [{"subject": "英語文", "classes": ["高二文組"], "rooms": []}],
+        "4": [{"subject": "英語文", "classes": ["高二文組"], "rooms": []}]
+      },
+      "星期二": {
+        "1": [{"subject": "英語文", "classes": [], "rooms": []}],
+        "2": [{"subject": "國九", "classes": ["高一"], "rooms": []}, {"subject": "國九", "classes": ["高一"], "rooms": []}, {"subject": "英語文", "classes": ["高一"], "rooms": []}],
+        "3": [{"subject": "英語文", "classes": ["高二理組", "高二文組"], "rooms": []}]
+      },
+      "星期三": {
+        "1": [{"subject": "英語文", "classes": [], "rooms": []}],
+        "2": [{"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "英語文", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "3": [{"subject": "英語文", "classes": ["高一"], "rooms": []}]
+      },
+      "星期四": {
+        "1": [{"subject": "英語文", "classes": [], "rooms": []}],
+        "2": [{"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "英語文", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "3": [{"subject": "英語文", "classes": ["高一"], "rooms": []}]
+      },
+      "星期五": {
+        "1": [{"subject": "英語文", "classes": [], "rooms": []}],
+        "2": [{"subject": "國九", "classes": ["高二理組", "高二文組"], "rooms": []}, {"subject": "國九", "classes": ["高二理組", "高二文組"], "rooms": []}, {"subject": "英語文", "classes": ["高二理組", "高二文組"], "rooms": []}],
+        "3": [{"subject": "英語文", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}]
+      }
+    },
+    "蔡玉良": {
+      "星期一": {
+        "3": [{"subject": "物理", "classes": ["高三理組"], "rooms": []}],
+        "4": [{"subject": "物理", "classes": ["高三理組"], "rooms": []}]
+      },
+      "星期二": {
+        "3": [{"subject": "物理", "classes": ["高三理組"], "rooms": []}],
+        "4": [{"subject": "物理", "classes": ["高三理組"], "rooms": []}],
+        "5": [{"subject": "地球科學", "classes": ["高三理組"], "rooms": []}],
+        "6": [{"subject": "地球科學", "classes": ["高三理組"], "rooms": []}]
+      },
+      "星期四": {
+        "3": [{"subject": "地球科學", "classes": ["高二理組"], "rooms": []}],
+        "4": [{"subject": "地球科學", "classes": ["高三理組"], "rooms": []}]
+      },
+      "星期三": {
+        "4": [{"subject": "地球科學", "classes": ["高三理組"], "rooms": []}],
+        "5": [{"subject": "地球科學", "classes": ["高二理組"], "rooms": []}],
+        "6": [{"subject": "地球科學", "classes": ["高二理組"], "rooms": []}]
+      }
+    },
+    "之宇": {
+      "星期一": {
+        "5": [{"subject": "英語文", "classes": ["高三文組"], "rooms": []}],
+        "6": [{"subject": "英語文", "classes": ["高三文組"], "rooms": []}],
+        "7": [{"subject": "英語文", "classes": ["高三文組"], "rooms": []}]
+      },
+      "星期三": {
+        "5": [{"subject": "英語文", "classes": ["高三理組", "高三文組"], "rooms": []}],
+        "6": [{"subject": "英語文", "classes": ["高三理組", "高三文組"], "rooms": []}],
+        "7": [{"subject": "英語文", "classes": ["高三理組", "高三文組"], "rooms": []}]
+      }
+    },
+    "名敦": {
+      "星期一": {
+        "5": [{"subject": "國寫思辨", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "6": [{"subject": "國寫思辨", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "7": [{"subject": "國寫思辨", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}]
+      },
+      "星期五": {
+        "5": [{"subject": "國寫思辨", "classes": ["高一"], "rooms": []}],
+        "6": [{"subject": "國寫思辨", "classes": ["高一"], "rooms": []}],
+        "7": [{"subject": "國寫思辨", "classes": ["高一"], "rooms": []}]
+      }
+    },
+    "李牧": {
+      "星期三": {
+        "3": [{"subject": "數學", "classes": ["高二理組"], "rooms": []}],
+        "4": [{"subject": "數學", "classes": ["高二理組"], "rooms": []}],
+        "5": [{"subject": "數學", "classes": ["高一"], "rooms": []}],
+        "6": [{"subject": "數學", "classes": ["高一"], "rooms": []}]
+      },
+      "星期五": {
+        "3": [{"subject": "數學", "classes": ["高一"], "rooms": []}],
+        "4": [{"subject": "數學", "classes": ["高一"], "rooms": []}],
+        "5": [{"subject": "數學", "classes": ["高二理組"], "rooms": []}],
+        "6": [{"subject": "數學", "classes": ["高二理組"], "rooms": []}]
+      }
+    },
+    "王志遠": {
+      "星期四": {
+        "5": [{"subject": "數學乙", "classes": ["高三文組"], "rooms": []}],
+        "6": [{"subject": "數學乙", "classes": ["高三文組"], "rooms": []}],
+        "7": [{"subject": "數學乙", "classes": ["高三文組"], "rooms": []}]
+      },
+      "星期五": {
+        "5": [{"subject": "數學乙", "classes": ["高三文組"], "rooms": []}],
+        "6": [{"subject": "數學乙", "classes": ["高三文組"], "rooms": []}],
+        "7": [{"subject": "數學乙", "classes": ["高三文組"], "rooms": []}]
+      }
+    },
+    "蘇試": {
+      "星期三": {
+        "1": [{"subject": "數學", "classes": [], "rooms": []}],
+        "2": [{"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "數學", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}],
+        "3": [{"subject": "數學", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}]
+      },
+      "星期四": {
+        "4": [{"subject": "數學", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}],
+        "5": [{"subject": "數學甲", "classes": ["高三理組"], "rooms": []}],
+        "6": [{"subject": "數學甲", "classes": ["高三理組"], "rooms": []}],
+        "7": [{"subject": "數學甲", "classes": ["高三理組"], "rooms": []}]
+      },
+      "星期五": {
+        "4": [{"subject": "數學", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}],
+        "5": [{"subject": "數學甲", "classes": ["高三理組"], "rooms": []}],
+        "6": [{"subject": "數學甲", "classes": ["高三理組"], "rooms": []}],
+        "7": [{"subject": "數學甲", "classes": ["高三理組"], "rooms": []}]
+      }
+    },
+    "吳宇綸": {
+      "星期一": {
+        "1": [{"subject": "數學", "classes": [], "rooms": []}],
+        "2": [{"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "數學", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}]
+      },
+      "星期二": {
+        "1": [{"subject": "數學", "classes": [], "rooms": []}],
+        "2": [{"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}, {"subject": "數學", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}]
+      },
+      "星期三": {
+        "1": [{"subject": "數學", "classes": [], "rooms": []}],
+        "2": [{"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "數學", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}],
+        "3": [{"subject": "數學", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}]
+      },
+      "星期四": {
+        "1": [{"subject": "數學", "classes": [], "rooms": []}],
+        "2": [{"subject": "國七", "classes": [], "rooms": []}, {"subject": "國七", "classes": [], "rooms": []}],
+        "3": [{"subject": "數學", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "4": [{"subject": "數學", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}]
+      },
+      "星期五": {
+        "1": [{"subject": "數學", "classes": [], "rooms": []}],
+        "2": [{"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "數學", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}, {"subject": "國八", "classes": [], "rooms": []}],
+        "4": [{"subject": "數學", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}]
+      }
+    },
+    "李偉": {
+      "星期三": {
+        "2": [{"subject": "歷史", "classes": ["高三文組"], "rooms": []}],
+        "3": [{"subject": "歷史", "classes": ["高三文組"], "rooms": []}],
+        "4": [{"subject": "歷史", "classes": ["高三文組"], "rooms": []}]
+      },
+      "星期二": {
+        "5": [{"subject": "歷史", "classes": ["高三文組"], "rooms": []}],
+        "6": [{"subject": "歷史", "classes": ["高三文組"], "rooms": []}],
+        "7": [{"subject": "歷史", "classes": ["高三文組"], "rooms": []}]
+      }
+    },
+    "林全": {
+      "星期一": {
+        "2": [{"subject": "地理", "classes": ["高三文組"], "rooms": []}],
+        "3": [{"subject": "地理", "classes": ["高三文組"], "rooms": []}],
+        "4": [{"subject": "地理", "classes": ["高三文組"], "rooms": []}]
+      },
+      "星期四": {
+        "2": [{"subject": "地理", "classes": ["高三文組"], "rooms": []}],
+        "3": [{"subject": "地理", "classes": ["高三文組"], "rooms": []}],
+        "4": [{"subject": "地理", "classes": ["高三文組"], "rooms": []}]
+      }
+    },
+    "趙明": {
+      "星期二": {
+        "2": [{"subject": "公民與社會", "classes": ["高三文組"], "rooms": []}],
+        "3": [{"subject": "公民與社會", "classes": ["高三文組"], "rooms": []}],
+        "4": [{"subject": "公民與社會", "classes": ["高三文組"], "rooms": []}]
+      }
+    },
+    "呂行": {
+      "星期五": {
+        "5": [{"subject": "理化", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}],
+        "6": [{"subject": "理化", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}],
+        "7": [{"subject": "理化", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}]
+      }
+    },
+    "楊恆": {
+      "星期二": {
+        "2": [{"subject": "社會統整", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}],
+        "3": [{"subject": "社會統整", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}],
+        "4": [{"subject": "社會統整", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}, {"subject": "國九", "classes": [], "rooms": []}]
+      }
+    }
+  },
+  "classSchedule": {
+    "國七A": {
+      "星期一": {
+        "1": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "吳宇綸", "subject": "數學", "rooms": []}, {"teacher": "曾美芝", "subject": "數學", "rooms": []}],
+        "2": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "吳宇綸", "subject": "數學", "rooms": []}, {"teacher": "曾美芝", "subject": "數學", "rooms": []}],
+        "3": [{"teacher": "陳瑋筠", "subject": "歷史", "rooms": []}],
+        "4": [{"teacher": "呂宜霖", "subject": "國語文", "rooms": []}],
+        "5": [{"teacher": "Roja", "subject": "ESL", "rooms": []}, {"teacher": "Chad", "subject": "ESL", "rooms": []}, {"teacher": "Gina", "subject": "ESL", "rooms": []}],
+        "6": [{"teacher": "Roja", "subject": "ESL", "rooms": []}, {"teacher": "Chad", "subject": "ESL", "rooms": []}, {"teacher": "Gina", "subject": "ESL", "rooms": []}],
+        "7": [{"teacher": "Roja", "subject": "ESL", "rooms": []}, {"teacher": "Chad", "subject": "ESL", "rooms": []}, {"teacher": "Gina", "subject": "ESL", "rooms": []}]
+      },
+      "星期二": {
+        "1": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "吳宇綸", "subject": "數學", "rooms": []}, {"teacher": "曾美芝", "subject": "數學", "rooms": []}],
+        "2": [{"teacher": "莊旭惠", "subject": "導師時間", "rooms": []}],
+        "3": [{"teacher": "呂宜霖", "subject": "國語文", "rooms": []}],
+        "4": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "莊旭惠", "subject": "英語文", "rooms": []}, {"teacher": "邱千芸", "subject": "英語文", "rooms": []}],
+        "5": [{"teacher": "Roja", "subject": "ESL", "rooms": []}, {"teacher": "Chad", "subject": "ESL", "rooms": []}, {"teacher": "Gina", "subject": "ESL", "rooms": []}],
+        "6": [{"teacher": "Roja", "subject": "ESL", "rooms": []}, {"teacher": "Chad", "subject": "ESL", "rooms": []}, {"teacher": "Gina", "subject": "ESL", "rooms": []}],
+        "7": [{"teacher": "Roja", "subject": "ESL", "rooms": []}, {"teacher": "Chad", "subject": "ESL", "rooms": []}, {"teacher": "Gina", "subject": "ESL", "rooms": []}]
+      },
+      "星期三": {
+        "1": [{"teacher": "呂宜霖", "subject": "國語文", "rooms": []}],
+        "2": [{"teacher": "吳雯菁", "subject": "公民與社會", "rooms": []}],
+        "3": [{"teacher": "王世宗", "subject": "生物", "rooms": []}],
+        "4": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "莊旭惠", "subject": "英語文", "rooms": []}, {"teacher": "邱千芸", "subject": "英語文", "rooms": []}],
+        "5": [{"teacher": "外聘", "subject": "多元營隊", "rooms": []}],
+        "6": [{"teacher": "外聘", "subject": "多元營隊", "rooms": []}],
+        "7": [{"teacher": "外聘", "subject": "多元營隊", "rooms": []}]
+      },
+      "星期四": {
+        "1": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "吳宇綸", "subject": "數學", "rooms": []}, {"teacher": "曾美芝", "subject": "數學", "rooms": []}],
+        "2": [{"teacher": "呂宜霖", "subject": "國語文", "rooms": []}],
+        "3": [{"teacher": "莊旭惠", "subject": "導師時間", "rooms": []}],
+        "4": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "莊旭惠", "subject": "英語文", "rooms": []}, {"teacher": "邱千芸", "subject": "英語文", "rooms": []}],
+        "5": [{"teacher": "外聘", "subject": "多元營隊", "rooms": []}],
+        "6": [{"teacher": "外聘", "subject": "多元營隊", "rooms": []}],
+        "7": [{"teacher": "外聘", "subject": "多元營隊", "rooms": []}]
+      },
+      "星期五": {
+        "1": [{"teacher": "陳瑋筠", "subject": "歷史", "rooms": []}],
+        "2": [{"teacher": "王世宗", "subject": "生物", "rooms": []}],
+        "3": [{"teacher": "吳雯菁", "subject": "公民與社會", "rooms": []}],
+        "4": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "莊旭惠", "subject": "英語文", "rooms": []}, {"teacher": "邱千芸", "subject": "英語文", "rooms": []}],
+        "5": [{"teacher": "外聘", "subject": "多元營隊", "rooms": []}],
+        "6": [{"teacher": "外聘", "subject": "多元營隊", "rooms": []}],
+        "7": [{"teacher": "外聘", "subject": "多元營隊", "rooms": []}]
+      }
+    },
+    "國七B": {
+      "星期一": {
+        "1": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "吳宇綸", "subject": "數學", "rooms": []}, {"teacher": "曾美芝", "subject": "數學", "rooms": []}],
+        "2": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "吳宇綸", "subject": "數學", "rooms": []}, {"teacher": "曾美芝", "subject": "數學", "rooms": []}],
+        "3": [{"teacher": "呂宜霖", "subject": "國語文", "rooms": []}],
+        "4": [{"teacher": "吳雯菁", "subject": "公民與社會", "rooms": []}],
+        "5": [{"teacher": "Roja", "subject": "ESL", "rooms": []}, {"teacher": "Chad", "subject": "ESL", "rooms": []}, {"teacher": "Gina", "subject": "ESL", "rooms": []}],
+        "6": [{"teacher": "Roja", "subject": "ESL", "rooms": []}, {"teacher": "Chad", "subject": "ESL", "rooms": []}, {"teacher": "Gina", "subject": "ESL", "rooms": []}],
+        "7": [{"teacher": "Roja", "subject": "ESL", "rooms": []}, {"teacher": "Chad", "subject": "ESL", "rooms": []}, {"teacher": "Gina", "subject": "ESL", "rooms": []}]
+      },
+      "星期二": {
+        "1": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "吳宇綸", "subject": "數學", "rooms": []}, {"teacher": "曾美芝", "subject": "數學", "rooms": []}],
+        "2": [{"teacher": "呂宜霖", "subject": "國語文", "rooms": []}],
+        "3": [{"teacher": "王世宗", "subject": "生物", "rooms": []}],
+        "4": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "莊旭惠", "subject": "英語文", "rooms": []}, {"teacher": "邱千芸", "subject": "英語文", "rooms": []}],
+        "5": [{"teacher": "Roja", "subject": "ESL", "rooms": []}, {"teacher": "Chad", "subject": "ESL", "rooms": []}, {"teacher": "Gina", "subject": "ESL", "rooms": []}],
+        "6": [{"teacher": "Roja", "subject": "ESL", "rooms": []}, {"teacher": "Chad", "subject": "ESL", "rooms": []}, {"teacher": "Gina", "subject": "ESL", "rooms": []}],
+        "7": [{"teacher": "Roja", "subject": "ESL", "rooms": []}, {"teacher": "Chad", "subject": "ESL", "rooms": []}, {"teacher": "Gina", "subject": "ESL", "rooms": []}]
+      },
+      "星期三": {
+        "1": [{"teacher": "陳瑋筠", "subject": "歷史", "rooms": []}],
+        "2": [{"teacher": "呂宜霖", "subject": "國語文", "rooms": []}],
+        "3": [{"teacher": "陳瑋筠", "subject": "導師時間", "rooms": []}],
+        "4": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "莊旭惠", "subject": "英語文", "rooms": []}, {"teacher": "邱千芸", "subject": "英語文", "rooms": []}],
+        "5": [{"teacher": "外聘", "subject": "多元營隊", "rooms": []}],
+        "6": [{"teacher": "外聘", "subject": "多元營隊", "rooms": []}],
+        "7": [{"teacher": "外聘", "subject": "多元營隊", "rooms": []}]
+      },
+      "星期四": {
+        "1": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "吳宇綸", "subject": "數學", "rooms": []}, {"teacher": "曾美芝", "subject": "數學", "rooms": []}],
+        "2": [{"teacher": "陳瑋筠", "subject": "導師時間", "rooms": []}],
+        "3": [{"teacher": "王世宗", "subject": "生物", "rooms": []}],
+        "4": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "莊旭惠", "subject": "英語文", "rooms": []}, {"teacher": "邱千芸", "subject": "英語文", "rooms": []}],
+        "5": [{"teacher": "外聘", "subject": "多元營隊", "rooms": []}],
+        "6": [{"teacher": "外聘", "subject": "多元營隊", "rooms": []}],
+        "7": [{"teacher": "外聘", "subject": "多元營隊", "rooms": []}]
+      },
+      "星期五": {
+        "1": [{"teacher": "呂宜霖", "subject": "國語文", "rooms": []}],
+        "2": [{"teacher": "吳雯菁", "subject": "公民與社會", "rooms": []}],
+        "3": [{"teacher": "陳瑋筠", "subject": "歷史", "rooms": []}],
+        "4": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "莊旭惠", "subject": "英語文", "rooms": []}, {"teacher": "邱千芸", "subject": "英語文", "rooms": []}],
+        "5": [{"teacher": "外聘", "subject": "多元營隊", "rooms": []}],
+        "6": [{"teacher": "外聘", "subject": "多元營隊", "rooms": []}],
+        "7": [{"teacher": "外聘", "subject": "多元營隊", "rooms": []}]
+      }
+    },
+    "國八A": {
+      "星期二": {
+        "1": [{"teacher": "吳雯菁", "subject": "公民與社會", "rooms": []}],
+        "2": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "吳宇綸", "subject": "數學", "rooms": []}, {"teacher": "蔡佳玲", "subject": "數學", "rooms": []}],
+        "3": [{"teacher": "何文達", "subject": "地理", "rooms": []}],
+        "4": [{"teacher": "張秀玫", "subject": "國語文", "rooms": []}],
+        "5": [{"teacher": "蔡佳玲", "subject": "理化", "rooms": []}],
+        "6": [{"teacher": "蔡佳玲", "subject": "理化", "rooms": []}],
+        "7": [{"teacher": "蔡佳玲", "subject": "理化", "rooms": []}]
+      },
+      "星期一": {
+        "1": [{"teacher": "何文達", "subject": "地理", "rooms": []}],
+        "2": [{"teacher": "吳雯菁", "subject": "公民與社會", "rooms": []}],
+        "3": [{"teacher": "江霂歖", "subject": "體育", "rooms": []}],
+        "4": [{"teacher": "蔡佳玲", "subject": "導師時間", "rooms": []}],
+        "5": [{"teacher": "聯合報", "subject": "國寫思辨", "rooms": []}, {"teacher": "名敦", "subject": "國寫思辨", "rooms": []}],
+        "6": [{"teacher": "聯合報", "subject": "國寫思辨", "rooms": []}, {"teacher": "名敦", "subject": "國寫思辨", "rooms": []}],
+        "7": [{"teacher": "聯合報", "subject": "國寫思辨", "rooms": []}, {"teacher": "名敦", "subject": "國寫思辨", "rooms": []}]
+      },
+      "星期三": {
+        "1": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "鄒湘平", "subject": "英語文", "rooms": []}, {"teacher": "莊旭惠", "subject": "英語文", "rooms": []}],
+        "2": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "鄒湘平", "subject": "英語文", "rooms": []}, {"teacher": "莊旭惠", "subject": "英語文", "rooms": []}],
+        "3": [{"teacher": "張秀玫", "subject": "國語文", "rooms": []}],
+        "4": [{"teacher": "陳瑋筠", "subject": "歷史", "rooms": []}],
+        "5": [{"teacher": "Roja", "subject": "ESL", "rooms": []}, {"teacher": "Chad", "subject": "ESL", "rooms": []}, {"teacher": "Gina", "subject": "ESL", "rooms": []}],
+        "6": [{"teacher": "Roja", "subject": "ESL", "rooms": []}, {"teacher": "Chad", "subject": "ESL", "rooms": []}, {"teacher": "Gina", "subject": "ESL", "rooms": []}],
+        "7": [{"teacher": "Roja", "subject": "ESL", "rooms": []}, {"teacher": "Chad", "subject": "ESL", "rooms": []}, {"teacher": "Gina", "subject": "ESL", "rooms": []}]
+      },
+      "星期四": {
+        "1": [{"teacher": "陳瑋筠", "subject": "歷史", "rooms": []}],
+        "2": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "鄒湘平", "subject": "英語文", "rooms": []}, {"teacher": "莊旭惠", "subject": "英語文", "rooms": []}],
+        "3": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "吳宇綸", "subject": "數學", "rooms": []}, {"teacher": "蔡佳玲", "subject": "數學", "rooms": []}],
+        "4": [{"teacher": "張秀玫", "subject": "國語文", "rooms": []}],
+        "5": [{"teacher": "王世宗", "subject": "生物", "rooms": []}],
+        "6": [{"teacher": "王世宗", "subject": "生物", "rooms": []}],
+        "7": [{"teacher": "王世宗", "subject": "生物", "rooms": []}]
+      },
+      "星期五": {
+        "1": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "吳宇綸", "subject": "數學", "rooms": []}, {"teacher": "蔡佳玲", "subject": "數學", "rooms": []}],
+        "2": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "吳宇綸", "subject": "數學", "rooms": []}, {"teacher": "蔡佳玲", "subject": "數學", "rooms": []}],
+        "3": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "鄒湘平", "subject": "英語文", "rooms": []}, {"teacher": "莊旭惠", "subject": "英語文", "rooms": []}],
+        "4": [{"teacher": "張秀玫", "subject": "國語文", "rooms": []}],
+        "5": [{"teacher": "呂宜霖", "subject": "學習回饋", "rooms": []}],
+        "6": [{"teacher": "王妤文", "subject": "學習回饋", "rooms": []}],
+        "7": [{"teacher": "邱千芸", "subject": "學習回饋", "rooms": []}]
+      }
+    },
+    "國八B": {
+      "星期一": {
+        "1": [{"teacher": "吳雯菁", "subject": "公民與社會", "rooms": []}],
+        "2": [{"teacher": "劉玉華", "subject": "國語文", "rooms": []}],
+        "3": [{"teacher": "何文達", "subject": "地理", "rooms": []}],
+        "4": [{"teacher": "陳瑋筠", "subject": "歷史", "rooms": []}],
+        "5": [{"teacher": "王世宗", "subject": "生物", "rooms": []}],
+        "6": [{"teacher": "王世宗", "subject": "生物", "rooms": []}],
+        "7": [{"teacher": "王世宗", "subject": "生物", "rooms": []}]
+      },
+      "星期二": {
+        "1": [{"teacher": "何文達", "subject": "地理", "rooms": []}],
+        "2": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "吳宇綸", "subject": "數學", "rooms": []}],
+        "3": [{"teacher": "陳瑋筠", "subject": "歷史", "rooms": []}],
+        "4": [{"teacher": "劉玉華", "subject": "國語文", "rooms": []}],
+        "5": [{"teacher": "聯合報", "subject": "國寫思辨", "rooms": []}],
+        "6": [{"teacher": "聯合報", "subject": "國寫思辨", "rooms": []}],
+        "7": [{"teacher": "聯合報", "subject": "國寫思辨", "rooms": []}]
+      },
+      "星期三": {
+        "1": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "鄒湘平", "subject": "英語文", "rooms": []}],
+        "2": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "鄒湘平", "subject": "英語文", "rooms": []}],
+        "3": [{"teacher": "劉玉華", "subject": "國語文", "rooms": []}],
+        "4": [{"teacher": "江霂歖", "subject": "體育", "rooms": []}],
+        "5": [{"teacher": "Roja", "subject": "ESL", "rooms": []}, {"teacher": "Chad", "subject": "ESL", "rooms": []}, {"teacher": "Gina", "subject": "ESL", "rooms": []}],
+        "6": [{"teacher": "Roja", "subject": "ESL", "rooms": []}, {"teacher": "Chad", "subject": "ESL", "rooms": []}, {"teacher": "Gina", "subject": "ESL", "rooms": []}],
+        "7": [{"teacher": "Roja", "subject": "ESL", "rooms": []}, {"teacher": "Chad", "subject": "ESL", "rooms": []}, {"teacher": "Gina", "subject": "ESL", "rooms": []}]
+      },
+      "星期四": {
+        "1": [{"teacher": "吳雯菁", "subject": "公民與社會", "rooms": []}],
+        "2": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "鄒湘平", "subject": "英語文", "rooms": []}],
+        "3": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "吳宇綸", "subject": "數學", "rooms": []}],
+        "4": [{"teacher": "劉玉華", "subject": "國語文", "rooms": []}],
+        "5": [{"teacher": "蔡佳玲", "subject": "理化", "rooms": []}],
+        "6": [{"teacher": "蔡佳玲", "subject": "理化", "rooms": []}],
+        "7": [{"teacher": "蔡佳玲", "subject": "理化", "rooms": []}]
+      },
+      "星期五": {
+        "1": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "吳宇綸", "subject": "數學", "rooms": []}],
+        "2": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "吳宇綸", "subject": "數學", "rooms": []}],
+        "3": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "鄒湘平", "subject": "英語文", "rooms": []}],
+        "4": [{"teacher": "吳雯菁", "subject": "導師時間", "rooms": []}],
+        "5": [{"teacher": "吳雯菁", "subject": "學習回饋", "rooms": []}],
+        "6": [{"teacher": "吳雯菁", "subject": "學習回饋", "rooms": []}],
+        "7": [{"teacher": "吳雯菁", "subject": "學習回饋", "rooms": []}]
+      }
+    },
+    "國九A": {
+      "星期一": {
+        "1": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "鄒湘平", "subject": "英語文", "rooms": []}],
+        "2": [{"teacher": "江霂歖", "subject": "體育", "rooms": []}],
+        "3": [{"teacher": "劉玉華", "subject": "國語文", "rooms": []}],
+        "4": [{"teacher": "王世宗", "subject": "生物", "rooms": []}],
+        "5": [{"teacher": "吳雯菁", "subject": "", "rooms": []}],
+        "6": [{"teacher": "吳雯菁", "subject": "公民與社會", "rooms": []}],
+        "7": [{"teacher": "吳雯菁", "subject": "公民與社會", "rooms": []}]
+      },
+      "星期二": {
+        "1": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "鄒湘平", "subject": "英語文", "rooms": []}],
+        "2": [{"teacher": "楊恆", "subject": "社會統整", "rooms": []}],
+        "3": [{"teacher": "楊恆", "subject": "社會統整", "rooms": []}],
+        "4": [{"teacher": "楊恆", "subject": "社會統整", "rooms": []}],
+        "5": [{"teacher": "陳瑋筠", "subject": "歷史", "rooms": []}],
+        "6": [{"teacher": "陳瑋筠", "subject": "歷史", "rooms": []}],
+        "7": [{"teacher": "陳瑋筠", "subject": "歷史", "rooms": []}]
+      },
+      "星期三": {
+        "1": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "蘇試", "subject": "數學", "rooms": []}],
+        "2": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "蘇試", "subject": "數學", "rooms": []}],
+        "3": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "蘇試", "subject": "數學", "rooms": []}],
+        "4": [{"teacher": "劉玉華", "subject": "國語文", "rooms": []}],
+        "5": [{"teacher": "王世宗", "subject": "學習回饋", "rooms": []}],
+        "6": [{"teacher": "王世宗", "subject": "學習回饋", "rooms": []}],
+        "7": [{"teacher": "王妤文", "subject": "學習回饋", "rooms": []}]
+      },
+      "星期四": {
+        "1": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "鄒湘平", "subject": "英語文", "rooms": []}],
+        "2": [{"teacher": "劉玉華", "subject": "國語文", "rooms": []}],
+        "3": [{"teacher": "劉玉華", "subject": "國語文", "rooms": []}],
+        "4": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "蘇試", "subject": "數學", "rooms": []}],
+        "5": [{"teacher": "何文達", "subject": "地理", "rooms": []}],
+        "6": [{"teacher": "何文達", "subject": "地理", "rooms": []}],
+        "7": [{"teacher": "何文達", "subject": "地理", "rooms": []}]
+      },
+      "星期五": {
+        "1": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "鄒湘平", "subject": "英語文", "rooms": []}],
+        "2": [{"teacher": "劉玉華", "subject": "國語文", "rooms": []}],
+        "3": [{"teacher": "王世宗", "subject": "生物", "rooms": []}],
+        "4": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "蘇試", "subject": "數學", "rooms": []}],
+        "5": [{"teacher": "呂行", "subject": "理化", "rooms": []}, {"teacher": "蔡佳玲", "subject": "理化", "rooms": []}],
+        "6": [{"teacher": "呂行", "subject": "理化", "rooms": []}, {"teacher": "蔡佳玲", "subject": "理化", "rooms": []}],
+        "7": [{"teacher": "呂行", "subject": "理化", "rooms": []}, {"teacher": "蔡佳玲", "subject": "理化", "rooms": []}]
+      }
+    },
+    "國九B": {
+      "星期一": {
+        "1": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "鄒湘平", "subject": "英語文", "rooms": []}],
+        "2": [{"teacher": "呂宜霖", "subject": "國語文", "rooms": []}],
+        "3": [{"teacher": "王世宗", "subject": "生物", "rooms": []}],
+        "4": [{"teacher": "江霂歖", "subject": "體育", "rooms": []}],
+        "5": [{"teacher": "何文達", "subject": "地理", "rooms": []}],
+        "6": [{"teacher": "何文達", "subject": "地理", "rooms": []}],
+        "7": [{"teacher": "何文達", "subject": "地理", "rooms": []}]
+      },
+      "星期二": {
+        "1": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "鄒湘平", "subject": "英語文", "rooms": []}],
+        "2": [{"teacher": "楊恆", "subject": "社會統整", "rooms": []}],
+        "3": [{"teacher": "楊恆", "subject": "社會統整", "rooms": []}],
+        "4": [{"teacher": "楊恆", "subject": "社會統整", "rooms": []}],
+        "5": [{"teacher": "吳雯菁", "subject": "", "rooms": []}],
+        "6": [{"teacher": "吳雯菁", "subject": "公民與社會", "rooms": []}],
+        "7": [{"teacher": "吳雯菁", "subject": "公民與社會", "rooms": []}]
+      },
+      "星期三": {
+        "1": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "蘇試", "subject": "數學", "rooms": []}],
+        "2": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "蘇試", "subject": "數學", "rooms": []}],
+        "3": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "蘇試", "subject": "數學", "rooms": []}],
+        "4": [{"teacher": "呂宜霖", "subject": "國語文", "rooms": []}],
+        "5": [{"teacher": "陳瑋筠", "subject": "歷史", "rooms": []}],
+        "6": [{"teacher": "陳瑋筠", "subject": "歷史", "rooms": []}],
+        "7": [{"teacher": "陳瑋筠", "subject": "歷史", "rooms": []}]
+      },
+      "星期四": {
+        "1": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "鄒湘平", "subject": "英語文", "rooms": []}],
+        "2": [{"teacher": "王世宗", "subject": "生物", "rooms": []}],
+        "3": [{"teacher": "呂宜霖", "subject": "國語文", "rooms": []}],
+        "4": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "蘇試", "subject": "數學", "rooms": []}],
+        "5": [{"teacher": "羅雅苓", "subject": "學習回饋", "rooms": []}],
+        "6": [{"teacher": "羅雅苓", "subject": "學習回饋", "rooms": []}],
+        "7": [{"teacher": "羅雅苓", "subject": "學習回饋", "rooms": []}]
+      },
+      "星期五": {
+        "1": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "鄒湘平", "subject": "英語文", "rooms": []}],
+        "2": [{"teacher": "呂宜霖", "subject": "國語文", "rooms": []}],
+        "3": [{"teacher": "呂宜霖", "subject": "國語文", "rooms": []}],
+        "4": [{"teacher": "桂松山", "subject": "數學", "rooms": []}, {"teacher": "蘇試", "subject": "數學", "rooms": []}],
+        "5": [{"teacher": "呂行", "subject": "理化", "rooms": []}, {"teacher": "蔡佳玲", "subject": "理化", "rooms": []}],
+        "6": [{"teacher": "呂行", "subject": "理化", "rooms": []}, {"teacher": "蔡佳玲", "subject": "理化", "rooms": []}],
+        "7": [{"teacher": "呂行", "subject": "理化", "rooms": []}, {"teacher": "蔡佳玲", "subject": "理化", "rooms": []}]
+      }
+    },
+    "高一": {
+      "星期一": {
+        "1": [{"teacher": "張秀玫", "subject": "國語文", "rooms": []}],
+        "2": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "鄒湘平", "subject": "英語文", "rooms": []}],
+        "3": [{"teacher": "Roja", "subject": "ESL", "rooms": []}, {"teacher": "Chad", "subject": "ESL", "rooms": []}, {"teacher": "Gina", "subject": "ESL", "rooms": []}],
+        "4": [{"teacher": "Roja", "subject": "ESL", "rooms": []}, {"teacher": "Chad", "subject": "ESL", "rooms": []}, {"teacher": "Gina", "subject": "ESL", "rooms": []}],
+        "5": [{"teacher": "曾美芝", "subject": "簡報與文書表達", "rooms": []}],
+        "6": [{"teacher": "曾美芝", "subject": "簡報與文書表達", "rooms": []}],
+        "7": [{"teacher": "曾美芝", "subject": "簡報與文書表達", "rooms": []}]
+      },
+      "星期二": {
+        "1": [{"teacher": "張秀玫", "subject": "自主學習", "rooms": []}],
+        "2": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "鄒湘平", "subject": "英語文", "rooms": []}],
+        "3": [{"teacher": "Roja", "subject": "ESL", "rooms": []}, {"teacher": "Chad", "subject": "ESL", "rooms": []}, {"teacher": "Gina", "subject": "ESL", "rooms": []}],
+        "4": [{"teacher": "Roja", "subject": "ESL", "rooms": []}, {"teacher": "Chad", "subject": "ESL", "rooms": []}, {"teacher": "Gina", "subject": "ESL", "rooms": []}],
+        "5": [{"teacher": "唐祥程", "subject": "智造創客", "rooms": []}],
+        "6": [{"teacher": "唐祥程", "subject": "智造創客", "rooms": []}],
+        "7": [{"teacher": "唐祥程", "subject": "智造創客", "rooms": []}]
+      },
+      "星期三": {
+        "1": [{"teacher": "江霂歖", "subject": "體育", "rooms": []}],
+        "2": [{"teacher": "張秀玫", "subject": "國語文", "rooms": []}],
+        "3": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "鄒湘平", "subject": "英語文", "rooms": []}],
+        "4": [{"teacher": "張秀玫", "subject": "導師時間", "rooms": []}],
+        "5": [{"teacher": "李牧", "subject": "數學", "rooms": []}, {"teacher": "曾美芝", "subject": "數學", "rooms": []}],
+        "6": [{"teacher": "李牧", "subject": "數學", "rooms": []}, {"teacher": "曾美芝", "subject": "數學", "rooms": []}],
+        "7": [{"teacher": "張秀玫", "subject": "自主學習", "rooms": []}]
+      },
+      "星期四": {
+        "1": [{"teacher": "呂宜霖", "subject": "學習回饋", "rooms": []}],
+        "2": [{"teacher": "張秀玫", "subject": "國語文", "rooms": []}],
+        "3": [{"teacher": "羅雅苓", "subject": "英語文", "rooms": []}, {"teacher": "鄒湘平", "subject": "英語文", "rooms": []}],
+        "4": [{"teacher": "江霂歖", "subject": "體育", "rooms": []}],
+        "5": [{"teacher": "唐祥程", "subject": "AI", "rooms": []}, {"teacher": "陳昱澐", "subject": "AI", "rooms": []}],
+        "6": [{"teacher": "唐祥程", "subject": "AI", "rooms": []}, {"teacher": "陳昱澐", "subject": "AI", "rooms": []}],
+        "7": [{"teacher": "唐祥程", "subject": "AI", "rooms": []}, {"teacher": "陳昱澐", "subject": "AI", "rooms": []}]
+      },
+      "星期五": {
+        "1": [{"teacher": "張秀玫", "subject": "自主學習", "rooms": []}],
+        "2": [{"teacher": "張秀玫", "subject": "國語文", "rooms": []}],
+        "3": [{"teacher": "李牧", "subject": "數學", "rooms": []}, {"teacher": "曾美芝", "subject": "數學", "rooms": []}],
+        "4": [{"teacher": "李牧", "subject": "數學", "rooms": []}, {"teacher": "曾美芝", "subject": "數學", "rooms": []}],
+        "5": [{"teacher": "聯合報", "subject": "國寫思辨", "rooms": []}, {"teacher": "名敦", "subject": "國寫思辨", "rooms": []}],
+        "6": [{"teacher": "聯合報", "subject": "國寫思辨", "rooms": []}, {"teacher": "名敦", "subject": "國寫思辨", "rooms": []}],
+        "7": [{"teacher": "聯合報", "subject": "國寫思辨", "rooms": []}, {"teacher": "名敦", "subject": "國寫思辨", "rooms": []}]
+      }
+    },
+    "高二理組": {
+      "星期一": {
+        "1": [{"teacher": "邱千芸", "subject": "學習回饋", "rooms": []}],
+        "2": [{"teacher": "張秀玫", "subject": "國語文", "rooms": []}],
+        "3": [{"teacher": "鄒湘平", "subject": "英語文", "rooms": []}, {"teacher": "莊旭惠", "subject": "英語文", "rooms": []}],
+        "4": [{"teacher": "鄒湘平", "subject": "英語文", "rooms": []}, {"teacher": "莊旭惠", "subject": "英語文", "rooms": []}],
+        "5": [{"teacher": "蔡佳玲", "subject": "物理", "rooms": []}],
+        "6": [{"teacher": "蔡佳玲", "subject": "物理", "rooms": []}],
+        "7": [{"teacher": "蔡佳玲", "subject": "物理", "rooms": []}]
+      },
+      "星期二": {
+        "1": [{"teacher": "呂宜霖", "subject": "學習回饋", "rooms": []}],
+        "2": [{"teacher": "張秀玫", "subject": "國語文", "rooms": []}],
+        "3": [{"teacher": "鄒湘平", "subject": "英語文", "rooms": []}, {"teacher": "莊旭惠", "subject": "英語文", "rooms": []}],
+        "4": [{"teacher": "江霂歖", "subject": "體育", "rooms": []}],
+        "5": [{"teacher": "王世宗", "subject": "生物", "rooms": []}],
+        "6": [{"teacher": "王世宗", "subject": "生物", "rooms": []}],
+        "7": [{"teacher": "王妤文", "subject": "學習回饋", "rooms": []}]
+      },
+      "星期三": {
+        "1": [{"teacher": "張秀玫", "subject": "國語文", "rooms": []}],
+        "2": [{"teacher": "曾美芝", "subject": "自主學習", "rooms": []}],
+        "3": [{"teacher": "李牧", "subject": "數學", "rooms": []}],
+        "4": [{"teacher": "李牧", "subject": "數學", "rooms": []}],
+        "5": [{"teacher": "蔡玉良", "subject": "地球科學", "rooms": []}],
+        "6": [{"teacher": "蔡玉良", "subject": "地球科學", "rooms": []}],
+        "7": [{"teacher": "王世宗", "subject": "生物", "rooms": []}]
+      },
+      "星期四": {
+        "1": [{"teacher": "張秀玫", "subject": "國語文", "rooms": []}],
+        "2": [{"teacher": "曾美芝", "subject": "自主學習", "rooms": []}],
+        "3": [{"teacher": "蔡玉良", "subject": "地球科學", "rooms": []}],
+        "4": [{"teacher": "王妤文", "subject": "學習回饋", "rooms": []}],
+        "5": [{"teacher": "楊志元", "subject": "化學", "rooms": []}],
+        "6": [{"teacher": "楊志元", "subject": "化學", "rooms": []}],
+        "7": [{"teacher": "楊志元", "subject": "化學", "rooms": []}]
+      },
+      "星期五": {
+        "1": [{"teacher": "曾美芝", "subject": "導師時間", "rooms": []}],
+        "2": [{"teacher": "鄒湘平", "subject": "英語文", "rooms": []}, {"teacher": "莊旭惠", "subject": "英語文", "rooms": []}],
+        "3": [{"teacher": "王妤文", "subject": "學習回饋", "rooms": []}],
+        "4": [{"teacher": "江霂歖", "subject": "體育", "rooms": []}],
+        "5": [{"teacher": "李牧", "subject": "數學", "rooms": []}],
+        "6": [{"teacher": "李牧", "subject": "數學", "rooms": []}],
+        "7": [{"teacher": "曾美芝", "subject": "自主學習", "rooms": []}]
+      }
+    },
+    "高二文組": {
+      "星期一": {
+        "1": [{"teacher": "邱千芸", "subject": "學習回饋", "rooms": []}],
+        "2": [{"teacher": "張秀玫", "subject": "國語文", "rooms": []}],
+        "3": [{"teacher": "鄒湘平", "subject": "英語文", "rooms": []}, {"teacher": "莊旭惠", "subject": "英語文", "rooms": []}],
+        "4": [{"teacher": "鄒湘平", "subject": "英語文", "rooms": []}, {"teacher": "莊旭惠", "subject": "英語文", "rooms": []}],
+        "5": [{"teacher": "陳瑋筠", "subject": "歷史", "rooms": []}],
+        "6": [{"teacher": "陳瑋筠", "subject": "歷史", "rooms": []}],
+        "7": [{"teacher": "陳瑋筠", "subject": "歷史", "rooms": []}]
+      },
+      "星期二": {
+        "1": [{"teacher": "呂宜霖", "subject": "學習回饋", "rooms": []}],
+        "2": [{"teacher": "張秀玫", "subject": "國語文", "rooms": []}],
+        "3": [{"teacher": "鄒湘平", "subject": "英語文", "rooms": []}, {"teacher": "莊旭惠", "subject": "英語文", "rooms": []}],
+        "4": [{"teacher": "江霂歖", "subject": "體育", "rooms": []}],
+        "5": [{"teacher": "何文達", "subject": "地理", "rooms": []}],
+        "6": [{"teacher": "何文達", "subject": "地理", "rooms": []}],
+        "7": [{"teacher": "王妤文", "subject": "學習回饋", "rooms": []}]
+      },
+      "星期三": {
+        "1": [{"teacher": "張秀玫", "subject": "國語文", "rooms": []}],
+        "2": [{"teacher": "曾美芝", "subject": "自主學習", "rooms": []}],
+        "3": [{"teacher": "曾美芝", "subject": "數學", "rooms": []}],
+        "4": [{"teacher": "曾美芝", "subject": "數學", "rooms": []}],
+        "5": [{"teacher": "何文達", "subject": "地理", "rooms": []}],
+        "6": [{"teacher": "何文達", "subject": "地理", "rooms": []}],
+        "7": [{"teacher": "何文達", "subject": "地理", "rooms": []}]
+      },
+      "星期四": {
+        "1": [{"teacher": "張秀玫", "subject": "國語文", "rooms": []}],
+        "2": [{"teacher": "曾美芝", "subject": "自主學習", "rooms": []}],
+        "3": [{"teacher": "陳瑋筠", "subject": "歷史", "rooms": []}],
+        "4": [{"teacher": "王妤文", "subject": "學習回饋", "rooms": []}],
+        "5": [{"teacher": "陳瑋筠", "subject": "公民與社會", "rooms": []}],
+        "6": [{"teacher": "陳瑋筠", "subject": "公民與社會", "rooms": []}],
+        "7": [{"teacher": "陳瑋筠", "subject": "公民與社會", "rooms": []}]
+      },
+      "星期五": {
+        "1": [{"teacher": "曾美芝", "subject": "導師時間", "rooms": []}],
+        "2": [{"teacher": "鄒湘平", "subject": "英語文", "rooms": []}, {"teacher": "莊旭惠", "subject": "英語文", "rooms": []}],
+        "3": [{"teacher": "王妤文", "subject": "學習回饋", "rooms": []}],
+        "4": [{"teacher": "江霂歖", "subject": "體育", "rooms": []}],
+        "5": [{"teacher": "曾美芝", "subject": "數學", "rooms": []}],
+        "6": [{"teacher": "曾美芝", "subject": "數學", "rooms": []}],
+        "7": [{"teacher": "曾美芝", "subject": "自主學習", "rooms": []}]
+      }
+    },
+    "高三理組": {
+      "星期一": {
+        "1": [{"teacher": "劉玉華", "subject": "國語文", "rooms": []}],
+        "2": [{"teacher": "王世宗", "subject": "生物", "rooms": []}],
+        "3": [{"teacher": "蔡玉良", "subject": "物理", "rooms": []}],
+        "4": [{"teacher": "蔡玉良", "subject": "物理", "rooms": []}],
+        "5": [{"teacher": "之宇", "subject": "英語文", "rooms": []}],
+        "6": [{"teacher": "之宇", "subject": "英語文", "rooms": []}],
+        "7": [{"teacher": "之宇", "subject": "英語文", "rooms": []}]
+      },
+      "星期二": {
+        "1": [{"teacher": "劉玉華", "subject": "學習回饋", "rooms": []}],
+        "2": [{"teacher": "王世宗", "subject": "生物", "rooms": []}],
+        "3": [{"teacher": "蔡玉良", "subject": "物理", "rooms": []}],
+        "4": [{"teacher": "蔡玉良", "subject": "物理", "rooms": []}],
+        "5": [{"teacher": "蔡玉良", "subject": "地球科學", "rooms": []}],
+        "6": [{"teacher": "蔡玉良", "subject": "地球科學", "rooms": []}],
+        "7": [{"teacher": "王世宗", "subject": "生物", "rooms": []}]
+      },
+      "星期三": {
+        "1": [{"teacher": "劉玉華", "subject": "國語文", "rooms": []}],
+        "2": [{"teacher": "楊志元", "subject": "化學", "rooms": []}],
+        "3": [{"teacher": "楊志元", "subject": "化學", "rooms": []}],
+        "4": [{"teacher": "蔡玉良", "subject": "地球科學", "rooms": []}],
+        "5": [{"teacher": "之宇", "subject": "英語文", "rooms": []}],
+        "6": [{"teacher": "之宇", "subject": "英語文", "rooms": []}],
+        "7": [{"teacher": "之宇", "subject": "英語文", "rooms": []}]
+      },
+      "星期四": {
+        "1": [{"teacher": "劉玉華", "subject": "國語文", "rooms": []}],
+        "2": [{"teacher": "楊志元", "subject": "化學", "rooms": []}],
+        "3": [{"teacher": "楊志元", "subject": "化學", "rooms": []}],
+        "4": [{"teacher": "蔡玉良", "subject": "地球科學", "rooms": []}],
+        "5": [{"teacher": "蘇試", "subject": "數學甲", "rooms": []}],
+        "6": [{"teacher": "蘇試", "subject": "數學甲", "rooms": []}],
+        "7": [{"teacher": "蘇試", "subject": "數學甲", "rooms": []}]
+      },
+      "星期五": {
+        "1": [{"teacher": "劉玉華", "subject": "導師時間", "rooms": []}],
+        "2": [{"teacher": "王妤文", "subject": "學習回饋", "rooms": []}],
+        "3": [{"teacher": "江霂歖", "subject": "體育", "rooms": []}],
+        "4": [{"teacher": "劉玉華", "subject": "國語文", "rooms": []}],
+        "5": [{"teacher": "蘇試", "subject": "數學甲", "rooms": []}],
+        "6": [{"teacher": "蘇試", "subject": "數學甲", "rooms": []}],
+        "7": [{"teacher": "蘇試", "subject": "數學甲", "rooms": []}]
+      }
+    },
+    "高三文組": {
+      "星期一": {
+        "1": [{"teacher": "劉玉華", "subject": "國語文", "rooms": []}],
+        "2": [{"teacher": "林全", "subject": "地理", "rooms": []}],
+        "3": [{"teacher": "林全", "subject": "地理", "rooms": []}],
+        "4": [{"teacher": "林全", "subject": "地理", "rooms": []}],
+        "5": [{"teacher": "之宇", "subject": "英語文", "rooms": []}],
+        "6": [{"teacher": "之宇", "subject": "英語文", "rooms": []}],
+        "7": [{"teacher": "之宇", "subject": "英語文", "rooms": []}]
+      },
+      "星期二": {
+        "1": [{"teacher": "劉玉華", "subject": "學習回饋", "rooms": []}],
+        "2": [{"teacher": "趙明", "subject": "公民與社會", "rooms": []}],
+        "3": [{"teacher": "趙明", "subject": "公民與社會", "rooms": []}],
+        "4": [{"teacher": "趙明", "subject": "公民與社會", "rooms": []}],
+        "5": [{"teacher": "李偉", "subject": "歷史", "rooms": []}],
+        "6": [{"teacher": "李偉", "subject": "歷史", "rooms": []}],
+        "7": [{"teacher": "李偉", "subject": "歷史", "rooms": []}]
+      },
+      "星期三": {
+        "1": [{"teacher": "劉玉華", "subject": "國語文", "rooms": []}],
+        "2": [{"teacher": "李偉", "subject": "歷史", "rooms": []}],
+        "3": [{"teacher": "李偉", "subject": "歷史", "rooms": []}],
+        "4": [{"teacher": "李偉", "subject": "歷史", "rooms": []}],
+        "5": [{"teacher": "之宇", "subject": "英語文", "rooms": []}],
+        "6": [{"teacher": "之宇", "subject": "英語文", "rooms": []}],
+        "7": [{"teacher": "之宇", "subject": "英語文", "rooms": []}]
+      },
+      "星期四": {
+        "1": [{"teacher": "劉玉華", "subject": "國語文", "rooms": []}],
+        "2": [{"teacher": "林全", "subject": "地理", "rooms": []}],
+        "3": [{"teacher": "林全", "subject": "地理", "rooms": []}],
+        "4": [{"teacher": "林全", "subject": "地理", "rooms": []}],
+        "5": [{"teacher": "王志遠", "subject": "數學乙", "rooms": []}],
+        "6": [{"teacher": "王志遠", "subject": "數學乙", "rooms": []}],
+        "7": [{"teacher": "王志遠", "subject": "數學乙", "rooms": []}]
+      },
+      "星期五": {
+        "1": [{"teacher": "劉玉華", "subject": "導師時間", "rooms": []}],
+        "2": [{"teacher": "王妤文", "subject": "學習回饋", "rooms": []}],
+        "3": [{"teacher": "江霂歖", "subject": "體育", "rooms": []}],
+        "4": [{"teacher": "劉玉華", "subject": "國語文", "rooms": []}],
+        "5": [{"teacher": "王志遠", "subject": "數學乙", "rooms": []}],
+        "6": [{"teacher": "王志遠", "subject": "數學乙", "rooms": []}],
+        "7": [{"teacher": "王志遠", "subject": "數學乙", "rooms": []}]
+      }
+    }
+  },
+  "roomSchedule": {},
+  "rooms": [],
+  "issues": [],
+  "meta": {
+    "note": "114學年度暑期輔導課程表 (115.07.01 ~ 115.07.28)",
+    "generatedFrom": ["暑輔教師課表0603.pdf", "暑輔班級課表0603.pdf"],
+    "finalVersion": "v1-summer"
+  }
+};
+
 const BRIDGING_DATA = (function() {
     if (typeof DATA === 'undefined') return null;
     const data = JSON.parse(JSON.stringify(DATA));
@@ -2084,3 +3351,252 @@ const BRIDGING_DATA = (function() {
     data.meta.note = "已更新最新調課進度 (新高一週一、三、四；新七A週一)";
     return data;
 })();
+
+// 期末考學期課表資料過濾 (6/26, 6/29, 6/30) - 移除畢業班級 (國九A/B, 高三理/文)
+const FINAL_EXAM_DATA = (function() {
+    if (typeof DATA === 'undefined') return null;
+    const data = JSON.parse(JSON.stringify(DATA));
+    const graduatingClasses = ["國九A", "國九B", "高三理組", "高三文組"];
+    
+    // 1. 清除畢業班級
+    data.classes = data.classes.filter(c => !graduatingClasses.includes(c));
+    
+    // 2. 清除畢業班在所有課表的紀錄，釋放時段
+    graduatingClasses.forEach(c => delete data.classSchedule[c]);
+    ['teacherSchedule', 'roomSchedule'].forEach(scheduleType => {
+        if (!data[scheduleType]) return;
+        for (let entity in data[scheduleType]) {
+            for (let day in data[scheduleType][entity]) {
+                for (let period in data[scheduleType][entity][day]) {
+                    data[scheduleType][entity][day][period] = data[scheduleType][entity][day][period]
+                        .map(lesson => {
+                            if (lesson.classes) {
+                                lesson.classes = lesson.classes.filter(c => !graduatingClasses.includes(c));
+                            }
+                            if (lesson.rawClass && graduatingClasses.includes(lesson.rawClass)) {
+                                lesson._remove = true;
+                            }
+                            return lesson;
+                        })
+                        .filter(lesson => !lesson._remove && (lesson.classes ? lesson.classes.length > 0 : true));
+                    
+                    if (data[scheduleType][entity][day][period].length === 0) {
+                        delete data[scheduleType][entity][day][period];
+                    }
+                }
+            }
+        }
+    });
+    
+    if (data.meta) {
+        data.meta.note = "期末考期間已過濾畢業班級";
+    }
+    return data;
+})();
+
+// 套用各項教室指派規則並動態同步/生成各資料集的 roomSchedule 與 rooms 列表
+function applyRoomRules(targetData) {
+    if (!targetData) return;
+    
+    // 依教師與科目獲取教室名稱
+    function getOverrideRoom(className, day, period, teacher, subject) {
+        if (teacher && teacher.includes("Chad")) {
+            return ["3F 多功能 e 化教室 (VR Room)"];
+        }
+        if (teacher && teacher.includes("Roja")) {
+            return ["4F 分組教室(二)"];
+        }
+        if (teacher && teacher.includes("Gina")) {
+            return ["4F 美術教室"];
+        }
+        if (teacher && teacher.includes("李牧") && className && className.includes("高二理組")) {
+            return ["5F 自主學習教室(一)"];
+        }
+        if (teacher && teacher.includes("李牧") && className && className.includes("高一")) {
+            return ["5F 自主學習教室(二)"];
+        }
+        if (className === "高一" && day === "星期四" && (period === "5" || period === "6" || period === "7") && subject && subject.includes("AI")) {
+            return ["6F 電腦教室"];
+        }
+        return null;
+    }
+    
+    // 1. 套用基本教室規則
+    for (let className in targetData.classSchedule) {
+        for (let day in targetData.classSchedule[className]) {
+            for (let period in targetData.classSchedule[className][day]) {
+                const lessons = targetData.classSchedule[className][day][period];
+                lessons.forEach(l => {
+                    const override = getOverrideRoom(className, day, period, l.teacher, l.subject);
+                    if (override) {
+                        l.rooms = override;
+                    }
+                });
+            }
+        }
+    }
+    
+    // 2. 套用英文分組課有一組在 5F 視聽教室的規則
+    for (let className in targetData.classSchedule) {
+        for (let day in targetData.classSchedule[className]) {
+            for (let period in targetData.classSchedule[className][day]) {
+                const lessons = targetData.classSchedule[className][day][period];
+                const engLessons = lessons.filter(l => l.subject && (l.subject.includes("英語文") || l.subject.includes("ESL") || l.subject.includes("英文")));
+                if (engLessons.length > 1) {
+                    for (const t of ["莊旭惠", "鄒湘平", "羅雅苓"]) {
+                        const target = engLessons.find(l => l.teacher && l.teacher.includes(t));
+                        if (target) {
+                            target.rooms = ["5F 視聽教室"];
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    // 3. 同步至 teacherSchedule (先清除再重填以保持雙向一致)
+    for (let teacher in targetData.teacherSchedule) {
+        for (let day in targetData.teacherSchedule[teacher]) {
+            for (let period in targetData.teacherSchedule[teacher][day]) {
+                const lessons = targetData.teacherSchedule[teacher][day][period];
+                lessons.forEach(l => { l.rooms = []; });
+            }
+        }
+    }
+    
+    for (let className in targetData.classSchedule) {
+        for (let day in targetData.classSchedule[className]) {
+            for (let period in targetData.classSchedule[className][day]) {
+                const classLessons = targetData.classSchedule[className][day][period];
+                classLessons.forEach(cl => {
+                    if (!cl.rooms || cl.rooms.length === 0) return;
+                    
+                    const teachers = cl.teacher.split("/").map(t => t.trim());
+                    teachers.forEach(tName => {
+                        if (targetData.teacherSchedule[tName] && 
+                            targetData.teacherSchedule[tName][day] && 
+                            targetData.teacherSchedule[tName][day][period]) {
+                            
+                            const teacherLessons = targetData.teacherSchedule[tName][day][period];
+                            teacherLessons.forEach(tl => {
+                                if (tl.classes && tl.classes.includes(className)) {
+                                    tl.rooms = cl.rooms;
+                                }
+                            });
+                        }
+                    });
+                });
+            }
+        }
+    }
+    
+    // 4. 重建 roomSchedule 與 rooms 清單
+    targetData.roomSchedule = {};
+    const uniqueRooms = new Set();
+    
+    for (let className in targetData.classSchedule) {
+        for (let day in targetData.classSchedule[className]) {
+            for (let period in targetData.classSchedule[className][day]) {
+                const lessons = targetData.classSchedule[className][day][period];
+                lessons.forEach(l => {
+                    if (!l.rooms || l.rooms.length === 0) return;
+                    
+                    l.rooms.forEach(roomName => {
+                        uniqueRooms.add(roomName);
+                        
+                        if (!targetData.roomSchedule[roomName]) {
+                            targetData.roomSchedule[roomName] = {};
+                        }
+                        if (!targetData.roomSchedule[roomName][day]) {
+                            targetData.roomSchedule[roomName][day] = {};
+                        }
+                        if (!targetData.roomSchedule[roomName][day][period]) {
+                            targetData.roomSchedule[roomName][day][period] = [];
+                        }
+                        
+                        const exists = targetData.roomSchedule[roomName][day][period].some(
+                            r => r.rawClass === className || (r.classes && r.classes.includes(className))
+                        );
+                        if (!exists) {
+                            targetData.roomSchedule[roomName][day][period].push({
+                                subject: l.subject,
+                                teacher: l.teacher,
+                                rawClass: className,
+                                classes: [className]
+                            });
+                        }
+                    });
+                });
+            }
+        }
+    }
+    
+    // 合併原 DATA 存在的教室（適用於學期相關課表）
+    if (targetData !== SUMMER_DATA && typeof DATA !== 'undefined' && DATA.rooms) {
+        DATA.rooms.forEach(r => uniqueRooms.add(r));
+    }
+    
+    targetData.rooms = Array.from(uniqueRooms).sort();
+}
+
+// 重新根據 classSchedule 建立暑輔的 teacherSchedule，以補齊 classes 名單並去除重複或格式錯誤的課程
+function rebuildSummerTeacherSchedule() {
+    if (typeof SUMMER_DATA === 'undefined' || !SUMMER_DATA.classSchedule) return;
+    
+    const newTeacherSchedule = {};
+    
+    if (SUMMER_DATA.teachers) {
+        SUMMER_DATA.teachers.forEach(tName => {
+            newTeacherSchedule[tName] = {};
+        });
+    }
+    
+    for (let className in SUMMER_DATA.classSchedule) {
+        for (let day in SUMMER_DATA.classSchedule[className]) {
+            for (let period in SUMMER_DATA.classSchedule[className][day]) {
+                const lessons = SUMMER_DATA.classSchedule[className][day][period];
+                lessons.forEach(l => {
+                    if (!l.teacher) return;
+                    
+                    const teachers = l.teacher.split("/").map(t => t.trim());
+                    teachers.forEach(tName => {
+                        if (!newTeacherSchedule[tName]) {
+                            newTeacherSchedule[tName] = {};
+                        }
+                        if (!newTeacherSchedule[tName][day]) {
+                            newTeacherSchedule[tName][day] = {};
+                        }
+                        if (!newTeacherSchedule[tName][day][period]) {
+                            newTeacherSchedule[tName][day][period] = [];
+                        }
+                        
+                        let existing = newTeacherSchedule[tName][day][period].find(el => el.subject === l.subject);
+                        if (!existing) {
+                            existing = {
+                                subject: l.subject,
+                                classes: [],
+                                rooms: l.rooms || []
+                            };
+                            newTeacherSchedule[tName][day][period].push(existing);
+                        }
+                        
+                        if (!existing.classes.includes(className)) {
+                            existing.classes.push(className);
+                        }
+                    });
+                });
+            }
+        }
+    }
+    
+    SUMMER_DATA.teacherSchedule = newTeacherSchedule;
+}
+
+// 執行暑輔教師課表重構（補齊班級名單與修正格式）
+rebuildSummerTeacherSchedule();
+
+// 執行各資料集教室邏輯重構
+applyRoomRules(SUMMER_DATA);
+if (typeof BRIDGING_DATA !== 'undefined' && BRIDGING_DATA) applyRoomRules(BRIDGING_DATA);
+if (typeof FINAL_EXAM_DATA !== 'undefined' && FINAL_EXAM_DATA) applyRoomRules(FINAL_EXAM_DATA);
