@@ -1,0 +1,2555 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>輔大聖心高中 - 114學年度期末課程評鑑分析儀表板</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="data.js"></script>
+    
+    <style>
+        :root {
+            --bg-primary: #0b0f19;
+            --bg-secondary: #111827;
+            --card-bg: rgba(30, 41, 59, 0.65);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-indigo: #6366f1;
+            --accent-teal: #14b8a6;
+            --accent-coral: #f43f5e;
+            
+            --score-very-agree: #10b981;
+            --score-agree: #34d399;
+            --score-neutral: #fbbf24;
+            --score-disagree: #f87171;
+            --score-very-disagree: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background: radial-gradient(circle at top right, #1e1b4b 0%, #0b0f19 60%, #020617 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .glowing-bg {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+            top: 10%;
+            left: 5%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .glowing-bg-2 {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(20, 184, 166, 0.1) 0%, rgba(0, 0, 0, 0) 70%);
+            bottom: 10%;
+            right: 5%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        header {
+            position: relative;
+            z-index: 10;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2.5rem 2rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .logo-section h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            color: #ffffff;
+        }
+        .logo-emoji {
+            background: none !important;
+            -webkit-background-clip: initial !important;
+            -webkit-text-fill-color: initial !important;
+            -moz-background-clip: initial !important;
+            -moz-text-fill-color: initial !important;
+            text-shadow: none !important;
+            display: inline-block;
+        }
+        .logo-text {
+            background: linear-gradient(135deg, #a5b4fc, #6366f1, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-section p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+            font-weight: 500;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 0.4rem;
+            border-radius: 9999px;
+            border: 1px solid var(--card-border);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.6rem 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 700;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        main {
+            position: relative;
+            z-index: 10;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* ===== AI 主標題與前言區 ===== */
+        .ai-main-header {
+            margin-bottom: 2rem;
+            padding: 1.5rem 1.8rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(15, 23, 42, 0.25);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .ai-main-header h1 {
+            font-size: 1.6rem;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #a5b4fc, #818cf8, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.4;
+            margin-bottom: 0.8rem;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .ai-main-header p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 0;
+        }
+
+        /* ===== AI 子摺疊面板 (Sub-Accordion) ===== */
+        .ai-sub-accordion {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .ai-sub-accordion-item {
+            background: rgba(15, 23, 42, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .ai-sub-accordion-item:hover {
+            background: rgba(15, 23, 42, 0.45);
+            border-color: rgba(99, 102, 241, 0.25);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        .ai-sub-accordion-item.open {
+            background: rgba(15, 23, 42, 0.55);
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.04);
+        }
+        .ai-sub-accordion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.1rem 1.6rem;
+            cursor: pointer;
+            user-select: none;
+            background: rgba(255, 255, 255, 0.01);
+            transition: background 0.2s;
+        }
+        .ai-sub-accordion-header:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .ai-sub-accordion-item.open .ai-sub-accordion-header {
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+        }
+        .ai-sub-accordion-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .ai-sub-accordion-icon {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .ai-sub-accordion-item.open .ai-sub-accordion-icon {
+            transform: rotate(180deg);
+            color: var(--accent-indigo);
+        }
+        .ai-sub-accordion-body-wrapper {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .ai-sub-accordion-item.open .ai-sub-accordion-body-wrapper {
+            grid-template-rows: 1fr;
+        }
+        .ai-sub-accordion-body {
+            overflow: hidden;
+        }
+        .ai-sub-accordion-inner {
+            padding: 1.5rem 1.8rem;
+            font-size: 0.98rem;
+            line-height: 1.8;
+            color: #d1d5db;
+        }
+        .ai-sub-accordion-inner p {
+            margin-bottom: 1rem;
+        }
+        .ai-sub-accordion-inner p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* ===== 質性反饋對白卡片 (Quote Chips) ===== */
+        .quote-chip {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #e5e7eb;
+            padding: 0.12rem 0.55rem;
+            border-radius: 6px;
+            font-weight: 700;
+            display: inline-block;
+            margin: 0.15rem 0.2rem;
+            font-size: 0.9em;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            transition: all 0.2s;
+        }
+        .quote-chip:hover {
+            transform: translateY(-1px);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+        }
+        .alert-tip .quote-chip {
+            background: rgba(16, 185, 129, 0.08);
+            border-color: rgba(16, 185, 129, 0.25);
+            color: #34d399;
+            box-shadow: 0 2px 6px rgba(16, 185, 129, 0.05);
+        }
+        .alert-tip .quote-chip:hover {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.4);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+        }
+        .alert-important .quote-chip, .alert-warning .quote-chip, .alert-caution .quote-chip {
+            background: rgba(239, 68, 68, 0.08);
+            border-color: rgba(239, 68, 68, 0.25);
+            color: #fca5a5;
+        }
+        .alert-important .quote-chip:hover, .alert-warning .quote-chip:hover, .alert-caution .quote-chip:hover {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
+        .controls-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            padding: 1.5rem 2rem;
+            border-radius: 20px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-group label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .custom-select {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 0.8rem 2.5rem 0.8rem 1.2rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 12px;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1rem;
+            min-width: 200px;
+        }
+
+        .custom-select:focus {
+            border-color: var(--accent-indigo);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .custom-select:disabled {
+            background: rgba(15, 23, 42, 0.3);
+            color: rgba(255,255,255,0.2);
+            cursor: not-allowed;
+            border-color: rgba(255,255,255,0.02);
+            background-image: none;
+        }
+
+        /* 信度分析提醒卡片 */
+        .reliability-card {
+            background: rgba(244, 63, 94, 0.05);
+            border: 1px solid rgba(244, 63, 94, 0.15);
+            padding: 1.2rem 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            font-size: 0.92rem;
+            color: #fda4af;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            box-shadow: 0 5px 15px rgba(244, 63, 94, 0.05);
+        }
+
+        .reliability-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+        }
+
+        .toggle-btn {
+            background: transparent;
+            border: none;
+            color: #fda4af;
+            cursor: pointer;
+            font-size: 0.85rem;
+            text-decoration: underline;
+            font-weight: 700;
+        }
+
+        .reliability-details {
+            display: none;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            border: 1px solid rgba(244, 63, 94, 0.1);
+        }
+
+        .reliability-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;  /* 縮小字體 */
+            color: var(--text-main);
+            table-layout: fixed;  /* 固定列寬防溢出 */
+        }
+
+        .reliability-table th {
+            text-align: left;
+            padding: 0.35rem 0.4rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: #fca5a5;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .reliability-table td {
+            padding: 0.3rem 0.4rem;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        /* 判定原因欄允許換行 */
+        .reliability-table td:last-child {
+            white-space: normal;
+            word-break: break-all;
+            font-size: 0.7rem;
+            color: #fca5a5;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stats-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(99, 102, 241, 0.1);
+        }
+
+        .card-header {
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .score-circle-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 0;
+        }
+
+        .score-big-num {
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #60a5fa, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-family: 'Outfit', sans-serif;
+            line-height: 1;
+        }
+
+        .score-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .badge-pill {
+            background: rgba(99, 102, 241, 0.15);
+            color: #a5b4fc;
+            padding: 0.3rem 0.8rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .metadata-list {
+            margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .metadata-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+        }
+
+        .metadata-item span:first-child {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .metadata-item span:last-child {
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .dimensions-box {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            margin-top: 1rem;
+        }
+        .dimension-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            padding: 0.4rem;
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+        .dimension-row.highlight {
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        /* 質性留言板 */
+        .qa-section {
+            margin-top: 2rem;
+        }
+
+        .qa-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.2rem;
+        }
+
+        /* 緊湊捲動容器 */
+        .qa-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            max-height: 480px;
+            overflow-y: auto;
+            padding-right: 0.4rem;
+        }
+
+        .qa-container::-webkit-scrollbar, .ai-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        .qa-container::-webkit-scrollbar-track, .ai-container::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.2);
+            border-radius: 10px;
+        }
+        .qa-container::-webkit-scrollbar-thumb, .ai-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+        }
+        .qa-container::-webkit-scrollbar-thumb:hover, .ai-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        /* 緊湊行內留言條目 */
+        .compact-note {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            padding: 0.45rem 0.6rem;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            font-size: 0.88rem;
+            line-height: 1.5;
+            color: #d1d5db;
+            transition: background 0.2s;
+            border-radius: 6px;
+        }
+        .compact-note:hover {
+            background: rgba(99, 102, 241, 0.06);
+        }
+        .compact-note .note-bullet {
+            flex-shrink: 0;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-top: 0.45rem;
+            opacity: 0.8;
+        }
+        .compact-note.harvest .note-bullet { background: var(--accent-teal); }
+        .compact-note.teacher .note-bullet { background: var(--accent-purple); }
+        .compact-note.school .note-bullet { background: #f59e0b; }
+        .compact-note .note-text {
+            flex: 1;
+            word-break: break-all;
+        }
+        /* 長回覆稍微縮小字體 */
+        .compact-note.long-msg .note-text {
+            font-size: 0.82rem;
+            color: #9ca3af;
+        }
+
+        /* 舊有 sticky-note 保留不刪，做相容 */
+        .sticky-note {
+            background: rgba(30, 41, 59, 0.4);
+            border-left: 4px solid var(--accent-indigo);
+            padding: 0.7rem 1rem;
+            border-radius: 10px;
+            transition: all 0.25s;
+            color: var(--text-main);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .sticky-note:hover {
+            background: rgba(30, 41, 59, 0.6);
+            transform: translateX(3px);
+        }
+        .sticky-note.harvest { border-left-color: var(--accent-teal); }
+        .sticky-note.teacher { border-left-color: var(--accent-purple); }
+        .sticky-note.school { border-left-color: #f59e0b; }
+
+        .no-feedback {
+            color: var(--text-muted);
+            font-style: italic;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        /* ===== 升級版文字雲 ===== */
+        .word-cloud-container {
+            position: relative;
+            background: linear-gradient(135deg, rgba(15,23,42,0.7) 0%, rgba(30,41,59,0.5) 100%);
+            border: 1px solid rgba(99,102,241,0.12);
+            border-radius: 20px;
+            padding: 1.8rem 1.5rem 1.4rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-content: center;
+            gap: 0.7rem 1rem;
+            min-height: 110px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 8px 20px rgba(0,0,0,0.15);
+        }
+        .word-cloud-container::before {
+            content: '🏷 關鍵詞頻雲';
+            position: absolute;
+            top: -0.7rem;
+            left: 1.2rem;
+            background: rgba(99,102,241,0.18);
+            color: #a5b4fc;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            padding: 0.15rem 0.7rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(99,102,241,0.25);
+        }
+
+        .cloud-tag {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.28rem 0.7rem 0.28rem 0.55rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            cursor: default;
+            transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            white-space: nowrap;
+        }
+        /* 高頻次徽章 */
+        .cloud-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 1.3em;
+            height: 1.3em;
+            border-radius: 9999px;
+            font-size: 0.65em;
+            font-weight: 900;
+            background: currentColor;
+            color: #000 !important;
+            opacity: 0.9;
+            padding: 0 0.3em;
+        }
+
+        .cloud-tag:hover {
+            transform: scale(1.12);
+            filter: brightness(1.2);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+            z-index: 10;
+        }
+        /* 高頻詞（出現 3+）加發光邊框 */
+        .cloud-tag.high-freq {
+            box-shadow: 0 0 10px -2px currentColor;
+            border-width: 1.5px;
+        }
+
+        /* AI 報告排版 */
+        .ai-report-body {
+            font-size: 1.05rem;
+            color: #d1d5db;
+        }
+
+        .ai-report-body h1 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #a5b4fc, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            border-bottom: 2px solid rgba(129, 140, 248, 0.2);
+            padding-bottom: 0.5rem;
+            font-weight: 800;
+        }
+
+        .ai-report-body h2 {
+            font-size: 1.4rem;
+            color: #ffffff;
+            margin: 2rem 0 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+        }
+
+        .ai-report-body h2::before {
+            content: "✦";
+            color: var(--accent-indigo);
+        }
+
+        .ai-report-body h3 {
+            font-size: 1.15rem;
+            color: #f3f4f6;
+            margin: 1.2rem 0 0.8rem;
+            font-weight: 700;
+        }
+
+        .ai-report-body p {
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        .ai-report-body strong {
+            color: #fcd34d; /* 溫暖金黃色 */
+            font-weight: 800;
+            background: rgba(251, 191, 36, 0.08); /* 金色發光底紋 */
+            padding: 0.1rem 0.4rem;
+            border-radius: 6px;
+            border: 1px solid rgba(251, 191, 36, 0.15);
+        }
+
+        .ai-report-body ul, .ai-report-body ol {
+            margin: 0.8rem 0 1.2rem 1.8rem;
+            padding-left: 0;
+        }
+
+        .ai-report-body li {
+            margin-bottom: 0.55rem;
+            line-height: 1.8;
+            color: #d1d5db;
+        }
+
+        .ai-report-body li ul, .ai-report-body li ol {
+            margin: 0.5rem 0 0.5rem 1.5rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            font-size: 0.8rem;
+            font-weight: 800;
+            border-radius: 6px;
+            margin-left: 0.5rem;
+        }
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        .badge-success {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .badge-primary {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .highlight-blue {
+            background: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
+            padding: 0.1rem 0.3rem;
+            border-radius: 4px;
+            border-bottom: 2px solid #3b82f6;
+        }
+        .highlight-red {
+            background: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            padding: 0.1rem 0.3rem;
+            border-radius: 4px;
+            border-bottom: 2px solid #ef4444;
+        }
+
+        .ai-report-body blockquote {
+            background: rgba(30, 41, 59, 0.45);
+            backdrop-filter: blur(8px);
+            border-left: 6px solid var(--accent-indigo);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1.5rem 1.8rem;
+            border-radius: 0 20px 20px 0;
+            margin: 1.8rem 0;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), inset 0 0 20px rgba(255, 255, 255, 0.02);
+        }
+
+        /* 自訂 AI 報告警告與提示卡片樣式 */
+        .ai-alert {
+            margin: 1.8rem 0;
+            padding: 1.5rem 1.8rem;
+            border-radius: 16px;
+            border-left: 6px solid;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            border-right: 1px solid rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        .ai-alert-title {
+            font-weight: 900;
+            font-size: 1.1rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            letter-spacing: 0.5px;
+        }
+        .ai-alert-content {
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+        .ai-alert-content p {
+            margin-bottom: 0;
+        }
+        .ai-alert-content strong {
+            border: none;
+            background: transparent;
+            padding: 0;
+        }
+        
+        .alert-note {
+            background: rgba(59, 130, 246, 0.05);
+            border-color: #3b82f6;
+            color: #93c5fd;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.05);
+        }
+        .alert-note .ai-alert-title {
+            color: #60a5fa;
+        }
+        
+        .alert-tip {
+            background: rgba(16, 185, 129, 0.05);
+            border-color: #10b981;
+            color: #a7f3d0;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.05);
+        }
+        .alert-tip .ai-alert-title {
+            color: #34d399;
+        }
+        
+        .alert-important {
+            background: rgba(245, 158, 11, 0.05);
+            border-color: #f59e0b;
+            color: #fde047;
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.05);
+        }
+        .alert-important .ai-alert-title {
+            color: #fbbf24;
+        }
+        
+        .alert-warning {
+            background: rgba(239, 68, 68, 0.05);
+            border-color: #ef4444;
+            color: #fca5a5;
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.05);
+        }
+        .alert-warning .ai-alert-title {
+            color: #f87171;
+        }
+        
+        .alert-caution {
+            background: rgba(236, 72, 153, 0.05);
+            border-color: #ec4899;
+            color: #fbcfe8;
+            box-shadow: 0 10px 30px rgba(236, 72, 153, 0.05);
+        }
+        .alert-caution .ai-alert-title {
+            color: #f472b6;
+        }
+
+        .highlight-green {
+            background: rgba(16, 185, 129, 0.1);
+            color: #34d399;
+            padding: 0.1rem 0.3rem;
+            border-radius: 4px;
+            border-bottom: 2px solid #10b981;
+            font-weight: 700;
+        }
+        .highlight-purple {
+            background: rgba(139, 92, 246, 0.1);
+            color: #c084fc;
+            padding: 0.1rem 0.3rem;
+            border-radius: 4px;
+            border-bottom: 2px solid #8b5cf6;
+            font-weight: 700;
+        }
+
+        .ai-report-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+        }
+
+        .ai-report-body th {
+            background: rgba(79, 70, 229, 0.2);
+            color: #ffffff;
+            text-align: left;
+            padding: 0.9rem 1.2rem;
+            font-weight: 700;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .ai-report-body td {
+            padding: 0.9rem 1.2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.95rem;
+        }
+
+        /* ===== 無效問卷緊湊卡片排列 ===== */
+        .invalid-summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .invalid-stat-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-bottom: 1rem;
+        }
+        .invalid-class-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.25);
+            color: #fca5a5;
+            border-radius: 9999px;
+            padding: 0.18rem 0.65rem;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+        .invalid-student-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            border: 1px solid rgba(239,68,68,0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .invalid-row {
+            display: grid;
+            grid-template-columns: 3.5rem 5rem 3rem 3rem 3rem 1fr;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.35rem 0.8rem;
+            font-size: 0.78rem;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            transition: background 0.15s;
+        }
+        .invalid-row:last-child { border-bottom: none; }
+        .invalid-row:hover { background: rgba(239,68,68,0.04); }
+        .invalid-row.header-row {
+            background: rgba(239,68,68,0.08);
+            color: #fca5a5;
+            font-weight: 800;
+            font-size: 0.72rem;
+            letter-spacing: 0.5px;
+        }
+        .invalid-row .col-id   { color: #e2e8f0; font-weight: 700; }
+        .invalid-row .col-cls  {}
+        .invalid-row .col-pct  { text-align: center; color: #fbbf24; font-weight: 700; }
+        .invalid-row .col-lazy { text-align: center; color: #fb923c; font-weight: 700; }
+        .invalid-row .col-dup  { text-align: center; color: #f472b6; font-weight: 700; }
+        .invalid-row .col-reason { color: #9ca3af; font-size: 0.73rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* ===== AI 側邊子分頁 (分頁中的分頁) ===== */
+        .ai-subtabs-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .ai-sub-tabs {
+            display: flex;
+            flex-wrap: wrap; /* Wrap on small screens */
+            gap: 0.4rem;
+            padding: 0.3rem;
+            background: rgba(15, 23, 42, 0.45);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow-x: auto;
+            scrollbar-width: none; /* Firefox */
+        }
+        
+        .ai-sub-tabs::-webkit-scrollbar {
+            display: none; /* Chrome, Safari */
+        }
+
+        .ai-sub-tab-btn {
+            flex: 1 1 auto; /* Grow and shrink evenly */
+            justify-content: center;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.6rem 0.5rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .ai-sub-tab-btn:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .ai-sub-tab-btn.active {
+            background: rgba(59, 130, 246, 0.15);
+            color: #93c5fd;
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            font-weight: 700;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        @media (min-width: 768px) {
+            .ai-sub-tabs {
+                flex-wrap: nowrap; /* Keep on a single line on desktop */
+            }
+            .ai-sub-tab-btn {
+                flex: 1; /* Stretch evenly */
+            }
+        }
+
+        .ai-sub-tab-panels {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 1.2rem;
+        }
+
+        .ai-sub-tab-panel {
+            display: none;
+            animation: fadeIn 0.35s ease;
+        }
+
+        .ai-sub-tab-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #020617;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(99, 102, 241, 0.2);
+            border-top-color: var(--accent-indigo);
+            border-radius: 50%;
+            animation: spin 1s infinite linear;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        #loader p {
+            margin-top: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="glowing-bg"></div>
+    <div class="glowing-bg-2"></div>
+
+    <div id="loader">
+        <div class="spinner"></div>
+        <p>正在加載評鑑大數據...</p>
+    </div>
+
+    <header>
+        <div class="logo-section">
+            <h1><span class="logo-emoji">🏫</span><span class="logo-text">基隆市輔大聖心高中</span></h1>
+            <p>114學年度第一學期 · 期末課程評鑑大數據儀表板</p>
+        </div>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('class-tab')">📊 班級與課程</button>
+            <button class="tab-btn" onclick="switchTab('teacher-tab')">👨‍🏫 教師教學表現</button>
+            <button class="tab-btn" onclick="switchTab('ai-tab')">🧠 AI 綜觀評鑑</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- Tab 1: 班級與課程分析 -->
+        <div id="class-tab" class="tab-content active">
+            
+            <!-- 信度分析與無效問卷卡片 -->
+            <div class="reliability-card" id="reliability-summary-box">
+                <div class="reliability-header">
+                    <span>🔍 本校評鑑大數據信度保護中</span>
+                    <button class="toggle-btn" onclick="toggleReliabilityDetails()">[展開無效問卷分析]</button>
+                </div>
+                <div id="reliability-summary-text">
+                    系統已對 129 份問卷啟動「直線作答」與「質性敷衍」過濾，自動篩選並剔除了 14 份無效問卷，以確保以下量化平均之真實信度。
+                </div>
+                <div class="reliability-details" id="reliability-details-box">
+                    <table class="reliability-table" id="reliability-table-content">
+                        <thead>
+                            <tr>
+                                <th>學生ID</th>
+                                <th>班級</th>
+                                <th>量化重複值</th>
+                                <th>直線填答率</th>
+                                <th>問答敷衍率</th>
+                                <th>判定原因</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- JavaScript 動態填入 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="controls-card">
+                <div class="control-group">
+                    <label for="class-select">選擇班級 / 年級</label>
+                    <select id="class-select" class="custom-select" onchange="onClassChange()"></select>
+                </div>
+                <div class="control-group">
+                    <label for="subject-select">選擇課程</label>
+                    <select id="subject-select" class="custom-select" onchange="onSubjectChange()"></select>
+                </div>
+                <div class="control-group">
+                    <label for="group-select">分組組別 / 老師</label>
+                    <select id="group-select" class="custom-select" onchange="onGroupChange()"></select>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- 左側：量化課程指標概述 -->
+                <div class="stats-sidebar">
+                    <div class="glass-card">
+                        <div class="card-header">
+                            <span class="card-title">✨ 課程量化概述</span>
+                            <span id="class-subj-badge" class="badge-pill">7A 國文科</span>
+                        </div>
+                        <div class="score-circle-container">
+                            <div id="class-satisfaction-score" class="score-big-num">4.25</div>
+                            <div class="score-label">課程綜合滿意度 (Q10)</div>
+                        </div>
+                        <div class="dimensions-box">
+                            <div class="dimension-row">
+                                <span>學生學習自評 (Q1~Q3)</span>
+                                <strong id="class-self-score">4.12 / 5.0</strong>
+                            </div>
+                            <div class="dimension-row highlight">
+                                <span>教師授課表現 (Q4~Q8)</span>
+                                <strong id="class-teach-score">4.20 / 5.0</strong>
+                            </div>
+                            <div class="dimension-row">
+                                <span>師生相處關係 (Q9)</span>
+                                <strong id="class-relation-score">4.30 / 5.0</strong>
+                            </div>
+                        </div>
+                        <div class="metadata-list" style="margin-top: 1rem;">
+                            <div class="metadata-item">
+                                <span>篩選填答回收數</span>
+                                <span id="class-response-count">33 份</span>
+                            </div>
+                            <div class="metadata-item">
+                                <span>任課教師姓名</span>
+                                <span id="class-teacher-name">廖麗雪</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右側：雷達圖詳細指標 -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <span class="card-title">📊 課程 10 題核心指標雷達圖</span>
+                    </div>
+                    <div style="position: relative; height: 350px; width: 100%; display: flex; justify-content: center;">
+                        <canvas id="classRadarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 質性留言板 -->
+            <div class="qa-section">
+                <div class="card-header" style="margin-bottom: 1.5rem;">
+                    <span class="card-title">💬 學生課程質性回饋</span>
+                </div>
+                
+                <!-- 文字雲標籤區 -->
+                <div class="word-cloud-container" id="class-word-cloud"></div>
+
+                <div class="qa-grid">
+                    <div class="glass-card">
+                        <div class="card-header" style="margin-bottom: 1rem; border-bottom: none; padding-bottom: 0;">
+                            <span class="card-title" style="font-size: 1rem; color: var(--accent-teal);">🌱 (一) 本課程我的收穫</span>
+                        </div>
+                        <div id="qa-harvest-list" class="qa-container"></div>
+                    </div>
+                    <div class="glass-card">
+                        <div class="card-header" style="margin-bottom: 1rem; border-bottom: none; padding-bottom: 0;">
+                            <span class="card-title" style="font-size: 1rem; color: var(--accent-purple);">💬 (二) 我有話要對老師說</span>
+                        </div>
+                        <div id="qa-teacher-list" class="qa-container"></div>
+                    </div>
+                    <div class="glass-card">
+                        <div class="card-header" style="margin-bottom: 1rem; border-bottom: none; padding-bottom: 0;">
+                            <span class="card-title" style="font-size: 1rem; color: #f59e0b);">🏫 (三) 我有話要對學校說</span>
+                        </div>
+                        <div id="qa-school-list" class="qa-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: 個別教師分析 -->
+        <div id="teacher-tab" class="tab-content">
+            <div class="controls-card">
+                <div class="control-group">
+                    <label for="teacher-select">選擇任課教師</label>
+                    <select id="teacher-select" class="custom-select" onchange="onTeacherChange(true)"></select>
+                </div>
+                <div class="control-group" id="teacher-subject-select-group" style="display: none;">
+                    <label for="teacher-subject-select">選擇授課科目</label>
+                    <select id="teacher-subject-select" class="custom-select" onchange="onTeacherChange(false, true)"></select>
+                </div>
+                <div class="control-group" id="teacher-class-select-group" style="display: none;">
+                    <label for="teacher-class-select">篩選班級</label>
+                    <select id="teacher-class-select" class="custom-select" onchange="onTeacherChange(false, false)"></select>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- 左側：教師授課基本資訊 -->
+                <div class="stats-sidebar">
+                    <div class="glass-card" style="height: 100%;">
+                        <div class="card-header">
+                            <span class="card-title">👤 教師基本資訊</span>
+                            <span id="teacher-name-badge" class="badge-pill">羅雅苓 老師</span>
+                        </div>
+                        <div class="metadata-list" style="margin-top: 1.5rem; gap: 1.5rem;">
+                            <div class="metadata-item" style="padding: 0.8rem 0;">
+                                <span>受評填答總人數</span>
+                                <span id="teacher-response-count" style="font-size: 1.1rem; color: var(--accent-blue);">72 份</span>
+                            </div>
+                            <div class="metadata-item" style="padding: 0.8rem 0;">
+                                <span>授課科目</span>
+                                <span id="teacher-subjects-list">英文科</span>
+                            </div>
+                            <div class="metadata-item" style="padding: 0.8rem 0;">
+                                <span>授課班級</span>
+                                <span id="teacher-classes-list">7A, 7B, 8A</span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 2rem; font-size: 0.85rem; color: var(--text-muted); background: rgba(15,23,42,0.4); padding: 1rem; border-radius: 12px; border: 1px dashed rgba(255,255,255,0.05);">
+                            💡 <strong>教學理念指引</strong>：為健全教師專業成長，本頁面不提供直接的平均分排名，改以學生在 Q4~Q8（授課表現）填答之實際人數分佈呈現，以提供教師最具參考價值的精進依據。
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右側：教師授課表現 (Q4~Q8 堆疊人數圖) -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <span class="card-title">📊 教師授課表現面向填答人數分佈 (Q4 ~ Q8)</span>
+                    </div>
+                    <div style="position: relative; height: 350px; width: 100%; display: flex; justify-content: center;">
+                        <canvas id="teacherStackedBarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 教師質性留言板 -->
+            <div class="qa-section">
+                <div class="card-header" style="margin-bottom: 1.5rem;">
+                    <span class="card-title">💬 學生對本教師的真心話</span>
+                </div>
+                
+                <!-- 教師留言標籤雲 -->
+                <div class="word-cloud-container" id="teacher-word-cloud"></div>
+
+                <div class="qa-grid" style="grid-template-columns: 1fr 1fr;">
+                    <div class="glass-card">
+                        <div class="card-header" style="margin-bottom: 1rem; border-bottom: none; padding-bottom: 0;">
+                            <span class="card-title" style="font-size: 1.05rem; color: var(--accent-purple);">💬 學生有話要對您說</span>
+                        </div>
+                        <div id="t-qa-teacher-list" class="qa-container" style="max-height: 500px;"></div>
+                    </div>
+                    <div class="glass-card">
+                        <div class="card-header" style="margin-bottom: 1rem; border-bottom: none; padding-bottom: 0;">
+                            <span class="card-title" style="font-size: 1.05rem; color: var(--accent-teal);">🌱 本課程學生的學習收穫</span>
+                        </div>
+                        <div id="t-qa-harvest-list" class="qa-container" style="max-height: 500px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: AI 綜觀評鑑 -->
+        <div id="ai-tab" class="tab-content">
+            <div id="ai-accordion-container" class="ai-subtabs-container"></div>
+        </div>
+    </main>
+
+    <script>
+        let evalData = null;
+        let classRadarChart = null;
+        let teacherStackedBarChart = null;
+
+        const subjectOrder = [
+            "國文", "英文", "數學", "歷史", "地理", "公民", 
+            "生物", "理化", "物理", "化學", "地科", 
+            "ESL", "科技", "音樂", "體育", "生命教育", "本土語"
+        ];
+
+        function getSubjectSortWeight(subName) {
+            const idx = subjectOrder.findIndex(s => subName.includes(s));
+            return idx === -1 ? 999 : idx;
+        }
+
+        function getTeacherSortWeight(tName) {
+            const subjects = new Set();
+            evalData.rawResponses.forEach(r => {
+                r.answers.forEach(ans => {
+                    if (ans.teacher === tName) {
+                        subjects.add(ans.subject);
+                    }
+                });
+            });
+            Object.keys(evalData.nonGroupTeachers).forEach(key => {
+                if (evalData.nonGroupTeachers[key] === tName) {
+                    const parts = key.split('_');
+                    if (parts.length > 1) {
+                        subjects.add(parts[1]);
+                    }
+                }
+            });
+            if (subjects.size === 0) return 9999;
+            let minWeight = 9999;
+            subjects.forEach(sub => {
+                const w = getSubjectSortWeight(sub);
+                if (w < minWeight) minWeight = w;
+            });
+            return minWeight;
+        }
+
+        // 將 AI 報告文字按 ## 標題分段，產生分頁中的分頁子標籤頁面
+        function renderAiAccordion(reportText) {
+            const container = document.getElementById('ai-accordion-container');
+            if (!container || !reportText) return;
+            container.innerHTML = '';
+
+            // 先經過 alert 區段與學生質性引言 (「...」) 預處理
+            let html = reportText;
+            
+            // 質性對白轉換為 quote-chip
+            html = html.replace(/「([^」]+)」/g, '<span class="quote-chip">「$1」</span>');
+
+            const alertRegex = />\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*\r?\n((?:>.*\r?\n?)*)/gm;
+            html = html.replace(alertRegex, (match, type, content) => {
+                const cleanContent = content.replace(/^>\s?/gm, '').trim();
+                let title = '', icon = '', colorClass = '';
+                switch(type) {
+                    case 'NOTE':      title = '整體關鍵洞察'; icon = 'ℹ️'; colorClass = 'alert-note'; break;
+                    case 'TIP':       title = '卓越教學亮點'; icon = '💡'; colorClass = 'alert-tip'; break;
+                    case 'IMPORTANT': title = '行政特別說明'; icon = '⚠️'; colorClass = 'alert-important'; break;
+                    case 'WARNING':   title = '問卷信度警示'; icon = '🚨'; colorClass = 'alert-warning'; break;
+                    case 'CAUTION':   title = '注意事項'; icon = '🛑'; colorClass = 'alert-caution'; break;
+                }
+                const parsedContent = marked.parse(cleanContent);
+                return `<div class="ai-alert ${colorClass}"><div class="ai-alert-title">${icon} ${title}</div><div class="ai-alert-content">${parsedContent}</div></div>`;
+            });
+
+            // 按 ## 標題切割分段
+            const sectionRegex = /^(##\s+.+)$/gm;
+            const parts = html.split(sectionRegex).filter(p => p.trim() !== '');
+
+            const sections = [];
+            let introHtml = '';
+            let i = 0;
+
+            // 提取大標題與前言 (不作為子標籤，改渲染為最上方的主標題)
+            if (parts.length > 0 && !parts[0].startsWith('##')) {
+                introHtml = marked.parse(parts[0]);
+                i = 1;
+            }
+
+            // 處理剩餘 "## 標題" + 內容 配對
+            while (i < parts.length) {
+                const heading = parts[i]?.startsWith('##') ? parts[i] : null;
+                const bodyText = heading ? (parts[i + 1] || '') : parts[i];
+                if (heading) {
+                    const titleClean = heading.replace(/^##\s*/, '').trim();
+                    const bodyHtml = marked.parse(bodyText);
+                    sections.push({
+                        title: titleClean,
+                        html: bodyHtml
+                    });
+                    i += 2;
+                } else {
+                    const bodyHtml = marked.parse(bodyText);
+                    sections.push({
+                        title: `分析片段 ${sections.length + 1}`,
+                        html: bodyHtml
+                    });
+                    i++;
+                }
+            }
+
+            // 渲染頂部主標題前言
+            if (introHtml) {
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'ai-main-header';
+                headerDiv.innerHTML = introHtml;
+                container.appendChild(headerDiv);
+            }
+
+            if (sections.length === 0) return;
+
+            // 建立子分頁導覽列 (sub-tabs bar)
+            const tabsBar = document.createElement('div');
+            tabsBar.className = 'ai-sub-tabs';
+
+            // 建立內容面板容器
+            const panelsContainer = document.createElement('div');
+            panelsContainer.className = 'ai-sub-tab-panels';
+
+            // 縮排與簡化子分頁導覽列標題，使其在同一畫面不跑版
+            function getShortTitle(title) {
+                const clean = title.trim().replace(/^[^\w\s\u4e00-\u9fa5]+\s*/, ''); // 去除開頭Emoji
+                if (clean.includes('問卷填答信度') || clean.includes('信度與無效問卷')) {
+                    return '零、信度分析';
+                }
+                if (clean.includes('全校整體表現') || clean.includes('整體表現指標')) {
+                    return '一、整體表現';
+                }
+                if (clean.includes('分組與適性') || clean.includes('跑班分組')) {
+                    return '二、適性分組';
+                }
+                if (clean.includes('整體優勢') || clean.includes('卓越學科')) {
+                    return '三、優勢亮點';
+                }
+                if (clean.includes('警示區域') || clean.includes('待改善')) {
+                    return '四、警示區域';
+                }
+                if (clean.includes('具體行動方案') || clean.includes('行動方案') || clean.includes('Action Plan')) {
+                    return '五、行動方案';
+                }
+                return clean.slice(0, 8);
+            }
+
+            // 建立二級垂直收合面板 (Sub-Accordion)
+            function buildSubAccordion(htmlContent) {
+                const parts = htmlContent.split(/(<h3[^>]*>.*?<\/h3>)/g);
+                const accordionContainer = document.createElement('div');
+                accordionContainer.className = 'ai-sub-accordion';
+
+                // 前導介紹段落
+                if (parts[0] && parts[0].trim() !== '') {
+                    const intro = document.createElement('div');
+                    intro.className = 'ai-sub-accordion-intro';
+                    intro.innerHTML = parts[0];
+                    intro.style.marginBottom = '1.2rem';
+                    intro.style.fontSize = '0.98rem';
+                    intro.style.lineHeight = '1.7';
+                    accordionContainer.appendChild(intro);
+                }
+
+                let i = 1;
+                let itemIdx = 0;
+                while (i < parts.length) {
+                    const heading = parts[i];
+                    const body = parts[i + 1] || '';
+
+                    if (heading && heading.startsWith('<h3')) {
+                        const headingText = heading.replace(/<[^>]*>/g, '').trim();
+
+                        const item = document.createElement('div');
+                        // 第一個子節點預設打開，其餘收合
+                        item.className = 'ai-sub-accordion-item' + (itemIdx === 0 ? ' open' : '');
+
+                        const header = document.createElement('div');
+                        header.className = 'ai-sub-accordion-header';
+
+                        const titleSpan = document.createElement('span');
+                        titleSpan.className = 'ai-sub-accordion-title';
+                        titleSpan.innerHTML = headingText;
+
+                        const iconSpan = document.createElement('span');
+                        iconSpan.className = 'ai-sub-accordion-icon';
+                        iconSpan.textContent = '▼';
+
+                        header.appendChild(titleSpan);
+                        header.appendChild(iconSpan);
+
+                        // 建立外殼來支持 grid 平滑過渡高度
+                        const bodyWrapper = document.createElement('div');
+                        bodyWrapper.className = 'ai-sub-accordion-body-wrapper';
+
+                        const bodyDiv = document.createElement('div');
+                        bodyDiv.className = 'ai-sub-accordion-body';
+                        
+                        const innerDiv = document.createElement('div');
+                        innerDiv.className = 'ai-sub-accordion-inner';
+                        innerDiv.innerHTML = body;
+                        
+                        bodyDiv.appendChild(innerDiv);
+                        bodyWrapper.appendChild(bodyDiv);
+
+                        // 點擊垂直摺疊/打開
+                        header.addEventListener('click', () => {
+                            item.classList.toggle('open');
+                        });
+
+                        item.appendChild(header);
+                        item.appendChild(bodyWrapper);
+                        accordionContainer.appendChild(item);
+
+                        itemIdx++;
+                        i += 2;
+                    } else {
+                        i++;
+                    }
+                }
+                return accordionContainer;
+            }
+
+            // 填充子分頁按鈕與內容
+            sections.forEach((sec, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'ai-sub-tab-btn' + (idx === 0 ? ' active' : '');
+                btn.textContent = getShortTitle(sec.title);
+
+                const panel = document.createElement('div');
+                panel.className = 'ai-sub-tab-panel ai-report-body' + (idx === 0 ? ' active' : '');
+
+                // 面板內容最上方加入精美的一級大標題，保留完整標題資訊與 Emoji
+                const fullTitleHeader = document.createElement('h2');
+                fullTitleHeader.style.marginTop = '0';
+                fullTitleHeader.style.marginBottom = '1.5rem';
+                fullTitleHeader.style.fontSize = '1.4rem';
+                fullTitleHeader.style.color = '#ffffff';
+                fullTitleHeader.style.borderBottom = '1px solid rgba(255,255,255,0.08)';
+                fullTitleHeader.style.paddingBottom = '0.6rem';
+                fullTitleHeader.innerHTML = sec.title;
+                panel.appendChild(fullTitleHeader);
+
+                // 獲取原始 HTML 內容 (包括信度警示剔除)
+                const isInvalidSection = /無效問卷|信度警示|直線作答|敷衍/.test(sec.title);
+                const rawContentHtml = isInvalidSection && evalData?.invalidStats?.details?.length > 0 ? buildInvalidPanel() : sec.html;
+
+                // 檢查是否含有 h3 標籤，有則渲染為垂直折疊 Sub-Accordion，無則一般渲染
+                if (rawContentHtml.includes('<h3')) {
+                    panel.appendChild(buildSubAccordion(rawContentHtml));
+                } else {
+                    const contentDiv = document.createElement('div');
+                    contentDiv.innerHTML = rawContentHtml;
+                    panel.appendChild(contentDiv);
+                }
+
+                // 點擊事件：切換 active 狀態
+                btn.addEventListener('click', () => {
+                    tabsBar.querySelectorAll('.ai-sub-tab-btn').forEach(b => b.classList.remove('active'));
+                    panelsContainer.querySelectorAll('.ai-sub-tab-panel').forEach(p => p.classList.remove('active'));
+
+                    btn.classList.add('active');
+                    panel.classList.add('active');
+                });
+
+                tabsBar.appendChild(btn);
+                panelsContainer.appendChild(panel);
+            });
+
+            container.appendChild(tabsBar);
+            container.appendChild(panelsContainer);
+        }
+
+        // 無效問卷緊湊卡片式分析（每人一行）
+        function buildInvalidPanel() {
+            const stats = evalData.invalidStats;
+            const details = stats.details;
+
+            // 統計各班人數
+            const byClass = {};
+            details.forEach(d => {
+                byClass[d.className] = (byClass[d.className] || 0) + 1;
+            });
+
+            // 各班 chip
+            const chips = Object.keys(byClass).map(cls =>
+                `<span class="invalid-class-chip">${cls} <strong>${byClass[cls]}</strong></span>`
+            ).join('');
+
+            // 表頭
+            const tableHeader = `
+                <div class="invalid-row header-row">
+                    <span>學生ID</span>
+                    <span>班級</span>
+                    <span>直線率</span>
+                    <span>敷衍率</span>
+                    <span>重複値</span>
+                    <span>判定摘要</span>
+                </div>`;
+
+            // 每人一行：將原因文字動態精簡
+            const rows = details.map(d => {
+                // 精簡化判定原因：只保留關鍵詞
+                let reason = d.reason || '';
+                // 抄取引號內文字（敘訸式回答）
+                const qMatch = reason.match(/「([^」]+)」/);
+                const shortReason = qMatch ? `「${qMatch[1]}」敷衍` : reason.slice(0, 20);
+
+                return `
+                    <div class="invalid-row">
+                        <span class="col-id">#${d.studentId}</span>
+                        <span class="col-cls"><span class="badge badge-warning" style="font-size:0.7rem;padding:0.1rem 0.4rem">${d.className}</span></span>
+                        <span class="col-pct">${d.ratingRatio}</span>
+                        <span class="col-lazy">${d.lazyRatio}</span>
+                        <span class="col-dup">${d.ratingVal}</span>
+                        <span class="col-reason" title="${reason}">${shortReason}</span>
+                    </div>`;
+            }).join('');
+
+            return `
+                <div style="margin-bottom: 0.8rem; font-size: 0.85rem; color: #fca5a5; line-height: 1.7;">
+                    <strong>共篩除 ${details.length} 份無效問卷</strong>，不列入下方量化平均計算。
+                </div>
+                <div class="invalid-stat-chips">${chips}</div>
+                <div class="invalid-student-list">
+                    ${tableHeader}
+                    ${rows}
+                </div>
+                <div style="margin-top: 0.7rem; font-size: 0.72rem; color: #6b7280;">
+                    直線率：量化頓 · 敷衍率：質性問答 · 重複値：領域填答值 · 展開可檢視原始文字
+                </div>
+            `;
+        }
+
+        // 舊的 renderAiReport 保留，供其他地方签呼叫时用
+        function renderAiReport(reportText) {
+            if (!reportText) return "";
+            let html = reportText;
+            const alertRegex = />\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*\r?\n((?:>.*\r?\n?)*)/gm;
+            html = html.replace(alertRegex, (match, type, content) => {
+                const cleanContent = content.replace(/^>\s?/gm, '').trim();
+                let title = '', icon = '', colorClass = '';
+                switch(type) {
+                    case 'NOTE':      title = '整體關鍵洞察'; icon = 'ℹ️'; colorClass = 'alert-note'; break;
+                    case 'TIP':       title = '卓越教學亮點'; icon = '💡'; colorClass = 'alert-tip'; break;
+                    case 'IMPORTANT': title = '行政特別說明'; icon = '⚠️'; colorClass = 'alert-important'; break;
+                    case 'WARNING':   title = '問卷信度警示'; icon = '🚨'; colorClass = 'alert-warning'; break;
+                    case 'CAUTION':   title = '注意事項'; icon = '🛑'; colorClass = 'alert-caution'; break;
+                }
+                const parsedContent = marked.parse(cleanContent);
+                return `<div class="ai-alert ${colorClass}"><div class="ai-alert-title">${icon} ${title}</div><div class="ai-alert-content">${parsedContent}</div></div>`;
+            });
+            return marked.parse(html);
+        }
+
+        const noiseWords = [
+            "無", "沒有", "沒有話對老師說", "沒有話對學校說", "辛苦了", "謝謝", "謝謝老師", "感謝老師", 
+            "棒", "還好", "一般", "ok", "no", "none", ".", "?", "無無", "...", "x", "xx", "沒", "無。",
+            "1", "2", "3", "讚", "good", "無話說", "很好", "沒話要說", "沒有話要對老師說", "沒有話對老師說。"
+        ];
+
+        function filterNoiseQA(text) {
+            if (!text) return false;
+            const clean = text.trim().toLowerCase();
+            if (clean.length <= 1) return false; 
+            if (noiseWords.includes(clean)) return false;
+            if (clean.length <= 4 && (clean.includes("謝謝") || clean.includes("辛苦") || clean.includes("沒有") || clean.includes("不錯") || clean.includes("很好"))) {
+                return false;
+            }
+            return true;
+        }
+
+        const keywordCloudDict = [
+            { word: "有耐心", regex: /耐心|溫柔/ },
+            { word: "認真負責", regex: /認真|負責|敬業/ },
+            { word: "收穫豐富", regex: /學到|收穫|豐富|充實/ },
+            { word: "有趣好玩", regex: /有趣|好玩|幽默|活潑/ },
+            { word: "實作體驗", regex: /實作|手作|實驗|鐳雕|繪畫/ },
+            { word: "進度稍快", regex: /快|進度/ },
+            { word: "聽不太懂", regex: /不懂|聽不懂|看不懂/ },
+            { word: "考卷偏難", regex: /難|考卷|考試/ },
+            { word: "口說練習", regex: /口說|說英文|對話/ },
+            { word: "師生融洽", regex: /融洽|相處|聊天/ },
+            { word: "有壓力", regex: /壓力|累|緊繃/ },
+            { word: "簡報清楚", regex: /簡報|ppt|清楚/ },
+            { word: "活動多", regex: /活動|遊戲/ },
+            { word: "作業多", regex: /作業|報告/ }
+        ];
+
+        function generateWordCloudData(qaList) {
+            const counts = {};
+            qaList.forEach(text => {
+                keywordCloudDict.forEach(item => {
+                    if (item.regex.test(text)) {
+                        counts[item.word] = (counts[item.word] || 0) + 1;
+                    }
+                });
+            });
+            return Object.keys(counts).map(w => ({ word: w, weight: counts[w] })).sort((a,b) => b.weight - a.weight);
+        }
+
+        function renderWordCloud(qaList, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = "";
+
+            const words = generateWordCloudData(qaList);
+
+            if (words.length === 0) {
+                container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.82rem; font-style: italic; padding: 0.5rem;">目前留言樣本未包含顯著的高頻特徵關鍵字</div>';
+                return;
+            }
+
+            // 調色盤：暖冷交替，高辨識度
+            const palettes = [
+                { color: '#818cf8', border: 'rgba(129,140,248,0.3)' },
+                { color: '#2dd4bf', border: 'rgba(45,212,191,0.3)' },
+                { color: '#fb923c', border: 'rgba(251,146,60,0.3)'  },
+                { color: '#f472b6', border: 'rgba(244,114,182,0.3)' },
+                { color: '#60a5fa', border: 'rgba(96,165,250,0.3)'  },
+                { color: '#a78bfa', border: 'rgba(167,139,250,0.3)' },
+                { color: '#fbbf24', border: 'rgba(251,191,36,0.3)'  },
+                { color: '#34d399', border: 'rgba(52,211,153,0.3)'  },
+            ];
+
+            // 計算各種字型大小區間
+            const maxW = words[0].weight;
+            const rotations = [0, -3, 3, -2, 4, 2, -4, 1];
+
+            words.forEach((item, index) => {
+                const p = palettes[index % palettes.length];
+                const ratio = maxW > 1 ? (item.weight - 1) / (maxW - 1) : 1;
+                // 字型：0.82rem ~ 1.55rem
+                const fontSize = (0.82 + ratio * 0.73).toFixed(2);
+                const isHigh = item.weight >= 3;
+
+                const tag = document.createElement("span");
+                tag.className = "cloud-tag" + (isHigh ? " high-freq" : "");
+                tag.style.fontSize = `${fontSize}rem`;
+                tag.style.color = p.color;
+                tag.style.borderColor = p.border;
+                tag.style.transform = `rotate(${rotations[index % rotations.length]}deg)`;
+
+                // 詞彙文字
+                const wordSpan = document.createElement('span');
+                wordSpan.textContent = item.word;
+
+                // 頻次徽章
+                const badge = document.createElement('span');
+                badge.className = 'cloud-badge';
+                badge.style.color = p.color;
+                badge.style.fontSize = '0.6em';
+                badge.style.background = p.border;
+                badge.style.border = `1px solid ${p.border}`;
+                badge.style.color = p.color;
+                badge.textContent = item.weight;
+
+                tag.appendChild(wordSpan);
+                tag.appendChild(badge);
+                container.appendChild(tag);
+            });
+        }
+
+        const radarLabels = [
+            "Q1.課前預習/複習",
+            "Q2.上課準時出席",
+            "Q3.主動解決問題",
+            "Q4.內容進度適中",
+            "Q5.內容難易度適中",
+            "Q6.教法能有效學習",
+            "Q7.教師認真負責",
+            "Q8.評量幫助了解學習",
+            "Q9.師生關係融洽",
+            "Q10.綜合滿意度收穫"
+        ];
+
+        window.onload = function() {
+            if (window.EVAL_DATA) {
+                evalData = window.EVAL_DATA;
+                initDashboard();
+            } else {
+                alert("未偵測到 data.js 數據檔案。");
+            }
+            const loader = document.getElementById('loader');
+            loader.style.opacity = 0;
+            setTimeout(() => loader.style.display = 'none', 500);
+        };
+
+        // 信度展開收合
+        function toggleReliabilityDetails() {
+            const box = document.getElementById("reliability-details-box");
+            const btn = document.querySelector(".toggle-btn");
+            if (box.style.display === "block") {
+                box.style.display = "none";
+                btn.textContent = "[展開無效問卷分析]";
+            } else {
+                box.style.display = "block";
+                btn.textContent = "[收合無效問卷分析]";
+            }
+        }
+
+        function initDashboard() {
+            // 1. 填入信度卡片數據
+            if (evalData.invalidStats) {
+                const stats = evalData.invalidStats;
+                const text = `🔍 <strong>問卷信度分析</strong>：系統已啟動信度保護。自動分析排除 **${stats.totalInvalid} 份** 直線作答與極度敷衍之無效問卷 (${Object.keys(stats.byClass).map(c => `${c}班 ${stats.byClass[c]}人`).join('、')})，有效問卷共 **${evalData.rawResponses.length} 份**，不實填答不列入下方統計以確保客觀信度。`;
+                document.getElementById("reliability-summary-text").innerHTML = text;
+
+                // 填入表格
+                const tbody = document.querySelector("#reliability-table-content tbody");
+                tbody.innerHTML = "";
+                stats.details.forEach(d => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td>${d.studentId}</td>
+                        <td><span class="badge badge-warning">${d.className}</span></td>
+                        <td>${d.ratingVal}</td>
+                        <td>${d.ratingRatio}</td>
+                        <td>${d.lazyRatio}</td>
+                        <td style="color: #fca5a5;">${d.reason}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            const classes = [
+                "7A", "7B", "7年級 (全部)",
+                "8A", "8B", "8年級 (全部)",
+                "高一", 
+                "高二(文組)", "高二(理組)", "高二 (全部)"
+            ];
+            
+            const classSelect = document.getElementById("class-select");
+            classSelect.innerHTML = "";
+            classes.forEach(c => {
+                const opt = document.createElement("option");
+                opt.value = c;
+                opt.textContent = c;
+                classSelect.appendChild(opt);
+            });
+
+            // 統計所有教師
+            const allTeachers = new Set();
+            evalData.rawResponses.forEach(r => {
+                r.answers.forEach(ans => {
+                    if (ans.teacher) allTeachers.add(ans.teacher);
+                });
+            });
+            Object.values(evalData.nonGroupTeachers).forEach(t => {
+                if (t && t !== "國文老師" && t !== "歷史老師" && t !== "地理老師" && t !== "公民老師" && t !== "生物老師" && t !== "理化老師" && t !== "物理老師" && t !== "化學老師" && t !== "地科老師" && t !== "科技老師" && t !== "音樂老師" && t !== "體育老師" && t !== "生命教育老師") {
+                    allTeachers.add(t);
+                }
+            });
+            
+            const teacherSelect = document.getElementById("teacher-select");
+            teacherSelect.innerHTML = "";
+            Array.from(allTeachers).sort((a, b) => {
+                const wA = getTeacherSortWeight(a);
+                const wB = getTeacherSortWeight(b);
+                if (wA !== wB) return wA - wB;
+                return a.localeCompare(b, 'zh-hant');
+            }).forEach(tName => {
+                const opt = document.createElement("option");
+                opt.value = tName;
+                opt.textContent = `${tName} 老師`;
+                teacherSelect.appendChild(opt);
+            });
+
+            if (evalData.aiReport) {
+                renderAiAccordion(evalData.aiReport);
+            }
+
+            onClassChange();
+            onTeacherChange();
+        }
+
+        function onClassChange() {
+            const classVal = document.getElementById("class-select").value;
+            const subjectSelect = document.getElementById("subject-select");
+            
+            const subjects = new Set();
+            evalData.rawResponses.forEach(student => {
+                if (matchClass(student.className, classVal)) {
+                    student.answers.forEach(ans => {
+                        subjects.add(ans.subject);
+                    });
+                }
+            });
+
+            const sortedSubjects = Array.from(subjects).sort((a, b) => getSubjectSortWeight(a) - getSubjectSortWeight(b));
+
+            subjectSelect.innerHTML = "";
+            sortedSubjects.forEach(sub => {
+                const opt = document.createElement("option");
+                opt.value = sub;
+                opt.textContent = sub;
+                subjectSelect.appendChild(opt);
+            });
+
+            if (sortedSubjects.length > 0) {
+                onSubjectChange();
+            }
+        }
+
+        function onSubjectChange() {
+            const classVal = document.getElementById("class-select").value;
+            const subjectVal = document.getElementById("subject-select").value;
+            const groupSelect = document.getElementById("group-select");
+
+            if (!subjectVal) return;
+
+            const groups = new Set();
+            evalData.rawResponses.forEach(student => {
+                if (matchClass(student.className, classVal)) {
+                    const ans = student.answers.find(a => a.subject === subjectVal);
+                    if (ans && ans.group) {
+                        groups.add(ans.group);
+                    }
+                }
+            });
+
+            groupSelect.innerHTML = "";
+            if (groups.size > 0) {
+                groupSelect.disabled = false;
+                const optAll = document.createElement("option");
+                optAll.value = "ALL";
+                optAll.textContent = "全部 (不分組)";
+                groupSelect.appendChild(optAll);
+
+                Array.from(groups).sort().forEach(g => {
+                    const opt = document.createElement("option");
+                    opt.value = g;
+                    opt.textContent = g;
+                    groupSelect.appendChild(opt);
+                });
+            } else {
+                groupSelect.disabled = true;
+                const optNone = document.createElement("option");
+                optNone.value = "NONE";
+                optNone.textContent = "無分組";
+                groupSelect.appendChild(optNone);
+            }
+
+            calculateAndRender();
+        }
+
+        function onGroupChange() {
+            calculateAndRender();
+        }
+
+        function matchClass(studentClass, filterVal) {
+            if (filterVal === "7年級 (全部)") {
+                return studentClass === "7A" || studentClass === "7B";
+            }
+            if (filterVal === "8年級 (全部)") {
+                return studentClass === "8A" || studentClass === "8B";
+            }
+            if (filterVal === "高二 (全部)") {
+                return studentClass === "高二(文組)" || studentClass === "高二(理組)";
+            }
+            return studentClass === filterVal;
+        }
+
+        function calculateAndRender() {
+            const classVal = document.getElementById("class-select").value;
+            const subjectVal = document.getElementById("subject-select").value;
+            const groupVal = document.getElementById("group-select").value;
+
+            if (!subjectVal) return;
+
+            const filteredAnswers = [];
+            const sampleTeachers = new Set();
+
+            evalData.rawResponses.forEach(student => {
+                if (matchClass(student.className, classVal)) {
+                    const ans = student.answers.find(a => a.subject === subjectVal);
+                    if (ans) {
+                        if (groupVal === "ALL" || groupVal === "NONE" || ans.group === groupVal) {
+                            filteredAnswers.push(ans);
+                            if (ans.teacher) {
+                                sampleTeachers.add(ans.teacher);
+                            }
+                        }
+                    }
+                }
+            });
+
+            const responsesCount = filteredAnswers.length;
+
+            const questions = {};
+            for (let q = 1; q <= 10; q++) {
+                questions[q] = { sum: 0, count: 0, avg: 0 };
+            }
+            
+            const qa = { harvest: [], toTeacher: [], toSchool: [] };
+
+            filteredAnswers.forEach(ans => {
+                for (let q = 1; q <= 10; q++) {
+                    const val = ans.ratings[q];
+                    const score = getScore(val);
+                    if (score > 0) {
+                        questions[q].sum += score;
+                        questions[q].count++;
+                    }
+                }
+                if (ans.qa.harvest) qa.harvest.push(ans.qa.harvest);
+                if (ans.qa.toTeacher) qa.toTeacher.push(ans.qa.toTeacher);
+                if (ans.qa.toSchool) qa.toSchool.push(ans.qa.toSchool);
+            });
+
+            for (let q = 1; q <= 10; q++) {
+                const question = questions[q];
+                question.avg = question.count > 0 ? parseFloat((question.sum / question.count).toFixed(2)) : 0;
+            }
+
+            const satisfactionScore = questions[10].avg;
+            
+            let sumSelf = 0, countSelf = 0;
+            for (let q = 1; q <= 3; q++) {
+                if (questions[q].avg > 0) { sumSelf += questions[q].avg; countSelf++; }
+            }
+            const selfScore = countSelf > 0 ? (sumSelf / countSelf).toFixed(2) : "0.00";
+
+            let sumTeach = 0, countTeach = 0;
+            for (let q = 4; q <= 8; q++) {
+                if (questions[q].avg > 0) { sumTeach += questions[q].avg; countTeach++; }
+            }
+            const teachScore = countTeach > 0 ? (sumTeach / countTeach).toFixed(2) : "0.00";
+
+            const relationScore = questions[9].avg.toFixed(2);
+
+            document.getElementById("class-subj-badge").textContent = `${classVal} · ${subjectVal}`;
+            document.getElementById("class-satisfaction-score").textContent = satisfactionScore.toFixed(2);
+            document.getElementById("class-self-score").textContent = `${selfScore} / 5.0`;
+            document.getElementById("class-teach-score").textContent = `${teachScore} / 5.0`;
+            document.getElementById("class-relation-score").textContent = `${relationScore} / 5.0`;
+            document.getElementById("class-response-count").textContent = `${responsesCount} 份`;
+
+            let teacherDisplayName = "";
+            const isGroupedSubj = (groupVal !== "NONE" && groupVal !== "");
+
+            if (isGroupedSubj) {
+                teacherDisplayName = Array.from(sampleTeachers).join(', ');
+            } else {
+                if (classVal.includes("全部")) {
+                    const mergedTeachers = new Set();
+                    const targetClasses = classVal === "7年級 (全部)" ? ["7A", "7B"] : 
+                                          classVal === "8年級 (全部)" ? ["8A", "8B"] : ["高二(文組)", "高二(理組)"];
+                    targetClasses.forEach(cName => {
+                        const t = evalData.nonGroupTeachers[`${cName}_${subjectVal}`];
+                        if (t) mergedTeachers.add(t);
+                    });
+                    teacherDisplayName = Array.from(mergedTeachers).join(' / ');
+                } else {
+                    teacherDisplayName = evalData.nonGroupTeachers[`${classVal}_${subjectVal}`] || "無對照名單";
+                }
+            }
+
+            document.getElementById("class-teacher-name").textContent = teacherDisplayName || "無記載";
+
+            const radarScores = radarLabels.map((l, i) => questions[i + 1].avg);
+            renderClassRadar(radarScores, `${classVal} ${subjectVal} 課程維度表現`);
+
+            const allQA = [...qa.harvest, ...qa.toTeacher, ...qa.toSchool];
+            renderWordCloud(allQA, 'class-word-cloud');
+
+            fillQAContainers(qa, 'qa-harvest-list', 'qa-teacher-list', 'qa-school-list');
+        }
+
+        function renderClassRadar(scores, labelName) {
+            const ctx = document.getElementById('classRadarChart').getContext('2d');
+            if (classRadarChart) classRadarChart.destroy();
+
+            classRadarChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: radarLabels,
+                    datasets: [{
+                        label: labelName,
+                        data: scores,
+                        fill: true,
+                        backgroundColor: 'rgba(99, 102, 241, 0.15)',
+                        borderColor: 'rgba(99, 102, 241, 0.9)',
+                        pointBackgroundColor: 'rgba(99, 102, 241, 1)',
+                        pointBorderColor: '#fff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255, 255, 255, 0.08)' },
+                            grid: { color: 'rgba(255, 255, 255, 0.08)' },
+                            pointLabels: {
+                                color: '#9ca3af',
+                                font: { size: 10, weight: '600' }
+                            },
+                            ticks: {
+                                color: '#6b7280',
+                                backdropColor: 'transparent',
+                                stepSize: 1
+                            },
+                            min: 1,
+                            max: 5
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: { color: '#f3f4f6', font: { weight: '600' } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function getScore(val) {
+            if (val === "非常同意") return 5;
+            if (val === "同意") return 4;
+            if (val === "普通") return 3;
+            if (val === "不同意") return 2;
+            if (val === "非常不同意") return 1;
+            return 0;
+        }
+
+        function onTeacherChange(reloadSubjects = true, reloadClasses = true) {
+            const teacherName = document.getElementById("teacher-select").value;
+            if (!teacherName) return;
+
+            // ── 工具函式：判斷某筆答卷是否屬於此教師 ──────────────────────
+            function isThisTeacher(ans, studentClassName) {
+                if (ans.teacher === teacherName) return true;
+                if (!ans.group) {
+                    const key = `${studentClassName}_${ans.subject}`;
+                    if (evalData.nonGroupTeachers[key] === teacherName) return true;
+                }
+                return false;
+            }
+
+            // ── 1. 收集該教師的所有授課科目 ────────────────────────────────
+            const rawTeacherSubjects = new Set();
+            evalData.rawResponses.forEach(student => {
+                student.answers.forEach(ans => {
+                    if (isThisTeacher(ans, student.className)) {
+                        rawTeacherSubjects.add(ans.subject);
+                    }
+                });
+            });
+            const sortedSubjects = Array.from(rawTeacherSubjects)
+                .sort((a, b) => getSubjectSortWeight(a) - getSubjectSortWeight(b));
+
+            // ── 2. 重新載入「科目」子選單 ────────────────────────────────
+            const subGroup  = document.getElementById("teacher-subject-select-group");
+            const subSelect = document.getElementById("teacher-subject-select");
+
+            if (reloadSubjects) {
+                subSelect.innerHTML = "";
+                if (sortedSubjects.length >= 2) {
+                    const allOpt = document.createElement("option");
+                    allOpt.value = "all";  allOpt.textContent = "全部科目";
+                    subSelect.appendChild(allOpt);
+                    sortedSubjects.forEach(sub => {
+                        const opt = document.createElement("option");
+                        opt.value = sub;  opt.textContent = sub;
+                        subSelect.appendChild(opt);
+                    });
+                    subSelect.value = "all";
+                    subGroup.style.display = "flex";
+                } else {
+                    subGroup.style.display = "none";
+                    subSelect.innerHTML = "";
+                }
+                reloadClasses = true; // 科目改了必須重建班級選單
+            }
+
+            const selectedSubject = subSelect.value || "all";
+
+            // ── 3. 收集「此教師 × 此科目」下的所有班級 ──────────────────
+            const rawClasses = new Set();
+            evalData.rawResponses.forEach(student => {
+                student.answers.forEach(ans => {
+                    if (!isThisTeacher(ans, student.className)) return;
+                    if (selectedSubject !== "all" && ans.subject !== selectedSubject) return;
+                    rawClasses.add(student.className);
+                });
+            });
+
+            // ── 4. 重新載入「班級」子選單（含智慧合計項） ────────────────
+            const classGroup  = document.getElementById("teacher-class-select-group");
+            const classSelect = document.getElementById("teacher-class-select");
+
+            if (reloadClasses) {
+                classSelect.innerHTML = "";
+                // 全部
+                const allCls = document.createElement("option");
+                allCls.value = "all";  allCls.textContent = "全部班級";
+                classSelect.appendChild(allCls);
+
+                // 智慧合計：若同時有 7A & 7B → 加「7年級」，以此類推
+                const has7A = rawClasses.has("7A"), has7B = rawClasses.has("7B");
+                const has8A = rawClasses.has("8A"), has8B = rawClasses.has("8B");
+                const hasW  = rawClasses.has("高二(文組)"), hasL = rawClasses.has("高二(理組)");
+
+                // 個別班級（按固定順序排列）
+                const classOrder = ["7A","7B","8A","8B","高一","高二(文組)","高二(理組)"];
+                classOrder.forEach(c => {
+                    if (!rawClasses.has(c)) return;
+                    const o = document.createElement("option");
+                    o.value = c;  o.textContent = c;
+                    classSelect.appendChild(o);
+                });
+
+                // 聚合選項（僅在個別班都存在時才加）
+                if (has7A && has7B) {
+                    const o = document.createElement("option");
+                    o.value = "7年級";  o.textContent = "7年級 (全部)";
+                    classSelect.appendChild(o);
+                }
+                if (has8A && has8B) {
+                    const o = document.createElement("option");
+                    o.value = "8年級";  o.textContent = "8年級 (全部)";
+                    classSelect.appendChild(o);
+                }
+                if (hasW && hasL) {
+                    const o = document.createElement("option");
+                    o.value = "高二";  o.textContent = "高二 (全部)";
+                    classSelect.appendChild(o);
+                }
+
+                // 只有 1 個班時不需顯示篩選器
+                if (rawClasses.size <= 1) {
+                    classGroup.style.display = "none";
+                } else {
+                    classGroup.style.display = "flex";
+                    classSelect.value = "all";
+                }
+            }
+
+            const selectedClass = classSelect.value || "all";
+
+            // ── 5. 過濾並計算填答 ───────────────────────────────────────────
+            function classMatch(studentClassName, sel) {
+                if (sel === "all")  return true;
+                if (sel === "7年級") return studentClassName === "7A" || studentClassName === "7B";
+                if (sel === "8年級") return studentClassName === "8A" || studentClassName === "8B";
+                if (sel === "高二")  return studentClassName === "高二(文組)" || studentClassName === "高二(理組)";
+                return studentClassName === sel;
+            }
+
+            const teacherAnswers  = [];
+            const teacherClasses  = new Set();
+
+            evalData.rawResponses.forEach(student => {
+                student.answers.forEach(ans => {
+                    if (!isThisTeacher(ans, student.className)) return;
+                    if (selectedSubject !== "all" && ans.subject !== selectedSubject) return;
+                    if (!classMatch(student.className, selectedClass)) return;
+                    teacherAnswers.push(ans);
+                    teacherClasses.add(student.className);
+                });
+            });
+
+            const totalResponses = teacherAnswers.length;
+
+            const qStats = {};
+            for (let q = 4; q <= 8; q++) {
+                qStats[q] = { '非常同意': 0, '同意': 0, '普通': 0, '不同意': 0, '非常不同意': 0 };
+            }
+
+            const qa = { harvest: [], toTeacher: [] };
+
+            teacherAnswers.forEach(ans => {
+                for (let q = 4; q <= 8; q++) {
+                    const val = ans.ratings[q];
+                    if (val && qStats[q][val] !== undefined) qStats[q][val]++;
+                }
+                if (ans.qa.harvest)   qa.harvest.push(ans.qa.harvest);
+                if (ans.qa.toTeacher) qa.toTeacher.push(ans.qa.toTeacher);
+            });
+
+            // ── 6. 更新畫面 ────────────────────────────────────────────────
+            document.getElementById("teacher-name-badge").textContent    = `${teacherName} 老師`;
+            document.getElementById("teacher-response-count").textContent = `${totalResponses} 份`;
+            const displaySubjects = selectedSubject === "all" ? sortedSubjects : [selectedSubject];
+            document.getElementById("teacher-subjects-list").textContent  = displaySubjects.join(', ') || "暫無";
+            document.getElementById("teacher-classes-list").textContent   = Array.from(teacherClasses).join(', ') || "暫無";
+
+            renderTeacherStackedBar(qStats);
+
+            const allQA = [...qa.harvest, ...qa.toTeacher];
+            renderWordCloud(allQA, 'teacher-word-cloud');
+
+            fillQAContainers(qa, 't-qa-harvest-list', 't-qa-teacher-list', null);
+        }
+
+        function renderTeacherStackedBar(qCounts) {
+            const ctx = document.getElementById('teacherStackedBarChart').getContext('2d');
+            if (teacherStackedBarChart) teacherStackedBarChart.destroy();
+
+            const questions = [4, 5, 6, 7, 8];
+            const categories = ['非常同意', '同意', '普通', '不同意', '非常不同意'];
+            const colors = {
+                '非常同意': '#10b981', '同意': '#34d399', '普通': '#fbbf24', '不同意': '#f87171', '非常不同意': '#ef4444'
+            };
+
+            const datasets = categories.map(cat => {
+                const dataArray = questions.map(qNum => qCounts[qNum][cat] || 0);
+                return {
+                    label: cat,
+                    data: dataArray,
+                    backgroundColor: colors[cat],
+                    borderColor: 'transparent',
+                    borderWidth: 0
+                };
+            });
+
+            const barLabels = [
+                "Q4.教學內容份量適中",
+                "Q5.教學內容難易適中",
+                "Q6.教法能讓我有效學習",
+                "Q7.教學態度認真負責",
+                "Q8.評量幫助了解學習"
+            ];
+
+            teacherStackedBarChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: barLabels,
+                    datasets: datasets
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#9ca3af', font: { weight: '600' } }
+                        },
+                        y: {
+                            stacked: true,
+                            grid: { display: false },
+                            ticks: { color: '#f3f4f6', font: { size: 12, weight: '600' } }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#f3f4f6', font: { weight: '600' } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.raw} 人`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function fillQAContainers(qaData, harvestId, teacherId, schoolId) {
+            const createNotes = (list, containerId, cssClass) => {
+                const container = document.getElementById(containerId);
+                if (!container) return;
+                container.innerHTML = "";
+                
+                const filteredList = [...new Set(list)].filter(filterNoiseQA);
+
+                if (filteredList.length === 0) {
+                    container.innerHTML = '<div class="no-feedback">（已過濾空白或無實質內容回覆）</div>';
+                    return;
+                }
+
+                filteredList.forEach(text => {
+                    const wrap = document.createElement("div");
+                    const isLong = text.length > 30;
+                    wrap.className = `compact-note ${cssClass}${isLong ? ' long-msg' : ''}`;
+
+                    // 彩色圓點
+                    const bullet = document.createElement('span');
+                    bullet.className = 'note-bullet';
+                    wrap.appendChild(bullet);
+
+                    // 文字
+                    const textEl = document.createElement('span');
+                    textEl.className = 'note-text';
+                    textEl.textContent = text;
+                    wrap.appendChild(textEl);
+
+                    container.appendChild(wrap);
+                });
+            };
+
+            if (harvestId) createNotes(qaData.harvest || [], harvestId, 'harvest');
+            if (teacherId) createNotes(qaData.toTeacher || [], teacherId, 'teacher');
+            if (schoolId) createNotes(qaData.toSchool || [], schoolId, 'school');
+        }
+
+        function switchTab(tabId) {
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            tabBtns.forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            
+            const clickedBtn = Array.from(tabBtns).find(btn => {
+                if (tabId === 'class-tab') return btn.textContent.includes('班級');
+                if (tabId === 'teacher-tab') return btn.textContent.includes('教師');
+                if (tabId === 'ai-tab') return btn.textContent.includes('AI');
+                return false;
+            });
+            if (clickedBtn) {
+                clickedBtn.classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>
