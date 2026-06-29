@@ -3593,6 +3593,91 @@ function rebuildSummerTeacherSchedule() {
     SUMMER_DATA.teacherSchedule = newTeacherSchedule;
 }
 
+// 補齊暑輔國八B、國九A/B的英文與數學分組課中缺少的第三位老師
+function fixMissingSummerGroupTeachers() {
+    if (typeof SUMMER_DATA === 'undefined' || !SUMMER_DATA.classSchedule) return;
+    
+    const sched = SUMMER_DATA.classSchedule;
+    
+    // 1. 國八B 補上 莊旭惠 (英語文) 和 蔡佳玲 (數學)
+    const j8bEnglishSlots = [
+        { day: "星期三", periods: ["1", "2"] },
+        { day: "星期四", periods: ["2"] },
+        { day: "星期五", periods: ["3"] }
+    ];
+    j8bEnglishSlots.forEach(slot => {
+        if (sched["國八B"] && sched["國八B"][slot.day]) {
+            slot.periods.forEach(p => {
+                const lessons = sched["國八B"][slot.day][p] || [];
+                const exists = lessons.some(l => l.teacher === "莊旭惠" && l.subject === "英語文");
+                if (!exists) {
+                    lessons.push({ teacher: "莊旭惠", subject: "英語文", rooms: [] });
+                }
+            });
+        }
+    });
+
+    const j8bMathSlots = [
+        { day: "星期二", periods: ["2"] },
+        { day: "星期四", periods: ["3"] },
+        { day: "星期五", periods: ["1", "2"] }
+    ];
+    j8bMathSlots.forEach(slot => {
+        if (sched["國八B"] && sched["國八B"][slot.day]) {
+            slot.periods.forEach(p => {
+                const lessons = sched["國八B"][slot.day][p] || [];
+                const exists = lessons.some(l => l.teacher === "蔡佳玲" && l.subject === "數學");
+                if (!exists) {
+                    lessons.push({ teacher: "蔡佳玲", subject: "數學", rooms: [] });
+                }
+            });
+        }
+    });
+
+    // 2. 國九A 與 國九B 補上 莊旭惠 (英語文) 和 吳宇綸 (數學)
+    const j9EnglishSlots = [
+        { day: "星期一", periods: ["1"] },
+        { day: "星期二", periods: ["1"] },
+        { day: "星期四", periods: ["1"] },
+        { day: "星期五", periods: ["1"] }
+    ];
+    ["國九A", "國九B"].forEach(className => {
+        j9EnglishSlots.forEach(slot => {
+            if (sched[className] && sched[className][slot.day]) {
+                slot.periods.forEach(p => {
+                    const lessons = sched[className][slot.day][p] || [];
+                    const exists = lessons.some(l => l.teacher === "莊旭惠" && l.subject === "英語文");
+                    if (!exists) {
+                        lessons.push({ teacher: "莊旭惠", subject: "英語文", rooms: [] });
+                    }
+                });
+            }
+        });
+    });
+
+    const j9MathSlots = [
+        { day: "星期三", periods: ["1", "2", "3"] },
+        { day: "星期四", periods: ["4"] },
+        { day: "星期五", periods: ["4"] }
+    ];
+    ["國九A", "國九B"].forEach(className => {
+        j9MathSlots.forEach(slot => {
+            if (sched[className] && sched[className][slot.day]) {
+                slot.periods.forEach(p => {
+                    const lessons = sched[className][slot.day][p] || [];
+                    const exists = lessons.some(l => l.teacher === "吳宇綸" && l.subject === "數學");
+                    if (!exists) {
+                        lessons.push({ teacher: "吳宇綸", subject: "數學", rooms: [] });
+                    }
+                });
+            }
+        });
+    });
+}
+
+// 執行暑輔分組課缺漏教師補齊
+fixMissingSummerGroupTeachers();
+
 // 執行暑輔教師課表重構（補齊班級名單與修正格式）
 rebuildSummerTeacherSchedule();
 
