@@ -427,7 +427,10 @@ const DAYS = ["星期一","星期二","星期三","星期四","星期五"];
 
 let isPreviewMode = false;
 
-// 根據 todayStr (M/D) 判斷目前屬於哪一個排課階段
+// =========================================================================
+// ⚠️ 備份存檔與註記：
+// 封存的排課階段判斷邏輯，目前系統固定只顯示暑輔課表，此函式暫時停用，保留僅供備份更新使用。
+// =========================================================================
 function getSchedulePeriod(todayStr) {
     const parts = todayStr.split('/');
     if (parts.length !== 2) return 'regular';
@@ -451,17 +454,23 @@ function getSchedulePeriod(todayStr) {
 
 // 動態資料來源獲取
 function getActiveData() {
+    // =========================================================================
+    // ⚠️ 備份存檔與註記：
+    // 目前系統已設定為「只顯示暑輔課表 (SUMMER_DATA)」，舊課表資料 (DATA、BRIDGING_DATA、FINAL_EXAM_DATA) 
+    // 已被暫時封存，在此不進行動態切換。若日後需要恢復動態判斷或切換舊學期課表，請將下方程式碼還原。
+    // =========================================================================
+    return typeof SUMMER_DATA !== 'undefined' ? SUMMER_DATA : DATA;
+    
+    /* 封存的舊動態判斷邏輯如下：
     const info = getTaipeiDateParts();
     const currentPeriod = getSchedulePeriod(info.todayStr);
     
     if (currentPeriod === 'summer') {
-        // 暑輔期間：預覽模式開啟時，顯示學期課表 (DATA)；否則顯示暑輔課表 (SUMMER_DATA)
         if (isPreviewMode) {
             return DATA;
         }
         return typeof SUMMER_DATA !== 'undefined' ? SUMMER_DATA : DATA;
     } else {
-        // 非暑輔期間：預覽模式開啟時，預覽暑輔課表 (SUMMER_DATA)；否則依日期顯示銜接或期末考
         if (isPreviewMode) {
             if (typeof SUMMER_DATA !== 'undefined') {
                 return SUMMER_DATA;
@@ -479,6 +488,7 @@ function getActiveData() {
         }
         return DATA;
     }
+    */
 }
 
 function getTeachers() {
@@ -511,10 +521,11 @@ function getTaipeiDateParts() {
   const hm = Number(obj.hour)*60 + Number(obj.minute);
   const todayStr = `${parseInt(obj.month, 10)}/${parseInt(obj.day, 10)}`;
   
-  // 依據是否為暑輔期間或預覽暑輔，動態決定使用的節次表，避免 getPeriods/getActiveData 循環調用
-  const currentPeriodType = getSchedulePeriod(todayStr);
-  const isSummer = (currentPeriodType === 'summer' && !isPreviewMode) || (currentPeriodType !== 'summer' && isPreviewMode);
-  const activePeriods = (isSummer && typeof SUMMER_DATA !== 'undefined') ? SUMMER_DATA.periods : (DATA.periods || []);
+  // =========================================================================
+  // ⚠️ 備份存檔與註記：
+  // 目前系統固定使用暑期輔導的 7 節課節次表 (SUMMER_DATA.periods)，若需恢復舊學期節次表，請將此處還原。
+  // =========================================================================
+  const activePeriods = (typeof SUMMER_DATA !== 'undefined') ? SUMMER_DATA.periods : (DATA.periods || []);
   
   let current = null, next = null;
   for (const p of activePeriods) {
@@ -774,84 +785,22 @@ function togglePreview() {
     refreshAll();
 }
 
-// 根據日期與預覽狀態動態更新上方的日期看板與按鈕文字
+// 根據日期與預覽狀態動態更新上方的日期看板與按鈕文字 (已修改為僅常駐顯示暑輔課表，預覽按鈕隱藏)
 function updatePeriodBannerAndButton() {
-    const info = getTaipeiDateParts();
-    const currentPeriod = getSchedulePeriod(info.todayStr);
     const btn = document.getElementById('previewBtn');
     const banner = document.getElementById('bridgingDates');
     
-    if (!btn || !banner) return;
+    if (btn) {
+        btn.style.display = "none"; // 隱藏原學期/暑輔預覽切換按鈕
+    }
     
-    banner.style.display = "flex"; // 確保提示框永遠顯示
-    
-    if (currentPeriod === 'summer') {
-        if (isPreviewMode) {
-            btn.style.color = "#ffcf86";
-            btn.style.borderColor = "#ffcf86";
-            btn.innerHTML = "👁️ 取消預覽學期課表";
-            
-            banner.innerHTML = `
-                <div class="title" style="color: #ffcf86;">🗓️ 學期課表預覽中</div>
-                <div><strong>114學年度第二學期</strong> (原學期課表)</div>
-                <div>班級包含高三及國九等已畢業班級</div>
-            `;
-        } else {
-            btn.style.color = "var(--text)";
-            btn.style.borderColor = "var(--border)";
-            btn.innerHTML = "👁️ 預覽原學期課表";
-            
-            banner.innerHTML = `
-                <div class="title">🗓️ 暑期輔導期間</div>
-                <div><strong>114學年度暑輔</strong> 115.07.01(二)~115.07.28(一)</div>
-                <div>共 4 週，用新學年班級，第1~7節課</div>
-            `;
-        }
-    } else if (currentPeriod === 'final_exam') {
-        if (isPreviewMode) {
-            btn.style.color = "#ffcf86";
-            btn.style.borderColor = "#ffcf86";
-            btn.innerHTML = "👁️ 取消預覽暑輔課表";
-            
-            banner.innerHTML = `
-                <div class="title" style="color: #ffcf86;">🗓️ 暑期輔導預覽中</div>
-                <div><strong>114學年度暑輔</strong> 115.07.01(二)~115.07.28(一)</div>
-                <div>共 4 週，用新學年班級，第1~7節課</div>
-            `;
-        } else {
-            btn.style.color = "var(--text)";
-            btn.style.borderColor = "var(--border)";
-            btn.innerHTML = "👁️ 預覽暑輔課表";
-            
-            banner.innerHTML = `
-                <div class="title">🗓️ 期末考週</div>
-                <div><strong>114學年度期末考</strong> 06.26(五)、06.29(一)、06.30(二)</div>
-                <div>班級為國七、國八、高一、高二各班級</div>
-            `;
-        }
-    } else {
-        // 銜接課表期間 (now ~ 6/25) 或其他
-        if (isPreviewMode) {
-            btn.style.color = "#ffcf86";
-            btn.style.borderColor = "#ffcf86";
-            btn.innerHTML = "👁️ 取消預覽暑輔課表";
-            
-            banner.innerHTML = `
-                <div class="title" style="color: #ffcf86;">🗓️ 暑期輔導預覽中</div>
-                <div><strong>114學年度暑輔</strong> 115.07.01(二)~115.07.28(一)</div>
-                <div>共 4 週，用新學年班級，第1~7節課</div>
-            `;
-        } else {
-            btn.style.color = "var(--text)";
-            btn.style.borderColor = "var(--border)";
-            btn.innerHTML = "👁️ 預覽暑輔課表";
-            
-            banner.innerHTML = `
-                <div class="title">🗓️ 新生銜接課程期間</div>
-                <div><strong>114學年度銜接課程</strong> 至 115.06.25(四)</div>
-                <div>含新七A、新七B、新高一及原學期班級</div>
-            `;
-        }
+    if (banner) {
+        banner.style.display = "flex"; // 確保提示框永遠顯示
+        banner.innerHTML = `
+            <div class="title">🗓️ 暑期輔導期間</div>
+            <div><strong>114學年度暑輔</strong> 115.07.01(二)~115.07.28(一)</div>
+            <div>共 4 週，用新學年班級，第1~7節課</div>
+        `;
     }
 }
 
