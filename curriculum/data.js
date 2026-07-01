@@ -3686,6 +3686,56 @@ function fixMissingSummerGroupTeachers() {
     });
 }
 
+// 設定暑輔國七新生營隊課程（星期三、四、五的第 5~7 節分三組）
+function setupSummerCamps() {
+    if (typeof SUMMER_DATA === 'undefined' || !SUMMER_DATA.classSchedule) return;
+    
+    const sched = SUMMER_DATA.classSchedule;
+    
+    // 新增營隊教師到教師清單中
+    const newCampTeachers = ["星媽", "賴雅麗", "邏輯酷", "黃興國"];
+    newCampTeachers.forEach(t => {
+        if (SUMMER_DATA.teachers && !SUMMER_DATA.teachers.includes(t)) {
+            SUMMER_DATA.teachers.push(t);
+        }
+    });
+    
+    const campData = {
+        "星期三": [
+            { teacher: "唐祥程", subject: "3D列印", rooms: [] },
+            { teacher: "星媽", subject: "匹克球", rooms: [] },
+            { teacher: "蔡佳玲", subject: "科學魔法營", rooms: [] }
+        ],
+        "星期四": [
+            { teacher: "江霂歖", subject: "高爾夫球", rooms: [] },
+            { teacher: "賴雅麗", subject: "創意美學", rooms: [] },
+            { teacher: "邏輯酷", subject: "遊戲設計", rooms: [] }
+        ],
+        "星期五": [
+            { teacher: "王世宗", subject: "生命科學", rooms: [] },
+            { teacher: "江霂歖", subject: "活力球類", rooms: [] },
+            { teacher: "黃興國", subject: "機器人", rooms: [] }
+        ]
+    };
+    
+    const targetClasses = ["國七A", "國七B"];
+    const targetPeriods = ["5", "6", "7"];
+    
+    targetClasses.forEach(className => {
+        if (!sched[className]) return;
+        for (let day in campData) {
+            if (!sched[className][day]) continue;
+            targetPeriods.forEach(p => {
+                // 用三組營隊課程直接替換原本的「外聘/多元營隊」
+                sched[className][day][p] = JSON.parse(JSON.stringify(campData[day]));
+            });
+        }
+    });
+}
+
+// 執行暑輔國七營隊課程設定
+setupSummerCamps();
+
 // 執行暑輔分組課缺漏教師補齊
 fixMissingSummerGroupTeachers();
 
