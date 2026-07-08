@@ -179,6 +179,24 @@ th:first-child, td:first-child { width: 85px; text-align: center; }
   color: var(--accent); margin-top: 20px; font-weight: bold;
   letter-spacing: 2px;
 }
+
+/* 點名系統連結按鈕樣式 */
+.btn-link {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  background: linear-gradient(135deg, rgba(123, 200, 255, 0.15), rgba(142, 223, 176, 0.1));
+  border: 1px solid rgba(123, 200, 255, 0.35);
+  color: var(--accent);
+  transition: all 0.2s ease;
+}
+.btn-link:hover {
+  background: linear-gradient(135deg, rgba(123, 200, 255, 0.25), rgba(142, 223, 176, 0.2));
+  border-color: rgba(123, 200, 255, 0.55);
+  box-shadow: 0 0 10px rgba(123, 200, 255, 0.2);
+}
 </style>
 
 </head>
@@ -191,7 +209,12 @@ th:first-child, td:first-child { width: 85px; text-align: center; }
 
   
 <header>
-  <h1>聖心高中課表查詢系統</h1>
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+    <h1 style="margin: 0;">聖心高中課表查詢系統</h1>
+    <a href="https://attendance-system-15e3f.web.app/" target="_blank" class="badge btn-link">
+      📝 點名系統
+    </a>
+  </div>
   <div class="topbar">
     <div class="badge" id="nowBadge">載入時間中…</div>
     <div class="badge ok" id="teacherBadge">計算中...</div>
