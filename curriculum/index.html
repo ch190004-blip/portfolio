@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>聖心高中課表查詢系統 Final</title>
+<title>聖心高中課表查詢系統 115-1</title>
 
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0f172a">
+<meta name="theme-color" content="#14131b">
 <link rel="apple-touch-icon" href="icon-192.png">
 
 <style>
 :root {
-  --bg: #0b1320; --panel:#121c2f; --panel-2:#18243b; --card:#1e2d49;
-  --soft:#9fb4d3; --text:#eef4ff; --accent:#7bc8ff; --accent-2:#8edfb0;
-  --warn:#ffcf86; --danger:#ff9c94; --border:rgba(255,255,255,.10);
-  --shadow:0 12px 32px rgba(0,0,0,.28);
+  --bg: #13131a; --panel:#191924; --panel-2:#20202e; --card:#262637;
+  --soft:#a9a7b8; --text:#f5f4fa; --accent:#7bc8ff; --accent-2:#8edfb0;
+  --warn:#ffcf86; --danger:#ff9c94; --border:rgba(255,245,235,.11);
+  --shadow:0 12px 32px rgba(0,0,0,.35);
   
   /* 年級專屬色系 */
   --j7-bg: rgba(84, 160, 255, .22); --j7-br: rgba(122, 181, 255, .50);
@@ -27,14 +27,14 @@
 * { box-sizing:border-box; }
 body {
   margin:0; font-family:"Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
-  background: radial-gradient(circle at top right, rgba(123,200,255,.14), transparent 26%),
-              radial-gradient(circle at left bottom, rgba(142,223,176,.09), transparent 22%),
-              linear-gradient(180deg, #08101d, #0f1a2d 38%, #0b1320 100%);
+  background: radial-gradient(circle at top right, rgba(255,192,130,.13), transparent 28%),
+              radial-gradient(circle at left bottom, rgba(175,145,210,.09), transparent 24%),
+              linear-gradient(180deg, #121218, #181722 38%, #14131b 100%);
   color:var(--text);
 }
 header {
   padding:22px 28px 18px; border-bottom:1px solid var(--border);
-  position:sticky; top:0; z-index:20; backdrop-filter: blur(12px); background:rgba(8,16,29,.86);
+  position:sticky; top:0; z-index:20; backdrop-filter: blur(12px); background:rgba(18,18,24,.88);
 }
 h1 { margin:0; font-size:clamp(1.4rem,3vw,2rem); letter-spacing:.03em; }
 .topbar { display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-top:14px; }
@@ -72,7 +72,7 @@ main { padding:24px 28px 40px; }
 .table-wrap { overflow:auto; border:1px solid var(--border); border-radius:16px; }
 table { width:100%; border-collapse:collapse; min-width:960px; table-layout: fixed; }
 th, td { border:1px solid rgba(255,255,255,.08); padding:10px 8px; vertical-align:top; text-align:left; word-wrap: break-word; }
-th { background:#16243d; position:sticky; top:0; z-index:1; }
+th { background:#1f1f2c; position:sticky; top:0; z-index:1; }
 th:first-child, td:first-child { width: 85px; text-align: center; }
 
 /* 儲存格與年級專屬顏色 */
@@ -161,7 +161,7 @@ th:first-child, td:first-child { width: 85px; text-align: center; }
 /* 載入動畫樣式 */
 #loading-overlay {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: #0f172a; display: flex; flex-direction: column;
+  background: #14131b; display: flex; flex-direction: column;
   justify-content: center; align-items: center; z-index: 9999;
   transition: opacity 0.5s ease;
 }
@@ -210,7 +210,7 @@ th:first-child, td:first-child { width: 85px; text-align: center; }
   
 <header>
   <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-    <h1 style="margin: 0;">聖心高中課表查詢系統</h1>
+    <h1 style="margin: 0;">聖心高中課表查詢系統 (115-1)</h1>
     <a href="https://attendance-system-15e3f.web.app/" target="_blank" class="badge btn-link">
       📝 點名系統
     </a>
@@ -220,12 +220,12 @@ th:first-child, td:first-child { width: 85px; text-align: center; }
     <div class="badge ok" id="teacherBadge">計算中...</div>
     <div class="badge ok" id="classBadge">計算中...</div>
     <div class="badge ok" id="roomBadge">計算中...</div>
-    <button class="badge" id="previewBtn" onclick="togglePreview()" style="cursor:pointer; background:rgba(255,255,255,.05); border:1px solid var(--border); color:var(--text); transition: all 0.2s ease;">👁️ 預覽暑輔課表</button>
+    <button class="badge" id="previewBtn" onclick="togglePreview()" style="cursor:pointer; background:rgba(255,255,255,.05); border:1px solid var(--border); color:var(--text); transition: all 0.2s ease; display: none;">👁️ 預覽暑輔課表</button>
     
-    <div id="bridgingDates" class="bridging-dates" style="display: none; flex-direction: column;">
-      <div class="title">🗓️ 暑期輔導上課期間</div>
-      <div><strong>114學年度暑輔</strong> 115.07.01(二)~115.07.28(一)</div>
-      <div>共 4 週，每週一至週五，第1~7節課</div>
+    <div id="bridgingDates" class="bridging-dates" style="display: flex; flex-direction: column;">
+      <div class="title">🗓️ 115學年度第1學期</div>
+      <div><strong>正式實施日程</strong> 115.08.31 ～ 116.01.20</div>
+      <div>全校 11 個班級，每週一至週五，第1~9節課</div>
     </div>
   </div>
 </header>
@@ -477,41 +477,10 @@ function getSchedulePeriod(todayStr) {
 
 // 動態資料來源獲取
 function getActiveData() {
-    // =========================================================================
-    // ⚠️ 備份存檔與註記：
-    // 目前系統已設定為「只顯示暑輔課表 (SUMMER_DATA)」，舊課表資料 (DATA、BRIDGING_DATA、FINAL_EXAM_DATA) 
-    // 已被暫時封存，在此不進行動態切換。若日後需要恢復動態判斷或切換舊學期課表，請將下方程式碼還原。
-    // =========================================================================
-    return typeof SUMMER_DATA !== 'undefined' ? SUMMER_DATA : DATA;
-    
-    /* 封存的舊動態判斷邏輯如下：
-    const info = getTaipeiDateParts();
-    const currentPeriod = getSchedulePeriod(info.todayStr);
-    
-    if (currentPeriod === 'summer') {
-        if (isPreviewMode) {
-            return DATA;
-        }
-        return typeof SUMMER_DATA !== 'undefined' ? SUMMER_DATA : DATA;
-    } else {
-        if (isPreviewMode) {
-            if (typeof SUMMER_DATA !== 'undefined') {
-                return SUMMER_DATA;
-            } else {
-                alert("請先在 data.js 中定義 const SUMMER_DATA = { ... } 才能切換暑輔課表喔！");
-                isPreviewMode = false;
-                return DATA;
-            }
-        }
-        
-        if (currentPeriod === 'final_exam') {
-            return typeof FINAL_EXAM_DATA !== 'undefined' ? FINAL_EXAM_DATA : DATA;
-        } else if (currentPeriod === 'bridging') {
-            return typeof BRIDGING_DATA !== 'undefined' ? BRIDGING_DATA : DATA;
-        }
-        return DATA;
+    if (isPreviewMode && typeof SUMMER_DATA !== 'undefined') {
+        return SUMMER_DATA;
     }
-    */
+    return DATA;
 }
 
 function getTeachers() {
@@ -544,11 +513,7 @@ function getTaipeiDateParts() {
   const hm = Number(obj.hour)*60 + Number(obj.minute);
   const todayStr = `${parseInt(obj.month, 10)}/${parseInt(obj.day, 10)}`;
   
-  // =========================================================================
-  // ⚠️ 備份存檔與註記：
-  // 目前系統固定使用暑期輔導的 7 節課節次表 (SUMMER_DATA.periods)，若需恢復舊學期節次表，請將此處還原。
-  // =========================================================================
-  const activePeriods = (typeof SUMMER_DATA !== 'undefined') ? SUMMER_DATA.periods : (DATA.periods || []);
+  const activePeriods = getPeriods();
   
   let current = null, next = null;
   for (const p of activePeriods) {
@@ -808,22 +773,30 @@ function togglePreview() {
     refreshAll();
 }
 
-// 根據日期與預覽狀態動態更新上方的日期看板與按鈕文字 (已修改為僅常駐顯示暑輔課表，預覽按鈕隱藏)
+// 根據日期與預覽狀態動態更新上方的日期看板與按鈕文字
 function updatePeriodBannerAndButton() {
     const btn = document.getElementById('previewBtn');
     const banner = document.getElementById('bridgingDates');
     
     if (btn) {
-        btn.style.display = "none"; // 隱藏原學期/暑輔預覽切換按鈕
+        btn.style.display = "none"; // 隱藏預覽切換按鈕
     }
     
     if (banner) {
         banner.style.display = "flex"; // 確保提示框永遠顯示
-        banner.innerHTML = `
-            <div class="title">🗓️ 暑期輔導期間</div>
-            <div><strong>114學年度暑輔</strong> 115.07.01(二)~115.07.28(一)</div>
-            <div>共 4 週，用新學年班級，第1~7節課</div>
-        `;
+        if (isPreviewMode) {
+            banner.innerHTML = `
+                <div class="title">🗓️ 暑期輔導期間 (預覽)</div>
+                <div><strong>114學年度暑輔</strong> 115.07.01(二)~115.07.28(一)</div>
+                <div>共 4 週，第1~7節課</div>
+            `;
+        } else {
+            banner.innerHTML = `
+                <div class="title">🗓️ 115學年度第1學期</div>
+                <div><strong>正式實施日程</strong> 115.08.31 ～ 116.01.20</div>
+                <div>全校 11 個班級、41 位教師、10 間專科教室</div>
+            `;
+        }
     }
 }
 
