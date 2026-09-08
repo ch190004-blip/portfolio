@@ -180,12 +180,12 @@ body{
 @keyframes wPectoral { 0%,100%{ transform: rotate(5deg); } 50%{ transform: rotate(-15deg); } }
 
 /* =========================
-   火山總開關按鈕 (座標釘死在 13%, 74%)
+   火山總開關按鈕 (座標釘死在 18%, 72%)
 ========================= */
 .volcano-eruption {
   position: absolute;
-  top: 13%; 
-  left: 74%; 
+  top: 18%; 
+  left: 72%; 
   transform: translate(-50%, -50%);
   z-index: 55;
   cursor: pointer;
