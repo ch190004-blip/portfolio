@@ -1,4 +1,4 @@
-const CACHE_NAME = "curriculum-app-v2";
+const CACHE_NAME = "curriculum-app-v3";
 
 self.addEventListener("install", event => {
   console.log("Service Worker 安裝");
