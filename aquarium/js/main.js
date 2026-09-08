@@ -12,7 +12,7 @@ document.body.style.pointerEvents = "auto";
 /* =========================
    特殊考程與搖鈴系統
 ========================= */
-window.currentMode = 'yuyun'; 
+window.currentMode = 'yichian'; 
 
 const examBells = {
     "3/2": [ { time: "09:50", msg: "搖鈴 (高一.二)" }, { time: "12:00", msg: "搖鈴 (高一.二)" }, { time: "13:15", msg: "搖鈴 (高一.二)" }, { time: "16:30", msg: "搖鈴 (高二)" } ],
@@ -20,13 +20,13 @@ const examBells = {
     "3/4": [ { time: "08:50", msg: "搖鈴 (國七.八.九)" }, { time: "10:35", msg: "搖鈴 (國八)" }, { time: "11:10", msg: "搖鈴 (國九)" }, { time: "11:20", msg: "搖鈴 (國九)" }, { time: "13:35", msg: "搖鈴 (國八)" }, { time: "15:50", msg: "搖鈴 (國七)" }, { time: "16:10", msg: "搖鈴 (國七)" } ]
 };
 
-const modes = ['chienyun', 'yuyun', 'yuwen', 'exam'];
+const modes = ['chienyun', 'yichian', 'yuwen', 'exam', 'yuyun'];
 modes.forEach(mode => {
     const btn = document.getElementById(`btn-${mode}`);
     if (btn) {
         btn.addEventListener("pointerdown", (e) => {
             e.stopPropagation(); 
-            window.currentMode = mode;
+            window.currentMode = (mode === 'yuyun') ? 'yichian' : mode;
             document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             updateHUD(); 
@@ -35,7 +35,7 @@ modes.forEach(mode => {
 });
 
 /* =========================
-   左上角：專屬行政輪值課表 (已恢復本地連動，不再當機)
+   左上角：專屬行政主管課表 (115-1 正式版 + 雙向動態同步)
 ========================= */
 const periods = [
     { name:"第一節", start:490, end:540 }, { name:"第二節", start:550, end:600 }, { name:"第三節", start:610, end:660 }, { name:"第四節", start:665, end:715 }, { name:"第五節", start:775, end:825 }, { name:"第六節", start:835, end:885 }, { name:"第七節", start:890, end:940 }, { name:"第八節", start:950, end:1000 }, { name:"第九節", start:1005, end:1050 }, { name:"行政輪值", start:1050, end:1200 } 
@@ -43,29 +43,80 @@ const periods = [
 
 const schedules = {
     chienyun: {
-        1: { 1: {class:"國七A3組", subject:"英語文"} },
-        3: { 7: {class:"國七A3組", subject:"英語文"} },
-        4: { 2: {class:"國七A3組", subject:"英語文"}, 9: {class:"國七A3組", subject:"英文素養"} }
+        3: { 2: {class:"高三理組/高三文組", subject:"英文增補"}, 5: {class:"高一", subject:"自主學習"}, 8: {class:"國九A", subject:"語文學習"} },
+        4: { 8: {class:"高二理組/高二文組", subject:"語文素養與國寫練"}, 9: {class:"國八A", subject:"跨學科邏輯與閱讀"} },
+        5: { 8: {class:"高二理組/高二文組", subject:"語文素養與國寫練"}, 9: {class:"高一", subject:"閱讀素養與演練"} }
     },
-    yuyun: {
-        1: { 2: {class:"國七A+組", subject:"數學"}, 5: {class:"國七A班", subject:"生活科技"}, 6: {class:"國七A班", subject:"資訊科技"}, 8: {class:"國八B組", subject:"數學"}, 9: {class:"國八B組", subject:"數學"} },
-        2: { 2: {class:"國七A+組", subject:"數學"}, 5: {class:"高一班", subject:"多元選修"}, 6: {class:"高一班", subject:"多元選修"} },
-        3: { 2: {class:"國七A+組", subject:"數學"}, 3: {class:"國八B組", subject:"數學"}, 4: {class:"國八B組", subject:"數學"}, 5: {class:"國七B班", subject:"生活科技"}, 6: {class:"國七B班", subject:"資訊科技"}, 9: {class:"高三理組", subject:"自然探究"}, 10: {class:"辦公室", subject:"行政輪值"} },
-        4: { 3: {class:"國七A+組", subject:"數學"}, 5: {class:"國八B組", subject:"數學"}, 6: {class:"國八B組", subject:"數學"}, 9: {class:"國八B班", subject:"數學"} },
-        5: { 8: {class:"國七A+組", subject:"數學"} }
+    yichian: {
+        1: { 
+            5: {class:"高二理組/高二文組", subject:"公民與社會"}, 
+            6: {class:"高一", subject:"公民與社會"}, 
+            8: {class:"高三文組", subject:"公共議題與社會探"}, 
+            9: {class:"國九B", subject:"社會探究"} 
+        },
+        2: { 
+            5: {class:"國九A", subject:"公民與社會"}
+        },
+        3: { 
+            4: {class:"高二理組/高二文組", subject:"公民與社會"},
+            5: {class:"高三文組", subject:"現代社會與經濟"},
+            10: {class:"辦公室", subject:"行政輪值"}
+        },
+        4: { 
+            1: {class:"高一", subject:"公民與社會"}, 
+            7: {class:"國九B", subject:"公民與社會"}, 
+            9: {class:"高二文組", subject:"社會探究"} 
+        },
+        5: { 
+            1: {class:"高三文組", subject:"公共議題與社會探"}, 
+            2: {class:"高三文組", subject:"族群、性別與國家"}, 
+            9: {class:"國九A", subject:"社會探究"} 
+        }
     },
     yuwen: {
-        1: { 2: {class:"國九A2組", subject:"英語文"}, 5: {class:"高一A2組", subject:"ESL"}, 9: {class:"國七B組", subject:"ESL"} },
-        2: { 5: {class:"國七B組", subject:"ESL"}, 6: {class:"國七B組", subject:"ESL"}, 9: {class:"高一A2組", subject:"ESL"} },
-        3: { 3: {class:"國七B組", subject:"ESL"}, 4: {class:"國九A2組", subject:"英語文"}, 7: {class:"高一A2組", subject:"ESL"}, 8: {class:"高一A2組", subject:"ESL"}, 9: {class:"高二A+組", subject:"ESL"} },
-        4: { 6: {class:"國九A2組", subject:"英語文"}, 7: {class:"國七B組", subject:"ESL"}, 8: {class:"國七B組", subject:"ESL"} },
-        5: { 8: {class:"國九A2組", subject:"英語文"} }
+        1: { 4: {class:"高三理組/高三文組", subject:"英文素養-ESL"}, 9: {class:"高三文組", subject:"閱讀素養與演練"} },
+        2: { 2: {class:"高二文組", subject:"旅遊文學"} },
+        3: { 4: {class:"高三理組/高三文組", subject:"美術"}, 8: {class:"國七B", subject:"跨學科邏輯與閱讀"} },
+        4: { 8: {class:"高三理組", subject:"閱讀素養與演練"} },
+        5: { 2: {class:"高二文組", subject:"旅遊文學"}, 8: {class:"國七A", subject:"跨學科邏輯與閱讀"} }
     }
 };
+schedules.yuyun = schedules.yichian;
+
+// 與 SCHOOL_DATA.teacherSchedule 雙向動態同步
+function syncAdminSchedules() {
+    if (typeof SCHOOL_DATA === 'undefined' || !SCHOOL_DATA.teacherSchedule) return;
+    const mapping = { chienyun: "邱千芸", yichian: "羅衣茜", yuwen: "王妤文", yuyun: "羅衣茜" };
+    const dayMap = { "星期一": 1, "星期二": 2, "星期三": 3, "星期四": 4, "星期五": 5 };
+    for (const [key, teacherName] of Object.entries(mapping)) {
+        const tSched = SCHOOL_DATA.teacherSchedule[teacherName];
+        if (tSched) {
+            schedules[key] = {};
+            for (const [dayName, lessons] of Object.entries(tSched)) {
+                const wd = dayMap[dayName];
+                if (!wd) continue;
+                schedules[key][wd] = {};
+                for (const [p, items] of Object.entries(lessons)) {
+                    if (items && items.length > 0) {
+                        const item = items[0];
+                        const cls = item.classes ? item.classes.join('/') : (item.class || '');
+                        const roomStr = (item.rooms && item.rooms.length > 0) ? ` (${item.rooms.join(',')})` : '';
+                        schedules[key][wd][p] = { class: cls, subject: item.subject + roomStr };
+                    }
+                }
+            }
+        }
+    }
+    if (schedules.yichian) {
+        schedules.yichian[3] = schedules.yichian[3] || {};
+        schedules.yichian[3][10] = { class: "辦公室", subject: "行政輪值" };
+    }
+    schedules.yuyun = schedules.yichian;
+}
+syncAdminSchedules();
 
 function isTuesdayElectiveDay(d) {
-    const validDates = ["3/10", "3/17", "3/24", "5/19", "5/26", "6/2"];
-    return validDates.includes(`${d.getMonth() + 1}/${d.getDate()}`);
+    return true;
 }
 
 function nowMinutes(d=new Date()){ return d.getHours()*60 + d.getMinutes(); }
@@ -78,7 +129,6 @@ function getCurrentPeriodStatus(d = new Date()) {
             let lessonInfo = null;
             if(activeSchedule && activeSchedule[wd] && activeSchedule[wd][index]){
                 lessonInfo = activeSchedule[wd][index];
-                if(window.currentMode === 'yuyun' && wd === 2 && (index === 5 || index === 6) && !isTuesdayElectiveDay(d)) lessonInfo = null;
             }
             if(lessonInfo) return { type: "class", periodName: periods[i].name, ...lessonInfo };
             else return { type: "empty", periodName: periods[i].name };
@@ -94,7 +144,6 @@ function getNextLesson(d=new Date()){
     for(let i=0;i<periods.length;i++){
         const index=i+1;
         if(activeSchedule[wd][index] && m<periods[i].start){
-            if(window.currentMode === 'yuyun' && wd === 2 && (index === 5 || index === 6) && !isTuesdayElectiveDay(d)) continue;
             list.push({ ...activeSchedule[wd][index], period:periods[i].name, start:periods[i].start });
         }
     }
@@ -135,7 +184,13 @@ function updateHUD(){
         }
 
         const status = getCurrentPeriodStatus(d); const next = getNextLesson(d);
-        let teacherName = window.currentMode === 'chienyun' ? "千芸主任 " : (window.currentMode === 'yuyun' ? "昱澐組長 " : "妤文組長 ");
+        const nameMap = {
+            chienyun: "邱千芸主任 ",
+            yichian: "羅衣茜組長 ",
+            yuwen: "王妤文組長 ",
+            yuyun: "羅衣茜組長 "
+        };
+        let teacherName = nameMap[window.currentMode] || "組長 ";
 
         if(status.type === "class") periodEl.textContent = `🧑‍🏫 ${teacherName}上課：${status.class} ${status.subject}（${status.periodName}）`;
         else if (status.type === "empty") periodEl.textContent = `☕ ${teacherName}現在：${status.periodName} / 空堂`;
@@ -295,28 +350,16 @@ const waveQuotes = [
 ];
 
 const schoolEvents = [
-    { name: "228連假", start: "02/27", end: "03/01", type: "holiday" }, { name: "全校複習考", start: "03/02", end: "03/04" },
-    { name: "國語文競賽", start: "03/05", end: "03/05" }, { name: "學校日", start: "03/07", end: "03/07" },
-    { name: "新生獎學金甄試PART I", start: "03/08", end: "03/08" }, { name: "英語文競賽", start: "03/12", end: "03/12" },
-    { name: "新生獎學金甄試PART II", start: "03/14", end: "03/14" }, { name: "面試共談PART I", start: "03/15", end: "03/15" },
-    { name: "雞籠任我行外出踏查", start: "03/17", end: "03/17" }, { name: "繁星放榜", start: "03/18", end: "03/18" },
-    { name: "面試共談PART II", start: "03/21", end: "03/21" }, { name: "假日營隊(五)", start: "03/21", end: "03/21" },
-    { name: "第一次段考", start: "03/31", end: "04/01", display: "03/31~04/01" }, { name: "清明連假", start: "04/03", end: "04/06", type: "holiday" },
-    { name: "國八教育旅行", start: "04/07", end: "04/10" }, { name: "高三重補修", start: "04/07", end: "04/30" },
-    { name: "貓咪盃全國賽", start: "04/09", end: "04/11" }, { name: "第一次作業普查/抽查", start: "04/13", end: "04/17" },
-    { name: "假日營隊(六)", start: "04/18", end: "04/18" }, { name: "國九模擬考", start: "04/21", end: "04/22", display: "04/21.22" },
-    { name: "國九.高三畢業考", start: "04/29", end: "04/30", display: "04/29.30" }, { name: "勞動節連假", start: "05/01", end: "05/03", type: "holiday" },
-    { name: "第二次段考", start: "05/13", end: "05/14", display: "05/13.14" }, { name: "國中教育會考", start: "05/16", end: "05/17", display: "05/16.17" },
-    { name: "假日營隊(七)", start: "05/16", end: "05/16" }, { name: "校慶", start: "05/23", end: "05/23" },
-    { name: "校慶補假", start: "05/25", end: "05/25", type: "holiday" }, { name: "第二次作業普查/抽查", start: "05/25", end: "05/29" },
-    { name: "一二年級田野日", start: "05/29", end: "05/29" }, { name: "畢業典禮", start: "06/02", end: "06/02" },
-    { name: "自主學習&多元選修發表", start: "06/05", end: "06/05" }, { name: "本土語發表", start: "06/12", end: "06/12" },
-    { name: "假日營隊(八)", start: "06/13", end: "06/13" }, { name: "升高一銜接", start: "06/15", end: "06/25" },
-    { name: "升國七銜接", start: "06/17", end: "06/24" }, { name: "國七新生報到", start: "06/17", end: "06/17" },
-    { name: "端午連假", start: "06/19", end: "06/21", type: "holiday" }, { name: "期末考", start: "06/26", end: "06/30", display: "06/26, 29, 30" },
-    { name: "暑假開始", start: "07/01", end: "07/01", type: "holiday" }, { name: "中文檢定", start: "07/02", end: "07/02" },
-    { name: "補考", start: "07/07", end: "07/07" }, { name: "分科測驗", start: "07/11", end: "07/12", display: "07/11.12" },
-    { name: "重補修", start: "07/20", end: "07/20" }
+    { name: "115-1 開學日", start: "08/31", end: "08/31" },
+    { name: "中秋連假", start: "09/25", end: "09/27", type: "holiday" },
+    { name: "教師節", start: "09/28", end: "09/28" },
+    { name: "國慶連假", start: "10/09", end: "10/11", type: "holiday" },
+    { name: "第一次段考", start: "10/14", end: "10/15", display: "10/14~10/15" },
+    { name: "第二次段考", start: "12/01", end: "12/02", display: "12/01~12/02" },
+    { name: "元旦連假", start: "01/01", end: "01/03", type: "holiday" },
+    { name: "115-1 期末考", start: "01/14", end: "01/15", display: "01/14~01/15" },
+    { name: "115-1 休業式", start: "01/20", end: "01/20" },
+    { name: "寒假開始", start: "01/21", end: "01/21", type: "holiday" }
 ];
 
 function updateEventPanel() {
@@ -531,7 +574,9 @@ function getTaipeiDatePartsForMap() {
     const hm = Number(obj.hour)*60 + Number(obj.minute);
     let currentPeriod = null;
     
-    for (const p of SCHOOL_DATA.periods) {
+    const pList = (typeof SCHOOL_DATA !== 'undefined' && SCHOOL_DATA.periods) ? SCHOOL_DATA.periods : [];
+    for (const p of pList) {
+        if (!p.start || !p.end) continue;
         const [sh, sm] = p.start.split(':').map(Number);
         const [eh, em] = p.end.split(':').map(Number);
         if (hm >= sh * 60 + sm && hm <= eh * 60 + em) {
@@ -551,11 +596,13 @@ function formatScheduleText(classes) {
         return `<div class="z-class">${classes[0]}</div><div class="z-sub">下課 / 休息</div>`;
     }
 
+    const schedSource = (typeof SCHOOL_DATA !== 'undefined' && SCHOOL_DATA.classSchedule) ? SCHOOL_DATA.classSchedule : {};
+
     let html = '';
     if (classes.length > 1) {
         html += `<div class="z-class">${classes[0].substring(0,2)}</div><div class="z-sub">`;
         classes.forEach(cls => {
-            const entries = (((SCHOOL_DATA.classSchedule[cls] || {})[info.day] || {})[String(info.currentPeriod)] || []);
+            const entries = (((schedSource[cls] || {})[info.day] || {})[String(info.currentPeriod)] || []);
             const groupName = cls.includes("理") ? "[理]" : "[文]";
             
             const subInfo = findSubstitute(info.todayStr, info.currentPeriod, cls);
@@ -565,13 +612,15 @@ function formatScheduleText(classes) {
             } else if (entries.length === 0) {
                 html += `${groupName} 空堂<br>`;
             } else {
-                html += `${groupName} ${entries[0].subject} / ${entries[0].teacher}<br>`;
+                const rooms = entries.filter(e => e.rooms && e.rooms.length > 0).flatMap(e => e.rooms);
+                const roomStr = rooms.length > 0 ? ` <span style="color:#7bf7ff; font-size:0.85em;">(${Array.from(new Set(rooms)).join(',')})</span>` : '';
+                html += `${groupName} ${entries[0].subject} / ${entries[0].teacher}${roomStr}<br>`;
             }
         });
         html += `</div>`;
     } else {
         const cls = classes[0];
-        const entries = (((SCHOOL_DATA.classSchedule[cls] || {})[info.day] || {})[String(info.currentPeriod)] || []);
+        const entries = (((schedSource[cls] || {})[info.day] || {})[String(info.currentPeriod)] || []);
         
         const subInfo = findSubstitute(info.todayStr, info.currentPeriod, cls);
         
@@ -582,7 +631,9 @@ function formatScheduleText(classes) {
         } else {
             const subject = entries.map(e => e.subject).join(' / ');
             const teacher = entries.map(e => e.teacher).join(' / ');
-            html += `<div class="z-class">${cls}</div><div class="z-sub">${subject}<br><span style="font-size:0.85em; color:#a2c4d2;">${teacher}</span></div>`;
+            const rooms = entries.filter(e => e.rooms && e.rooms.length > 0).flatMap(e => e.rooms);
+            const roomStr = rooms.length > 0 ? `<br><span style="color:#7bf7ff; font-size:0.85em;">📍 ${Array.from(new Set(rooms)).join(', ')}</span>` : '';
+            html += `<div class="z-class">${cls}</div><div class="z-sub">${subject}<br><span style="font-size:0.85em; color:#a2c4d2;">${teacher}</span>${roomStr}</div>`;
         }
     }
     return html;
