@@ -1,1354 +1,242 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
+<!doctype html>
+<html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>數位專案作品集</title>
-  <style>
-    :root{
-      --bg:#0f172a;
-      --panel:#111827;
-      --card:#1e293b;
-      --text:#f8fafc;
-      --muted:#94a3b8;
-      --accent:#38bdf8;
-      --accent2:#22c55e;
-      --line:rgba(255,255,255,.08);
-    }
-
-    *{box-sizing:border-box}
-
-    body{
-      margin:0;
-      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      background:linear-gradient(180deg,#020617 0%, #0f172a 38%, #111827 100%);
-      color:var(--text);
-    }
-
-    header{
-      padding:56px 20px 34px;
-      text-align:center;
-      background:radial-gradient(circle at top, rgba(56,189,248,.18), transparent 40%), #020617;
-      border-bottom:1px solid var(--line);
-    }
-
-    h1{
-      margin:0;
-      font-size:clamp(30px,4vw,42px);
-      letter-spacing:.02em;
-    }
-
-    .subtitle{
-      margin-top:12px;
-      color:var(--muted);
-      font-size:16px;
-    }
-
-    .container{
-      max-width:1200px;
-      margin:0 auto;
-      padding:28px 18px 42px;
-    }
-
-    .section{
-      margin-bottom:34px;
-      padding:18px;
-      border:1px solid var(--line);
-      border-radius:22px;
-      background:rgba(255,255,255,.03);
-      backdrop-filter:blur(4px);
-    }
-
-    .section-header{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      margin-bottom:18px;
-      padding-bottom:10px;
-      border-bottom:1px solid var(--line);
-    }
-
-    .section-badge{
-      min-width:42px;
-      height:42px;
-      border-radius:12px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:20px;
-      background:linear-gradient(135deg, rgba(56,189,248,.24), rgba(34,197,94,.18));
-    }
-
-    .section-title{
-      margin:0;
-      font-size:26px;
-    }
-
-    .section-note{
-      color:var(--muted);
-      font-size:14px;
-      margin-top:4px;
-    }
-
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-      gap:18px;
-    }
-
-    .card{
-      background:linear-gradient(180deg, rgba(30,41,59,.95), rgba(15,23,42,.96));
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:22px;
-      box-shadow:0 14px 34px rgba(0,0,0,.28);
-      transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      min-height:170px;
-    }
-
-    .card:hover{
-      transform:translateY(-5px);
-      box-shadow:0 18px 38px rgba(0,0,0,.34);
-      border-color:rgba(56,189,248,.35);
-    }
-
-    .card h3{
-      margin:0 0 10px;
-      font-size:22px;
-      line-height:1.35;
-    }
-
-    .card p{
-      margin:0;
-      color:var(--muted);
-      line-height:1.55;
-      min-height:48px;
-      font-size:14px;
-    }
-
-    .buttons{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:18px;
-    }
-
-    button{
-      border:none;
-      border-radius:10px;
-      padding:11px 16px;
-      font-size:14px;
-      cursor:pointer;
-      font-weight:700;
-      transition:transform .18s ease, opacity .18s ease;
-    }
-
-    button:hover{
-      transform:translateY(-1px);
-      opacity:.95;
-    }
-
-    .open{
-      background:var(--accent);
-      color:#00111c;
-    }
-
-    .download{
-      background:var(--accent2);
-      color:#03140a;
-    }
-
-    .external-only .buttons{
-      margin-top:22px;
-    }
-
-    footer{
-      text-align:center;
-      color:var(--muted);
-      padding:18px 20px 34px;
-      font-size:14px;
-    }
-
-    /* ===== AI 工具箱樣式 ===== */
-    .ai-fab{
-      position:fixed;
-      bottom:24px;
-      right:24px;
-      z-index:1000;
-      width:56px;
-      height:56px;
-      border-radius:50%;
-      border:none;
-      background:linear-gradient(135deg, #38bdf8, #6366f1);
-      color:#fff;
-      font-size:18px;
-      font-weight:800;
-      cursor:pointer;
-      box-shadow:0 4px 20px rgba(56,189,248,.35);
-      transition:transform .2s, box-shadow .2s;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-    .ai-fab:hover{
-      transform:scale(1.1);
-      box-shadow:0 6px 28px rgba(56,189,248,.45);
-    }
-    .ai-fab span{
-      animation:pulse 2s infinite;
-    }
-    @keyframes pulse{
-      0%,100%{opacity:1}
-      50%{opacity:.7}
-    }
-
-    .ai-overlay{
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,.5);
-      backdrop-filter:blur(4px);
-      z-index:998;
-      opacity:0;
-      pointer-events:none;
-      transition:opacity .3s;
-    }
-    .ai-overlay.active{
-      opacity:1;
-      pointer-events:auto;
-    }
-
-    .ai-panel{
-      position:fixed;
-      top:0;
-      right:0;
-      width:100%;
-      max-width:400px;
-      height:100%;
-      background:rgba(15,23,42,.97);
-      backdrop-filter:blur(20px);
-      border-left:1px solid var(--line);
-      z-index:999;
-      transform:translateX(100%);
-      transition:transform .3s ease;
-      display:flex;
-      flex-direction:column;
-    }
-    .ai-panel.active{
-      transform:translateX(0);
-    }
-
-    .ai-panel-header{
-      padding:20px;
-      border-bottom:1px solid var(--line);
-      background:rgba(15,23,42,.95);
-    }
-    .ai-panel-header-top{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-    }
-    .ai-panel-header h2{
-      margin:0;
-      font-size:20px;
-    }
-    .ai-close{
-      width:32px;
-      height:32px;
-      border:none;
-      background:transparent;
-      color:var(--muted);
-      font-size:20px;
-      cursor:pointer;
-      border-radius:8px;
-      transition:background .2s, color .2s;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-    .ai-close:hover{
-      background:rgba(255,255,255,.1);
-      color:#fff;
-    }
-    .ai-panel-header p{
-      margin:6px 0 0;
-      font-size:13px;
-      color:var(--muted);
-    }
-
-    .ai-tabs{
-      display:flex;
-      gap:8px;
-      margin-top:16px;
-    }
-    .ai-tab{
-      flex:1;
-      padding:10px;
-      border:none;
-      border-radius:10px;
-      font-size:14px;
-      font-weight:600;
-      cursor:pointer;
-      transition:background .2s, color .2s;
-      background:rgba(255,255,255,.05);
-      color:var(--muted);
-    }
-    .ai-tab:hover{
-      background:rgba(255,255,255,.1);
-    }
-    .ai-tab.active{
-      background:var(--accent);
-      color:#00111c;
-    }
-
-    .ai-panel-content{
-      flex:1;
-      overflow-y:auto;
-      padding:16px 20px;
-    }
-
-    .ai-section-title{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      font-size:12px;
-      font-weight:600;
-      text-transform:uppercase;
-      letter-spacing:.5px;
-      color:var(--muted);
-      margin:0 0 12px;
-    }
-
-    .ai-tool-list{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-      margin-bottom:24px;
-    }
-
-    .ai-tool{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      padding:12px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.05);
-      background:rgba(255,255,255,.03);
-      text-decoration:none;
-      color:inherit;
-      transition:background .2s, border-color .2s;
-    }
-    .ai-tool:hover{
-      background:rgba(255,255,255,.08);
-      border-color:rgba(56,189,248,.3);
-    }
-    .ai-tool-icon{
-      width:40px;
-      height:40px;
-      border-radius:10px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:18px;
-      flex-shrink:0;
-    }
-    .ai-tool-info{
-      flex:1;
-      min-width:0;
-    }
-    .ai-tool-name{
-      font-weight:600;
-      font-size:15px;
-    }
-    .ai-tool-desc{
-      font-size:12px;
-      color:var(--muted);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      margin-top:2px;
-    }
-    .ai-tool-arrow{
-      color:var(--muted);
-      opacity:0;
-      transition:opacity .2s;
-    }
-    .ai-tool:hover .ai-tool-arrow{
-      opacity:1;
-    }
-
-    .ai-desktop-card{
-      padding:16px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.05);
-      background:rgba(255,255,255,.03);
-      margin-bottom:12px;
-    }
-    .ai-desktop-header{
-      display:flex;
-      align-items:center;
-      gap:12px;
-    }
-    .ai-desktop-icon{
-      width:48px;
-      height:48px;
-      border-radius:12px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:24px;
-    }
-    .ai-desktop-name{
-      font-weight:600;
-      font-size:16px;
-    }
-    .ai-desktop-desc{
-      font-size:13px;
-      color:var(--muted);
-      margin-top:2px;
-    }
-    .ai-model-tags{
-      display:flex;
-      flex-wrap:wrap;
-      gap:6px;
-      margin-top:12px;
-    }
-    .ai-model-tag{
-      padding:4px 10px;
-      border-radius:6px;
-      background:rgba(255,255,255,.08);
-      font-size:11px;
-      color:var(--muted);
-    }
-
-    .ai-desktop-note{
-      font-size:12px;
-      color:#64748b;
-      margin-bottom:16px;
-    }
-
-    .ai-tab-content{
-      display:none;
-    }
-    .ai-tab-content.active{
-      display:block;
-    }
-
-    @media (max-width:700px){
-      .container{padding:18px 14px 34px}
-      .section{padding:14px}
-      .card{min-height:auto}
-      .card h3{font-size:19px}
-      .section-title{font-size:22px}
-      .ai-panel{max-width:100%}
-      .ai-fab{bottom:16px;right:16px;width:50px;height:50px;font-size:16px}
-      .ai-tabs{gap:4px;}
-      .ai-tab{padding:8px; font-size:12px;}
-    }
-  </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>聖心高中 115-1 課表水族箱 | 教務處互動展示系統</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
-  <button class="ai-fab" onclick="toggleAIPanel()" title="AI 工具箱">
-    <span>AI</span>
-  </button>
-
-  <div class="ai-overlay" id="aiOverlay" onclick="toggleAIPanel()"></div>
-
-  <div class="ai-panel" id="aiPanel">
-    <div class="ai-panel-header">
-      <div class="ai-panel-header-top">
-        <h2>AI 工具箱</h2>
-        <button class="ai-close" onclick="toggleAIPanel()">&times;</button>
+  <header id="hud">
+    <div class="hud-left">
+      <div class="hud-header">
+        <div class="time-group">
+          <div id="clock" class="clock" style="cursor: pointer;" title="點擊召喚大鯨魚！"></div>
+          <div id="weekday-badge" class="weekday-badge">讀取中</div>
+          <div id="semester-badge" class="weekday-badge" style="background: rgba(255,183,77,0.2); border-color: rgba(255,183,77,0.6); color: #ffb74d;">115-1 正式版</div>
+        </div>
+        <div class="mode-buttons">
+          <button id="btn-chienyun" class="mode-btn">邱千芸主任</button>
+          <button id="btn-yichian" class="mode-btn active">羅衣茜組長</button>
+          <button id="btn-yuwen" class="mode-btn">王妤文組長</button>
+          <button id="btn-exam" class="mode-btn">考程模式</button>
+        </div>
       </div>
-      <p>免費額度用到淋漓盡致</p>
-      <div class="ai-tabs" style="flex-wrap:wrap">
-        <button class="ai-tab active" onclick="switchAITab('online')">AI平台</button>
-        <button class="ai-tab" onclick="switchAITab('devtools')">開發</button>
-        <button class="ai-tab" onclick="switchAITab('design')">設計</button>
-        <button class="ai-tab" onclick="switchAITab('media')">影音創作</button>
-        <button class="ai-tab" onclick="switchAITab('ide')">IDE</button>
-        <button class="ai-tab" onclick="switchAITab('opensource')">開源</button>
+      <div id="period" class="period"></div>
+      <div id="nextClass" class="next"></div>
+    </div>
+    
+    <div class="hud-right" id="eventPanel">
+      <div id="quoteMessage" class="daily-msg"></div>
+      <div class="event-scroll-area">
+        <div id="eventList" class="event-list"></div>
       </div>
     </div>
-
-    <div class="ai-panel-content">
-      <div class="ai-tab-content active" id="tab-online">
-        <h3 class="ai-section-title"><span>🏆</span> AI 主流平台 Top 12</h3>
-        <div class="ai-tool-list">
-          <a class="ai-tool" href="https://chat.openai.com" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(16,163,127,.15)">🤖</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">ChatGPT</div>
-              <div class="ai-tool-desc">GPT-5.5 Pro - 質量指數 99，綜合第一</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://claude.ai" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(217,119,6,.15)">🧠</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Claude</div>
-              <div class="ai-tool-desc">Opus 4.7 - Arena 排行榜頂尖</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://gemini.google.com" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(66,133,244,.15)">✨</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Gemini</div>
-              <div class="ai-tool-desc">3.1 Pro - 多模態最強，免費額度多</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          
-          <a class="ai-tool" href="https://manus.im" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(220,38,38,.15)">🦾</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Manus</div>
-              <div class="ai-tool-desc">最強自主 AI Agent - 給予目標即自動規劃與執行</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          
-          <a class="ai-tool" href="https://kimi.moonshot.cn/" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(34,211,238,.15)">🌙</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Kimi</div>
-              <div class="ai-tool-desc">月之暗面 - 超長文本解析，中文語境極佳</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://x.ai" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(29,161,242,.15)">⚡</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Grok</div>
-              <div class="ai-tool-desc">xAI Grok 4.0 - 即時資訊與強大推論</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://qwen.ai" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(99,102,241,.15)">🌐</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Qwen</div>
-              <div class="ai-tool-desc">通義千問 4.0 - 中文/程式碼頂尖</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://perplexity.ai" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(32,178,170,.15)">🔍</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Perplexity</div>
-              <div class="ai-tool-desc">AI 搜尋引擎 - 即時搜尋與引用</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://poe.com" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(139,92,246,.15)">💬</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">POE</div>
-              <div class="ai-tool-desc">多模型聚合平台，一站用多 AI</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://deepseek.chat" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(124,58,237,.15)">🔬</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">DeepSeek</div>
-              <div class="ai-tool-desc">V4/R2 - 開源效能領先，免費</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://chat.mistral.ai" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(249,115,22,.15)">🌪</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Mistral</div>
-              <div class="ai-tool-desc">Small 5 / Large 4 - 歐洲頂尖</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://copilot.microsoft.com" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(0,120,212,.15)">🪟</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Copilot</div>
-              <div class="ai-tool-desc">Microsoft - 整合 Office/Windows</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-        </div>
-
-        <h3 class="ai-section-title"><span>📚</span> AI 筆記 / 研究</h3>
-        <div class="ai-tool-list">
-          <a class="ai-tool" href="https://notebooklm.google" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(251,191,36,.15)">📖</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">NotebookLM</div>
-              <div class="ai-tool-desc">Google AI 筆記本 - 文件理解與 Podcast 生成</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-        </div>
-
-        <h3 class="ai-section-title"><span>⚙</span> 自動化</h3>
-        <div class="ai-tool-list">
-          <a class="ai-tool" href="https://app.n8n.cloud" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(234,75,113,.15)">🔗</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">n8n</div>
-              <div class="ai-tool-desc">工作流程自動化 - 串接 API 與服務</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-        </div>
-      </div>
-
-      <div class="ai-tab-content" id="tab-devtools">
-        <h3 class="ai-section-title"><span>💻</span> AI 開發平台</h3>
-        <div class="ai-tool-list">
-          <a class="ai-tool" href="https://v0.dev" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(0,0,0,.3)">▲</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">v0</div>
-              <div class="ai-tool-desc">Vercel - 前端 UI 生成專家</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://aistudio.google.com" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(66,133,244,.15)">🧪</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">AI Studio</div>
-              <div class="ai-tool-desc">Google - Gemini API 測試與開發</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-
-          <a class="ai-tool" href="https://lovable.dev" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(236,72,153,.15)">💜</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Lovable</div>
-              <div class="ai-tool-desc">AI 全端應用生成 - 從描述到部署</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://bolt.new" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(99,102,241,.15)">⚡</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Bolt.new</div>
-              <div class="ai-tool-desc">StackBlitz - AI 即時程式生成</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://replit.com" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(249,115,22,.15)">🛠</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Replit</div>
-              <div class="ai-tool-desc">雲端 IDE + AI Agent 輔助開發</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-        </div>
-
-        <h3 class="ai-section-title"><span>📦</span> 協作平台</h3>
-        <div class="ai-tool-list">
-          <a class="ai-tool" href="https://github.com" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(36,41,46,.3)">🐙</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">GitHub</div>
-              <div class="ai-tool-desc">程式碼託管 - 本網站架設平台</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://console.firebase.google.com" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(255,196,0,.15)">🔥</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Firebase</div>
-              <div class="ai-tool-desc">Google - 即時資料庫與後端服務</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://vercel.com" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(0,0,0,.3)">▲</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Vercel</div>
-              <div class="ai-tool-desc">前端部署平台 - 秒速上線</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://app.netlify.com/drop" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(37,193,169,.15)">💧</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Netlify Drop</div>
-              <div class="ai-tool-desc">拖曳即部署 - 極速靜態網站上線</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://supabase.com" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(62,207,142,.15)">📗</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Supabase</div>
-              <div class="ai-tool-desc">開源 Firebase 替代 - PostgreSQL</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-        </div>
-      </div>
-
-      <div class="ai-tab-content" id="tab-design">
-        <h3 class="ai-section-title"><span>🎨</span> AI 設計工具</h3>
-        <div class="ai-tool-list">
-          <a class="ai-tool" href="https://www.canva.com" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(0,196,204,.15)">🌈</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Canva</div>
-              <div class="ai-tool-desc">Magic Studio - 簡報與圖像設計救星</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://www.figma.com" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(162,89,255,.15)">🎨</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Figma</div>
-              <div class="ai-tool-desc">業界標準 UI 設計 - AI 輔助功能</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://stitch.withgoogle.com" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(66,133,244,.15)">🧵</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Google Stitch</div>
-              <div class="ai-tool-desc">Vibe Design - 語音設計、即時原型</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://www.framer.com" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(0,0,0,.3)">🖼</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Framer</div>
-              <div class="ai-tool-desc">AI 網站建構 - 快速發布響應式網站</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://gamma.app" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(124,58,237,.15)">📄</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Gamma</div>
-              <div class="ai-tool-desc">AI 簡報生成 - 一鍵產出精美簡報</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://www.midjourney.com" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(255,255,255,.1)">🌅</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Midjourney</div>
-              <div class="ai-tool-desc">AI 圖像生成 - 藝術風格領先</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://www.adobe.com/products/firefly.html" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(255,0,0,.15)">🔥</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Adobe Firefly</div>
-              <div class="ai-tool-desc">商用安全 AI 圖像 - 整合 Creative Cloud</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://ideogram.ai" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(168,85,247,.15)">🌟</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Ideogram</div>
-              <div class="ai-tool-desc">AI 圖像 - 文字渲染能力最強</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://leonardo.ai" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(139,92,246,.15)">🎭</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Leonardo.Ai</div>
-              <div class="ai-tool-desc">遊戲素材 AI - 角色與場景生成</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-        </div>
-      </div>
-
-      <div class="ai-tab-content" id="tab-media">
-        <h3 class="ai-section-title"><span>🎵</span> 音樂與音效 AI</h3>
-        <div class="ai-tool-list">
-          <a class="ai-tool" href="https://suno.com" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(234,88,12,.15)">🎸</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Suno AI</div>
-              <div class="ai-tool-desc">地表最強音樂生成 - 流行歌與配樂神器</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://www.udio.com" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(59,130,246,.15)">🎧</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Udio</div>
-              <div class="ai-tool-desc">高音質音樂 AI - 結構與段落控制力極佳</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://elevenlabs.io" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(16,185,129,.15)">🎙</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">ElevenLabs</div>
-              <div class="ai-tool-desc">最強人聲與音效生成 - 角色配音首選</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-        </div>
-
-        <h3 class="ai-section-title"><span>🎬</span> 影片與動畫 AI</h3>
-        <div class="ai-tool-list">
-          <a class="ai-tool" href="https://runwayml.com" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(99,102,241,.15)">🎬</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Runway</div>
-              <div class="ai-tool-desc">AI 影片生成 - Gen-3 Alpha 畫質領先</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://klingai.com/" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(239,68,68,.15)">🎞</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">Kling (可靈)</div>
-              <div class="ai-tool-desc">快手出品 - 動態與物理規律表現極致</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-          <a class="ai-tool" href="https://www.heygen.com" target="_blank" rel="noopener">
-            <div class="ai-tool-icon" style="background:rgba(139,92,246,.15)">👤</div>
-            <div class="ai-tool-info">
-              <div class="ai-tool-name">HeyGen</div>
-              <div class="ai-tool-desc">AI 數位人主播 - 教學影片與簡報神隊友</div>
-            </div>
-            <span class="ai-tool-arrow">↗</span>
-          </a>
-        </div>
-      </div>
-
-      <div class="ai-tab-content" id="tab-ide">
-        <h3 class="ai-section-title"><span>💻</span> AI 整合開發環境</h3>
-        <p class="ai-desktop-note">需在本機安裝，整合 AI 輔助編程功能</p>
-
-        <div class="ai-desktop-card">
-          <div class="ai-desktop-header">
-            <div class="ai-desktop-icon" style="background:rgba(124,58,237,.15)">⌨</div>
-            <div>
-              <div class="ai-desktop-name">Cursor</div>
-              <div class="ai-desktop-desc">AI-First 程式編輯器，內建多模型支援</div>
-            </div>
-          </div>
-          <div class="ai-model-tags">
-            <span class="ai-model-tag">Claude Opus 4.7</span>
-            <span class="ai-model-tag">Claude Sonnet 4.7</span>
-            <span class="ai-model-tag">GPT-5.5</span>
-            <span class="ai-model-tag">GPT-5.5 Mini</span>
-            <span class="ai-model-tag">Cursor-Small</span>
-            <span class="ai-model-tag">Gemini 3.1 Pro</span>
-          </div>
-        </div>
-
-        <div class="ai-desktop-card">
-          <div class="ai-desktop-header">
-            <div class="ai-desktop-icon" style="background:rgba(14,165,233,.15)">🌊</div>
-            <div>
-              <div class="ai-desktop-name">Windsurf</div>
-              <div class="ai-desktop-desc">Codeium 出品，強大的 Agent 協作 IDE</div>
-            </div>
-          </div>
-          <div class="ai-model-tags">
-            <span class="ai-model-tag">Cascade Agent</span>
-            <span class="ai-model-tag">Claude Sonnet 4.7</span>
-            <span class="ai-model-tag">GPT-5.5</span>
-          </div>
-        </div>
-
-        <div class="ai-desktop-card">
-          <div class="ai-desktop-header">
-            <div class="ai-desktop-icon" style="background:rgba(0,122,204,.15)">🖥</div>
-            <div>
-              <div class="ai-desktop-name">VS Code</div>
-              <div class="ai-desktop-desc">微軟編輯器 + GitHub Copilot 擴充</div>
-            </div>
-          </div>
-          <div class="ai-model-tags">
-            <span class="ai-model-tag">GitHub Copilot</span>
-            <span class="ai-model-tag">Copilot Chat</span>
-            <span class="ai-model-tag">Codex GPT-5.5</span>
-            <span class="ai-model-tag">Claude (擴充)</span>
-            <span class="ai-model-tag">Continue (本地)</span>
-          </div>
-        </div>
-
-       <div class="ai-desktop-card">
-          <div class="ai-desktop-header">
-            <div class="ai-desktop-icon" style="background:rgba(16,163,127,.15)">⚙️</div>
-            <div>
-              <div class="ai-desktop-name">Codex Code</div>
-              <div class="ai-desktop-desc">AI 程式設計代理與輔助開發環境</div>
-            </div>
-          </div>
-          <div class="ai-model-tags">
-            <span class="ai-model-tag">Codex AI</span>
-            <span class="ai-model-tag">AI Agent</span>
-          </div>
-        </div>
-        
-        <div class="ai-desktop-card">
-          <div class="ai-desktop-header">
-            <div class="ai-desktop-icon" style="background:rgba(34,197,94,.15)">🚀</div>
-            <div>
-              <div class="ai-desktop-name">Antigravity</div>
-              <div class="ai-desktop-desc">多模型桌面 AI 客戶端，免費額度整合</div>
-            </div>
-          </div>
-          <div class="ai-model-tags">
-            <span class="ai-model-tag">Gemini 3.1 Pro</span>
-            <span class="ai-model-tag">Gemini 3.1 Flash</span>
-            <span class="ai-model-tag">Claude Opus 4.7</span>
-            <span class="ai-model-tag">Claude Sonnet 4.7</span>
-            <span class="ai-model-tag">GPT-5.5</span>
-            <span class="ai-model-tag">Mistral Large 4</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="ai-tab-content" id="tab-opensource">
-        <h3 class="ai-section-title"><span>🤖</span> 本地運行工具</h3>
-        <p class="ai-desktop-note">搭配終端機或 GUI，適合強大主機離線使用</p>
-
-        <div class="ai-desktop-card">
-          <div class="ai-desktop-header">
-            <div class="ai-desktop-icon" style="background:rgba(245,158,11,.15)">🦙</div>
-            <div>
-              <div class="ai-desktop-name">Ollama</div>
-              <div class="ai-desktop-desc">終端機運行，輕量快速部署開源 LLM</div>
-            </div>
-          </div>
-          <div class="ai-model-tags">
-            <span class="ai-model-tag">Gemma 4.5 27B</span>
-            <span class="ai-model-tag">Llama 4.5</span>
-            <span class="ai-model-tag">Qwen 4.0 Plus</span>
-            <span class="ai-model-tag">Mistral Small 5</span>
-            <span class="ai-model-tag">DeepSeek R2</span>
-            <span class="ai-model-tag">DeepSeek-V4</span>
-            <span class="ai-model-tag">Phi-4</span>
-            <span class="ai-model-tag">CodeLlama</span>
-          </div>
-        </div>
-
-        <div class="ai-desktop-card">
-          <div class="ai-desktop-header">
-            <div class="ai-desktop-icon" style="background:rgba(6,182,212,.15)">🍏</div>
-            <div>
-              <div class="ai-desktop-name">LM Studio</div>
-              <div class="ai-desktop-desc">圖形化介面，支援 GGUF 格式模型管理</div>
-            </div>
-          </div>
-          <div class="ai-model-tags">
-            <span class="ai-model-tag">GGUF 格式</span>
-            <span class="ai-model-tag">Gemma 4.5 系列</span>
-            <span class="ai-model-tag">Llama 4.5 系列</span>
-            <span class="ai-model-tag">Qwen 4.0 系列</span>
-            <span class="ai-model-tag">Mistral 系列</span>
-            <span class="ai-model-tag">自訂量化模型</span>
-          </div>
-        </div>
-
-        <h3 class="ai-section-title" style="margin-top:20px"><span>🔥</span> 熱門開源模型</h3>
-        <p class="ai-desktop-note">可在 Ollama / LM Studio 下載運行</p>
-
-        <div class="ai-desktop-card">
-          <div class="ai-desktop-header">
-            <div class="ai-desktop-icon" style="background:rgba(99,102,241,.15)">🦙</div>
-            <div>
-              <div class="ai-desktop-name">Llama 系列</div>
-              <div class="ai-desktop-desc">Meta 開源旗艦，生態系最完整</div>
-            </div>
-          </div>
-          <div class="ai-model-tags">
-            <span class="ai-model-tag">Llama 4.5 Scout</span>
-            <span class="ai-model-tag">Llama 4.5 Maverick</span>
-            <span class="ai-model-tag">Llama 3.3 70B</span>
-            <span class="ai-model-tag">CodeLlama 70B</span>
-          </div>
-        </div>
-
-        <div class="ai-desktop-card">
-          <div class="ai-desktop-header">
-            <div class="ai-desktop-icon" style="background:rgba(66,133,244,.15)">✨</div>
-            <div>
-              <div class="ai-desktop-name">Gemma 4.5 系列</div>
-              <div class="ai-desktop-desc">Google 開源旗艦，256K 上下文，多模態</div>
-            </div>
-          </div>
-          <div class="ai-model-tags">
-            <span class="ai-model-tag">Gemma 4.5 27B</span>
-            <span class="ai-model-tag">Gemma 4.5 12B</span>
-            <span class="ai-model-tag">Gemma 4.5 4B</span>
-            <span class="ai-model-tag">Gemma 4.5 1B</span>
-            <span class="ai-model-tag">PaliGemma 2</span>
-          </div>
-        </div>
-
-        <div class="ai-desktop-card">
-          <div class="ai-desktop-header">
-            <div class="ai-desktop-icon" style="background:rgba(249,115,22,.15)">🌪</div>
-            <div>
-              <div class="ai-desktop-name">Mistral 系列</div>
-              <div class="ai-desktop-desc">歐洲頂尖開源，效能/大小比最佳</div>
-            </div>
-          </div>
-          <div class="ai-model-tags">
-            <span class="ai-model-tag">Mistral Small 5</span>
-            <span class="ai-model-tag">Mistral Large 4</span>
-            <span class="ai-model-tag">Mistral Nemo</span>
-            <span class="ai-model-tag">Codestral</span>
-          </div>
-        </div>
-
-        <div class="ai-desktop-card">
-          <div class="ai-desktop-header">
-            <div class="ai-desktop-icon" style="background:rgba(139,92,246,.15)">🌐</div>
-            <div>
-              <div class="ai-desktop-name">Qwen 系列</div>
-              <div class="ai-desktop-desc">阿里雲開源，中文/程式碼能力強</div>
-            </div>
-          </div>
-          <div class="ai-model-tags">
-            <span class="ai-model-tag">Qwen 4.0 Plus</span>
-            <span class="ai-model-tag">Qwen 4.0 72B</span>
-            <span class="ai-model-tag">Qwen-Coder 2.5</span>
-            <span class="ai-model-tag">Qwen-VL 2</span>
-          </div>
-        </div>
-
-        <div class="ai-desktop-card">
-          <div class="ai-desktop-header">
-            <div class="ai-desktop-icon" style="background:rgba(124,58,237,.15)">🔬</div>
-            <div>
-              <div class="ai-desktop-name">DeepSeek 系列</div>
-              <div class="ai-desktop-desc">深度求索開源，程式碼能力優秀</div>
-            </div>
-          </div>
-          <div class="ai-model-tags">
-            <span class="ai-model-tag">DeepSeek-V4</span>
-            <span class="ai-model-tag">DeepSeek-R2</span>
-            <span class="ai-model-tag">DeepSeek-Coder-V2</span>
-            <span class="ai-model-tag">DeepSeek-Math</span>
-          </div>
-        </div>
-
-        <div class="ai-desktop-card">
-          <div class="ai-desktop-header">
-            <div class="ai-desktop-icon" style="background:rgba(234,179,8,.15)">💫</div>
-            <div>
-              <div class="ai-desktop-name">Hermes 系列</div>
-              <div class="ai-desktop-desc">NousResearch 微調，指令遵循強</div>
-            </div>
-          </div>
-          <div class="ai-model-tags">
-            <span class="ai-model-tag">Hermes 3 Llama 70B</span>
-            <span class="ai-model-tag">Hermes 3 Llama 8B</span>
-            <span class="ai-model-tag">Hermes-Pro</span>
-          </div>
-        </div>
-
-        <div class="ai-desktop-card">
-          <div class="ai-desktop-header">
-            <div class="ai-desktop-icon" style="background:rgba(16,185,129,.15)">🤖</div>
-            <div>
-              <div class="ai-desktop-name">OpenHermes / OpenClaw</div>
-              <div class="ai-desktop-desc">社群微調版本，對話能力優化</div>
-            </div>
-          </div>
-          <div class="ai-model-tags">
-            <span class="ai-model-tag">OpenHermes 2.5</span>
-            <span class="ai-model-tag">OpenClaw 7B</span>
-            <span class="ai-model-tag">Nous-Hermes-2</span>
-          </div>
-        </div>
-
-        <div class="ai-desktop-card">
-          <div class="ai-desktop-header">
-            <div class="ai-desktop-icon" style="background:rgba(59,130,246,.15)">🧪</div>
-            <div>
-              <div class="ai-desktop-name">其他熱門模型</div>
-              <div class="ai-desktop-desc">各有特色的開源選擇</div>
-            </div>
-          </div>
-          <div class="ai-model-tags">
-            <span class="ai-model-tag">Phi-4 (微軟)</span>
-            <span class="ai-model-tag">Yi-1.5 (01.AI)</span>
-            <span class="ai-model-tag">Command-R+ (Cohere)</span>
-            <span class="ai-model-tag">StarCoder2</span>
-            <span class="ai-model-tag">WizardCoder</span>
-            <span class="ai-model-tag">Granite (IBM)</span>
-            <span class="ai-model-tag">Orca 2</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <header>
-    <h1>數位專案作品集</h1>
-    <div class="subtitle">依主題分類整理，方便快速開啟與下載</div>
   </header>
 
-  <div class="container">
+  <div class="rwd-wrapper">
+    <div id="bg"></div>
+    <div id="overlay"></div>
 
-    <section class="section">
-      <div class="section-header">
-        <div class="section-badge">🏫</div>
-        <div>
-          <h2 class="section-title">聖心專區</h2>
-          <div class="section-note">校務應用、校園展示與家長資訊</div>
-        </div>
+    <main id="tank" aria-label="aquarium">
+      <div id="god-light-btn" class="volcano-eruption" title="點擊強制開啟/關閉全校課表！">
+        <svg viewBox="0 0 100 100" width="60" height="60">
+          <path d="M 50 10 Q 30 50 10 90 Q 50 100 90 90 Q 70 50 50 10 Z" fill="rgba(255, 80, 0, 0.65)" filter="blur(2px)"/>
+          <path d="M 50 20 Q 35 55 20 85 Q 50 95 80 85 Q 65 55 50 20 Z" fill="rgba(255, 180, 50, 0.85)" filter="blur(1px)"/>
+          <circle cx="50" cy="50" r="8" fill="#fff" opacity="0.9" filter="blur(1px)"/>
+          <circle cx="35" cy="40" r="5" fill="#ffb432" opacity="0.8"/>
+          <circle cx="65" cy="35" r="6" fill="#ff5000" opacity="0.8"/>
+        </svg>
       </div>
-
-      <div class="grid">
-        <div class="card">
-          <div>
-            <h3>全校即時課表查詢系統</h3>
-            <p>快速查詢全校課表與當前課程資訊。</p>
-          </div>
-          <div class="buttons">
-            <button class="open" onclick="openProject('curriculum')">開啟作品</button>
-            <button class="download" onclick="downloadProject('curriculum')">下載</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <div>
-            <h3>教務處水族箱互動網頁</h3>
-            <p>療癒互動展示頁，結合海洋氛圍與教務應用情境。</p>
-          </div>
-          <div class="buttons">
-            <button class="open" onclick="openProject('aquarium')">開啟作品</button>
-            <button class="download" onclick="downloadProject('aquarium')">下載</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <div>
-            <h3>PR成績分析系統</h3>
-            <p>支援成績匯入、PR分析與圖表呈現。</p>
-          </div>
-          <div class="buttons">
-            <button class="open" onclick="openProject('pr-analyzer')">開啟系統</button>
-            <button class="download" onclick="downloadProject('pr-analyzer')">下載</button>
-          </div>
-        </div>
-
-        <div class="card external-only">
-          <div>
-            <h3>聖心校車路線</h3>
-            <p>校車路線前台地圖展示與站點瀏覽。</p>
-          </div>
-          <div class="buttons">
-            <button class="open" onclick="window.open('https://ch190004-blip.github.io/portfolio/shbus/')">開啟網站</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <div>
-            <h3>114-2 家長日簡報</h3>
-            <p>家長日簡報與展示內容。</p>
-          </div>
-          <div class="buttons">
-            <button class="open" onclick="openProject('schoolday')">開啟作品</button>
-            <button class="download" onclick="downloadProject('schoolday')">下載</button>
-          </div>
-        </div>
-
-        <div class="card external-only">
-          <div>
-            <h3>雞籠任我行 彙整平台</h3>
-            <p>整合基隆在地資訊與導覽內容的互動平台。</p>
-          </div>
-          <div class="buttons">
-            <button class="open" onclick="window.open('https://ais-pre-nkla24zqcsf3isotlzorpo-223272022691.asia-east1.run.app/')">開啟網站</button>
-          </div>
-        </div>
       
-<div class="card external-only">
-  <div>
-    <h3>114-2 七年級科技課期末發表</h3>
-    <p>展示七年級學生科技課學習成果與心得分享。</p>
-  </div>
-  <div class="buttons">
-    <button class="open" onclick="window.open('https://sites.google.com/shsh.kl.edu.tw/11402tt')">開啟網站</button>
-  </div>
-</div>  
-
-<div class="card external-only">
-  <div>
-    <h3>5/13教師【數位學習強化研習】</h3>
-    <p>AI 賦能工作坊：從行政減壓到教學實務升級。</p>
-  </div>
-  <div class="buttons">
-    <button class="open" onclick="window.open('https://ai-and-i-c4d29.web.app/index.html')">開啟網站</button>
-  </div>
-</div>
-  </div>    
-    </section>
-
-    <section class="section">
-      <div class="section-header">
-        <div class="section-badge">📓</div>
-        <div>
-          <h2 class="section-title">數學互動</h2>
-          <div class="section-note">教學網站、遊戲化練習與 AI 輔助複習</div>
-        </div>
+      <div id="mascot-h1" class="mascot-container floaty" style="top:85%; left:70%;">
+        <svg class="mascot-svg squid-float micro-roam" viewBox="0 0 220 220" width="55" height="55">
+          <defs><linearGradient id="sq1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffd8b8"/><stop offset="100%" stop-color="#ff9e7a"/></linearGradient></defs>
+          <path d="M110 32 C145 32, 168 66, 162 108 C157 145, 134 170, 110 184 C86 170, 63 145, 58 108 C52 66, 75 32, 110 32 Z" fill="url(#sq1)"/>
+          <path d="M66 78 C42 82, 38 115, 63 128 C72 118, 74 94, 66 78 Z" fill="#ffc0a6" opacity="0.9"/><path d="M154 78 C178 82, 182 115, 157 128 C148 118, 146 94, 154 78 Z" fill="#ffc0a6" opacity="0.9"/>
+          <ellipse cx="94" cy="94" rx="10" ry="14" fill="white"/><ellipse cx="126" cy="94" rx="10" ry="14" fill="white"/>
+          <ellipse cx="97" cy="99" rx="5" ry="8" fill="#243447"/><ellipse cx="129" cy="99" rx="5" ry="8" fill="#243447"/>
+          <circle cx="99" cy="95" r="2" fill="white"/><circle cx="131" cy="95" r="2" fill="white"/>
+          <path d="M104 116 Q110 122 116 116" fill="none" stroke="#b96352" stroke-width="3" stroke-linecap="round"/>
+          <g stroke="#ffb08f" stroke-width="8" stroke-linecap="round" fill="none"><path d="M86 150 C78 170, 78 193, 88 206"/><path d="M98 154 C94 174, 96 196, 104 210"/><path d="M110 156 C110 176, 110 198, 110 212"/><path d="M122 154 C126 174, 124 196, 116 210"/><path d="M134 150 C142 170, 142 193, 132 206"/><path d="M78 145 C62 163, 62 190, 74 204"/><path d="M142 145 C158 163, 158 190, 146 204"/></g>
+          <g stroke="#ff9f7d" stroke-width="6" stroke-linecap="round" fill="none"><path d="M96 146 C82 168, 76 194, 82 214"/><path d="M124 146 C138 168, 144 194, 138 214"/></g>
+        </svg>
+        <div class="speech-bubble"></div>
       </div>
 
-      <div class="grid">
-        <div class="card external-only">
-          <div>
-            <h3>數學中心（Google協作平台）</h3>
-            <p>整合教材、資源與學習入口。</p>
-          </div>
-          <div class="buttons">
-            <button class="open" onclick="window.open('https://sites.google.com/view/yuyunchen/math')">開啟網站</button>
-          </div>
-        </div>
-
-        <div class="card external-only">
-          <div>
-            <h3>數學RPG網站（封測中）</h3>
-            <p>遊戲化數學題庫與互動闖關體驗。</p>
-          </div>
-          <div class="buttons">
-            <button class="open" onclick="window.open('https://math-rpg-test.web.app/')">開啟網站</button>
-          </div>
-        </div>
-
-        <div class="card external-only">
-          <div>
-            <h3>數學七下複習(登入排名)</h3>
-            <p>針對七年級下學期段考內容的 AI 複習網站。</p>
-          </div>
-          <div class="buttons">
-            <button class="open" onclick="window.open('https://ais-pre-xfiipaqe2mgblgu3c5kwzr-223272022691.asia-east1.run.app/')">開啟網站</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="section-header">
-        <div class="section-badge">🌊</div>
-        <div>
-          <h2 class="section-title">其他</h2>
-          <div class="section-note">研究、互動展示與地圖導覽應用</div>
-        </div>
+      <div id="mascot-h2" class="mascot-container floaty" style="top:75%; left:75%;">
+        <svg class="mascot-svg micro-roam" viewBox="0 0 220 220" width="55" height="55">
+          <defs><radialGradient id="oct1" cx="50%" cy="30%" r="70%"><stop offset="0%" stop-color="#ffb3b3"/><stop offset="100%" stop-color="#ff7f9f"/></radialGradient></defs>
+          <g class="tentacle-wave" style="transform-origin: 50% 50%;">
+            <path d="M65 122 C45 145, 45 175, 62 186 C74 193, 83 182, 78 172 C72 162, 58 165, 58 178" fill="none" stroke="#ff8aa8" stroke-width="14" stroke-linecap="round"/>
+            <path d="M85 126 C70 150, 70 184, 90 196 C105 204, 112 188, 100 178" fill="none" stroke="#ff8aa8" stroke-width="14" stroke-linecap="round"/>
+            <path d="M102 128 C95 152, 97 188, 109 198" fill="none" stroke="#ff8aa8" stroke-width="14" stroke-linecap="round"/>
+            <path d="M118 128 C125 152, 123 188, 111 198" fill="none" stroke="#ff8aa8" stroke-width="14" stroke-linecap="round"/>
+            <path d="M135 126 C150 150, 150 184, 130 196 C115 204, 108 188, 120 178" fill="none" stroke="#ff8aa8" stroke-width="14" stroke-linecap="round"/>
+            <path d="M155 122 C175 145, 175 175, 158 186 C146 193, 137 182, 142 172 C148 162, 162 165, 162 178" fill="none" stroke="#ff8aa8" stroke-width="14" stroke-linecap="round"/>
+            <g fill="#ffd6e0" opacity="0.9"><circle cx="72" cy="154" r="3"/><circle cx="68" cy="166" r="3"/><circle cx="90" cy="160" r="3"/><circle cx="98" cy="174" r="3"/><circle cx="130" cy="174" r="3"/><circle cx="138" cy="160" r="3"/><circle cx="152" cy="154" r="3"/><circle cx="156" cy="166" r="3"/></g>
+          </g>
+          <ellipse cx="110" cy="82" rx="52" ry="48" fill="url(#oct1)"/>
+          <ellipse cx="91" cy="82" rx="12" ry="16" fill="white"/><ellipse cx="129" cy="82" rx="12" ry="16" fill="white"/>
+          <circle cx="95" cy="87" r="6" fill="#243447"/><circle cx="133" cy="87" r="6" fill="#243447"/>
+          <circle cx="97" cy="84" r="2" fill="white"/><circle cx="135" cy="84" r="2" fill="white"/>
+          <path d="M98 104 Q110 114 122 104" fill="none" stroke="#b94d6b" stroke-width="4" stroke-linecap="round"/>
+          <ellipse cx="72" cy="101" rx="10" ry="6" fill="#ff9db6" opacity="0.45"/><ellipse cx="148" cy="101" rx="10" ry="6" fill="#ff9db6" opacity="0.45"/>
+        </svg>
+        <div class="speech-bubble"></div>
       </div>
 
-      <div class="grid">
-        <div class="card">
-          <div>
-            <h3>波浪發電互動網頁</h3>
-            <p>以互動網頁方式展示波浪發電概念。</p>
-          </div>
-          <div class="buttons">
-            <button class="open" onclick="openProject('wave')">開啟作品</button>
-            <button class="download" onclick="downloadProject('wave')">下載</button>
-          </div>
-        </div>
-
-        <div class="card external-only">
-          <div>
-            <h3>全台各鄉鎮市區導覽</h3>
-            <p>整合台灣各地行政區與導覽資訊。</p>
-          </div>
-          <div class="buttons">
-            <button class="open" onclick="window.open('https://sites.google.com/view/yuyunchen/maps')">開啟網站</button>
-          </div>
-        </div>
-
-        <div class="card external-only">
-          <div>
-            <h3>AI 語音分析助手</h3>
-            <p>錄音後自動產出逐字稿與精準分析報告。</p>
-          </div>
-          <div class="buttons">
-            <button class="open" onclick="window.open('https://ais-pre-tapuxgmumqchjlt7rbmdsq-65179081829.asia-northeast1.run.app')">開啟網站</button>
-          </div>
-        </div>
-
-        <div class="card external-only">
-          <div>
-            <h3>PDF 工具</h3>
-            <p>PDF 處理與轉換工具，結合 AI 功能提升文件效率。</p>
-          </div>
-          <div class="buttons">
-            <button class="open" onclick="window.open('https://ai.studio/apps/54292840-4913-4e1e-9b17-b47737107184')">開啟網站</button>
-          </div>
-        </div>
-
-        <div class="card external-only">
-          <div>
-            <h3>思高聖經全攻略</h3>
-            <p>結合完整文本、AI產出Podcast、故事圖。</p>
-          </div>
-          <div class="buttons">
-            <button class="open" onclick="window.open('https://bible-c4cc7.web.app/')">開啟網站</button>
-          </div>
-        </div>
+      <div id="mascot-h3" class="mascot-container floaty" style="top:50%; left:70%;">
+        <svg class="mascot-svg" viewBox="0 0 100 100" width="50" height="50">
+          <defs>
+            <linearGradient id="chestW" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8b5a2b"/><stop offset="100%" stop-color="#4a2e15"/></linearGradient>
+            <linearGradient id="chestG" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffe066"/><stop offset="50%" stop-color="#f5b041"/><stop offset="100%" stop-color="#b9770e"/></linearGradient>
+          </defs>
+          <rect x="10" y="45" width="80" height="45" rx="4" fill="url(#chestW)" stroke="#2c1a0f" stroke-width="3"/>
+          <rect x="10" y="50" width="80" height="6" fill="url(#chestG)"/><rect x="10" y="80" width="80" height="6" fill="url(#chestG)"/>
+          <rect x="25" y="45" width="8" height="45" fill="url(#chestG)"/><rect x="67" y="45" width="8" height="45" fill="url(#chestG)"/>
+          <g class="chest-lid-group" style="transform-origin: 10px 45px; transition: transform 0.5s cubic-bezier(0.5, 2, 0.5, 1);">
+            <path d="M 10 45 C 10 10, 90 10, 90 45 Z" fill="url(#chestW)" stroke="#2c1a0f" stroke-width="3"/>
+            <path d="M 10 45 C 10 10, 90 10, 90 45 Z" fill="none" stroke="url(#chestG)" stroke-width="5"/>
+            <path d="M 29 45 C 29 20, 40 18, 50 18 C 60 18, 71 20, 71 45" fill="none" stroke="url(#chestG)" stroke-width="6"/>
+            <circle cx="50" cy="45" r="10" fill="url(#chestG)" stroke="#2c1a0f" stroke-width="2"/>
+            <rect x="47" y="44" width="6" height="8" fill="#2c1a0f" rx="2"/><circle cx="50" cy="42" r="3" fill="#2c1a0f"/>
+          </g>
+        </svg>
+        <div class="speech-bubble"></div>
       </div>
-    </section>
 
+      <div id="mascot-j9a" class="mascot-container floaty" style="top:60%; left:20%;">
+        <svg class="mascot-svg star-breathe" viewBox="0 0 200 200" width="50" height="50">
+          <defs><radialGradient id="starG_9a" cx="35%" cy="28%" r="70%"><stop offset="0%" stop-color="#d8b3a6"/><stop offset="100%" stop-color="#c99586"/></radialGradient></defs>
+          <path d="M 100 30 L 120 80 L 170 85 L 130 120 L 145 170 L 100 140 L 55 170 L 70 120 L 30 85 L 80 80 Z" fill="url(#starG_9a)" stroke="#c99586" stroke-width="12" stroke-linejoin="round"/>
+          <circle cx="85" cy="110" r="4.5" fill="#17323a" /><circle cx="115" cy="110" r="4.5" fill="#17323a" />
+          <circle cx="86.5" cy="108.5" r="1.5" fill="#fff" /><circle cx="116.5" cy="108.5" r="1.5" fill="#fff" />
+          <path d="M 95 120 Q 100 125 105 120" fill="none" stroke="#17323a" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="72" cy="115" r="7" fill="#ff9999" opacity="0.6"/><circle cx="128" cy="115" r="7" fill="#ff9999" opacity="0.6"/>
+        </svg>
+        <div class="speech-bubble"></div>
+      </div>
+
+      <div id="mascot-j9b" class="mascot-container floaty" style="top:50%; left:30%;">
+        <svg class="mascot-svg star-breathe" viewBox="0 0 200 200" width="50" height="50" style="animation-delay:-1.5s;">
+          <defs><radialGradient id="starG_9b" cx="35%" cy="28%" r="70%"><stop offset="0%" stop-color="#d8b3a6"/><stop offset="100%" stop-color="#c99586"/></radialGradient></defs>
+          <path d="M 100 30 L 120 80 L 170 85 L 130 120 L 145 170 L 100 140 L 55 170 L 70 120 L 30 85 L 80 80 Z" fill="url(#starG_9b)" stroke="#c99586" stroke-width="12" stroke-linejoin="round"/>
+          <circle cx="85" cy="110" r="4.5" fill="#17323a" /><circle cx="115" cy="110" r="4.5" fill="#17323a" />
+          <circle cx="86.5" cy="108.5" r="1.5" fill="#fff" /><circle cx="116.5" cy="108.5" r="1.5" fill="#fff" />
+          <path d="M 95 120 Q 100 125 105 120" fill="none" stroke="#17323a" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="72" cy="115" r="7" fill="#ff9999" opacity="0.6"/><circle cx="128" cy="115" r="7" fill="#ff9999" opacity="0.6"/>
+        </svg>
+        <div class="speech-bubble"></div>
+      </div>
+
+      <div id="mascot-j8a" class="mascot-container floaty" style="top:85%; left:35%;">
+        <svg class="mascot-svg puffer-puff micro-roam" viewBox="0 0 220 220" width="60" height="60">
+          <defs><radialGradient id="puf1" cx="50%" cy="35%" r="70%"><stop offset="0%" stop-color="#ffe9a8"/><stop offset="100%" stop-color="#f5c96b"/></radialGradient></defs>
+          <path d="M164 105 C188 88, 198 96, 194 110 C198 124, 188 132, 164 115 Z" fill="#f2b95d"/>
+          <path d="M90 62 C76 54, 72 72, 84 78 Z" fill="#f2b95d" opacity="0.9"/><path d="M90 158 C76 166, 72 148, 84 142 Z" fill="#f2b95d" opacity="0.9"/>
+          <circle cx="110" cy="110" r="58" fill="url(#puf1)"/>
+          <g fill="#d9a94f"><polygon points="110,42 114,54 106,54"/><polygon points="152,52 150,64 142,58"/><polygon points="175,82 165,88 166,78"/><polygon points="178,118 166,114 176,108"/><polygon points="166,154 156,146 168,144"/><polygon points="138,176 128,166 142,166"/><polygon points="82,176 92,166 78,166"/><polygon points="54,154 64,146 52,144"/><polygon points="42,118 54,114 44,108"/><polygon points="45,82 55,88 54,78"/><polygon points="68,52 70,64 78,58"/></g>
+          <ellipse cx="110" cy="124" rx="42" ry="28" fill="#fff3d4" opacity="0.9"/>
+          <circle cx="89" cy="101" r="11" fill="white"/><circle cx="131" cy="101" r="11" fill="white"/>
+          <circle cx="92" cy="104" r="5" fill="#243447"/><circle cx="134" cy="104" r="5" fill="#243447"/>
+          <circle cx="94" cy="101" r="2" fill="white"/><circle cx="136" cy="101" r="2" fill="white"/>
+          <path d="M100 123 Q110 132 120 123" fill="none" stroke="#b97c38" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="70" cy="121" r="7" fill="#ffb3b3" opacity="0.35"/><circle cx="150" cy="121" r="7" fill="#ffb3b3" opacity="0.35"/>
+        </svg>
+        <div class="speech-bubble"></div>
+      </div>
+
+      <div id="mascot-j8b" class="mascot-container floaty" style="top:80%; left:40%;">
+        <svg class="mascot-svg puffer-puff micro-roam" viewBox="0 0 220 220" width="60" height="60" style="animation-delay:-2.5s;">
+          <defs><radialGradient id="puf2" cx="50%" cy="35%" r="70%"><stop offset="0%" stop-color="#ffe9a8"/><stop offset="100%" stop-color="#f5c96b"/></radialGradient></defs>
+          <path d="M164 105 C188 88, 198 96, 194 110 C198 124, 188 132, 164 115 Z" fill="#f2b95d"/>
+          <path d="M90 62 C76 54, 72 72, 84 78 Z" fill="#f2b95d" opacity="0.9"/><path d="M90 158 C76 166, 72 148, 84 142 Z" fill="#f2b95d" opacity="0.9"/>
+          <circle cx="110" cy="110" r="58" fill="url(#puf2)"/>
+          <g fill="#d9a94f"><polygon points="110,42 114,54 106,54"/><polygon points="152,52 150,64 142,58"/><polygon points="175,82 165,88 166,78"/><polygon points="178,118 166,114 176,108"/><polygon points="166,154 156,146 168,144"/><polygon points="138,176 128,166 142,166"/><polygon points="82,176 92,166 78,166"/><polygon points="54,154 64,146 52,144"/><polygon points="42,118 54,114 44,108"/><polygon points="45,82 55,88 54,78"/><polygon points="68,52 70,64 78,58"/></g>
+          <ellipse cx="110" cy="124" rx="42" ry="28" fill="#fff3d4" opacity="0.9"/>
+          <circle cx="89" cy="101" r="11" fill="white"/><circle cx="131" cy="101" r="11" fill="white"/>
+          <circle cx="92" cy="104" r="5" fill="#243447"/><circle cx="134" cy="104" r="5" fill="#243447"/>
+          <circle cx="94" cy="101" r="2" fill="white"/><circle cx="136" cy="101" r="2" fill="white"/>
+          <path d="M100 123 Q110 132 120 123" fill="none" stroke="#b97c38" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="70" cy="121" r="7" fill="#ffb3b3" opacity="0.35"/><circle cx="150" cy="121" r="7" fill="#ffb3b3" opacity="0.35"/>
+        </svg>
+        <div class="speech-bubble"></div>
+      </div>
+
+      <div id="mascot-j7a" class="mascot-container floaty" style="top:87%; left:6%;">
+        <svg class="mascot-svg seaweed-sway" viewBox="0 0 100 200" width="55" height="90">
+          <path d="M50 200 Q20 150 50 100 T50 10" fill="none" stroke="#68b082" stroke-width="12" stroke-linecap="round"/>
+          <path d="M50 200 Q70 170 40 120 T60 40" fill="none" stroke="#4a8f62" stroke-width="8" stroke-linecap="round"/>
+        </svg>
+        <div class="speech-bubble"></div>
+      </div>
+
+      <div id="mascot-j7b" class="mascot-container floaty" style="top:85%; left:16%;">
+        <svg class="mascot-svg seaweed-sway" viewBox="0 0 100 200" width="50" height="90" style="animation-delay:-1s;">
+          <path d="M50 200 Q20 150 50 100 T50 10" fill="none" stroke="#68b082" stroke-width="12" stroke-linecap="round"/>
+          <path d="M50 200 Q70 170 40 120 T60 40" fill="none" stroke="#4a8f62" stroke-width="8" stroke-linecap="round"/>
+        </svg>
+        <div class="speech-bubble"></div>
+      </div>
+
+      <div id="giant-whale" class="whale-container">
+        <svg viewBox="0 0 1100 520" width="100%" height="100%">
+          <defs>
+            <linearGradient id="whaleBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7f9fa2"/><stop offset="0.55" stop-color="#5f7f86"/><stop offset="1" stop-color="#4b6670"/></linearGradient>
+            <linearGradient id="whaleBelly" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#c8d2cf"/><stop offset="1" stop-color="#aebdb8"/></linearGradient>
+            <linearGradient id="wShine" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="rgba(255,255,255,.30)"/><stop offset="0.6" stop-color="rgba(255,255,255,0)"/></linearGradient>
+          </defs>
+          <g class="w-tailBase">
+            <path d="M 360 320 Q 250 310 180 250 Q 160 270 200 370 Q 250 410 360 380 Z" fill="url(#whaleBody)"/>
+            <g class="w-tailFin"><path d="M 230 250 Q 90 200 50 150 Q 130 220 170 310 Q 150 400 90 480 Q 160 410 240 380 Z" fill="url(#whaleBody)"/></g>
+          </g>
+          <g class="w-breath">
+            <path d="M 330 320 C 400 180 650 150 850 180 C 1050 210 1060 330 950 400 C 800 460 600 470 450 420 C 380 390 350 350 330 320 Z" fill="url(#whaleBody)"/>
+            <path d="M 360 360 C 500 430 750 450 900 390 C 850 440 650 460 400 410 Z" fill="url(#whaleBelly)"/>
+            <g opacity=".25" stroke="#17323a" stroke-width="4" stroke-linecap="round"><path d="M 450 390 Q 650 450 850 390" fill="none"/><path d="M 480 410 Q 650 465 820 410" fill="none"/><path d="M 520 430 Q 650 480 780 430" fill="none"/></g>
+            <path d="M 650 160 Q 680 120 720 150 Q 680 180 650 160 Z" fill="url(#whaleBody)"/>
+            <path class="w-pectoral" d="M 700 370 Q 650 470 500 520 Q 620 480 740 400 Z" fill="url(#whaleBelly)"/>
+            <circle cx="860" cy="310" r="10" fill="rgba(255,255,255,.85)"/><circle cx="862" cy="312" r="5" fill="#17323a"/><circle cx="864" cy="310" r="1.5" fill="#fff"/>
+            <path d="M 1000 325 Q 920 370 835 340" fill="none" stroke="#2a4047" stroke-width="5" stroke-linecap="round" opacity="0.6"/>
+            <path d="M 835 340 Q 825 335 830 325" fill="none" stroke="#2a4047" stroke-width="3.5" stroke-linecap="round" opacity="0.6"/>
+            <path d="M 450 230 C 550 180 750 190 850 230 C 750 230 550 230 450 230 Z" fill="url(#wShine)"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="turtle-container floaty">
+        <svg class="turtle-svg" viewBox="0 0 200 120" width="160" height="96">
+          <defs>
+            <linearGradient id="t-shell" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="var(--turtleShell1)"/><stop offset="1" stop-color="var(--turtleShell2)"/></linearGradient>
+            <linearGradient id="t-skin-dark" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#9aa598"/><stop offset="1" stop-color="#7c8a7b"/></linearGradient>
+          </defs>
+          <g class="turtle-bob">
+            <path class="flipper-front-anim-r" d="M 120 75 C 90 85 50 95 30 110 C 50 130 90 115 115 85 Z" fill="url(#t-skin-dark)" />
+            <path class="flipper-back-anim-r" d="M 70 75 C 55 85 35 90 25 100 C 35 110 55 105 65 85 Z" fill="url(#t-skin-dark)" />
+            <path d="M 35 70 Q 15 75 20 85 Q 35 85 45 75 Z" fill="var(--turtleSkin)"/>
+            <g class="head-anim">
+              <path d="M 130 75 C 130 50 185 55 185 75 C 185 90 150 95 130 80 Z" fill="var(--turtleSkin)"/>
+              <circle cx="165" cy="68" r="4.5" fill="var(--ink)"/><circle cx="166.5" cy="66.5" r="1.5" fill="#fff"/><circle cx="175" cy="76" r="4" fill="#ff9999" opacity="0.6"/>
+              <path d="M 175 82 Q 180 85 183 80" fill="none" stroke="var(--turtleAccent)" stroke-width="2" stroke-linecap="round"/>
+            </g>
+            <g class="shell-anim">
+              <path d="M 30 75 C 30 20 145 20 145 75 Z" fill="url(#t-shell)" stroke="var(--turtleAccent)" stroke-width="3" stroke-linejoin="round"/>
+              <path d="M 25 75 L 150 75 C 150 82 145 85 140 85 L 35 85 C 30 85 25 82 25 75 Z" fill="var(--turtleShell1)" stroke="var(--turtleAccent)" stroke-width="3" stroke-linejoin="round"/>
+              <path d="M 60 75 L 70 45 L 105 45 L 115 75" fill="none" stroke="var(--turtleAccent)" stroke-width="3" stroke-linejoin="round" opacity="0.5"/>
+              <path d="M 70 45 L 87 25 L 105 45" fill="none" stroke="var(--turtleAccent)" stroke-width="3" stroke-linejoin="round" opacity="0.5"/>
+              <path d="M 87 25 L 87 20" fill="none" stroke="var(--turtleAccent)" stroke-width="3" stroke-linejoin="round" opacity="0.5"/>
+            </g>
+            <path class="flipper-front-anim" d="M 110 80 C 80 90 40 100 20 115 C 40 135 80 120 105 90 Z" fill="var(--turtleSkin)" stroke="var(--turtleAccent)" stroke-width="2"/>
+            <path class="flipper-back-anim" d="M 60 80 C 45 90 25 95 15 105 C 25 115 45 110 55 90 Z" fill="var(--turtleSkin)" stroke="var(--turtleAccent)" stroke-width="2"/>
+          </g>
+        </svg>
+      </div>
+    </main>
   </div>
 
-  <footer>
-    GitHub Portfolio &middot; ch190004-blip
-  </footer>
-
-  <script>
-    function openProject(folder){
-      window.open('./' + folder + '/');
-    }
-
-    function downloadProject(folder){
-      const repo = 'ch190004-blip/portfolio';
-      window.open('https://download-directory.github.io/?url=https://github/' + repo + '/tree/main/' + folder);
-    }
-
-    // AI 面板控制
-    function toggleAIPanel(){
-      document.getElementById('aiPanel').classList.toggle('active');
-      document.getElementById('aiOverlay').classList.toggle('active');
-    }
-
-    function switchAITab(tab){
-      // 切換 Tab 按鈕樣式
-      document.querySelectorAll('.ai-tab').forEach(function(btn){
-        btn.classList.remove('active');
-      });
-      event.target.classList.add('active');
-
-      // 切換內容
-      document.querySelectorAll('.ai-tab-content').forEach(function(content){
-        content.classList.remove('active');
-      });
-      var targetTab = document.getElementById('tab-' + tab);
-      if(targetTab){
-        targetTab.classList.add('active');
-      }
-    }
-
-    // 按 ESC 關閉面板
-    document.addEventListener('keydown', function(e){
-      if(e.key === 'Escape'){
-        document.getElementById('aiPanel').classList.remove('active');
-        document.getElementById('aiOverlay').classList.remove('active');
-      }
-    });
-  </script>
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
