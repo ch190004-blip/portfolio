@@ -178,7 +178,6 @@ function updateHUD(){
             chienyun: "邱千芸主任 ",
             yichian: "羅衣茜組長 ",
             yuwen: "王妤文組長 ",
-            yuyun: "羅衣茜組長 "
         };
         let teacherName = nameMap[window.currentMode] || "組長 ";
 
