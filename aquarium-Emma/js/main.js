@@ -48,30 +48,20 @@ const schedules = {
         5: { 8: {class:"高二理組/高二文組", subject:"語文素養與國寫練"}, 9: {class:"高一", subject:"閱讀素養與演練"} }
     },
     yichian: {
-        1: { 
-            5: {class:"高二理組/高二文組", subject:"公民與社會"}, 
+        1: { 5: {class:"高二理組/高二文組", subject:"公民與社會"}, 
             6: {class:"高一", subject:"公民與社會"}, 
             8: {class:"高三文組", subject:"公共議題與社會探"}, 
-            9: {class:"國九B", subject:"社會探究"} 
-        },
-        2: { 
-            5: {class:"國九A", subject:"公民與社會"}
-        },
-        3: { 
-            4: {class:"高二理組/高二文組", subject:"公民與社會"},
+            9: {class:"國九B", subject:"社會探究"} },
+        2: { 5: {class:"國九A", subject:"公民與社會"} },
+        3: { 4: {class:"高二理組/高二文組", subject:"公民與社會"},
             5: {class:"高三文組", subject:"現代社會與經濟"},
-            10: {class:"辦公室", subject:"行政輪值"}
-        },
-        4: { 
-            1: {class:"高一", subject:"公民與社會"}, 
+            10: {class:"辦公室", subject:"行政輪值"} },
+        4: { 1: {class:"高一", subject:"公民與社會"}, 
             7: {class:"國九B", subject:"公民與社會"}, 
-            9: {class:"高二文組", subject:"社會探究"} 
-        },
-        5: { 
-            1: {class:"高三文組", subject:"公共議題與社會探"}, 
+            9: {class:"高二文組", subject:"社會探究"} },
+        5: { 1: {class:"高三文組", subject:"公共議題與社會探"}, 
             2: {class:"高三文組", subject:"族群、性別與國家"}, 
-            9: {class:"國九A", subject:"社會探究"} 
-        }
+            9: {class:"國九A", subject:"社會探究"} }
     },
     yuwen: {
         1: { 4: {class:"高三理組/高三文組", subject:"英文素養-ESL"}, 9: {class:"高三文組", subject:"閱讀素養與演練"} },
