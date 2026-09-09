@@ -355,7 +355,7 @@ const schoolEvents = [
     { name: "高三模擬考", start: "12/08", end: "12/09", display: "12/08~12/09" },
     { name: "高三第二次英語聽力測驗", start: "12/12", end: "12/12" },
     { name: "聖誕慶祝大會", start: "12/18", end: "12/18" },
-    { name: "日本八戶來訪", start: "12/88", end: "12/21", display: "12/18~12/21" },
+    { name: "日本八戶來訪", start: "12/18", end: "12/21", display: "12/18~12/21" },
     { name: "高三期末考+成績輸入", start: "12/30", end: "01/05", display: "12/30~01/05" },
     { name: "元旦連假", start: "01/01", end: "01/03", type: "holiday" },
     { name: "自主學習&多元選修期末發表", start: "01/08", end: "01/08" },
