@@ -323,6 +323,7 @@ const schoolEvents = [
     { name: "日本立教大學來訪", start: "09/15", end: "09/15" },
     { name: "開學祈福禮、國際旅行分享會", start: "09/18", end: "09/18" },
     { name: "基隆市語文競賽", start: "09/19", end: "09/19" },
+    { name: "第一次段考試卷繳交", start: "09/22", end: "10/02", display: "09/22~10/02" },
     { name: "中秋連假", start: "09/25", end: "09/27", type: "holiday" },
     { name: "教師節", start: "09/28", end: "09/28" },
     { name: "國慶連假", start: "10/09", end: "10/11", type: "holiday" },
