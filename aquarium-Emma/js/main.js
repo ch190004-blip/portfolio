@@ -15,10 +15,10 @@ document.body.style.pointerEvents = "auto";
 window.currentMode = 'yichian'; 
 
 const examBells = {
-    "3/2": [ { time: "09:50", msg: "搖鈴 (高一.二)" }, { time: "12:00", msg: "搖鈴 (高一.二)" }, { time: "13:15", msg: "搖鈴 (高一.二)" }, { time: "16:30", msg: "搖鈴 (高二)" } ],
-    "3/3": [ { time: "08:50", msg: "搖鈴 (國八.九)" }, { time: "09:30", msg: "搖鈴 (國七)" }, { time: "09:50", msg: "搖鈴 (國七.高一.二)" }, { time: "10:35", msg: "搖鈴 (國九)" }, { time: "12:00", msg: "搖鈴 (高一.二)" }, { time: "13:15", msg: "搖鈴 (高一.二)" }, { time: "13:35", msg: "搖鈴 (國九)" }, { time: "13:55", msg: "搖鈴 (國八)" }, { time: "14:15", msg: "搖鈴 (國八)" }, { time: "17:00", msg: "搖鈴 (國七)" } ],
-    "3/4": [ { time: "08:50", msg: "搖鈴 (國七.八.九)" }, { time: "10:35", msg: "搖鈴 (國八)" }, { time: "11:10", msg: "搖鈴 (國九)" }, { time: "11:20", msg: "搖鈴 (國九)" }, { time: "13:35", msg: "搖鈴 (國八)" }, { time: "15:50", msg: "搖鈴 (國七)" }, { time: "16:10", msg: "搖鈴 (國七)" } ]
-};
+    "10/13": [ { time: "14:30", msg: "搖鈴 (高中)" }, 
+               { time: "14:40", msg: "搖鈴 (高中)" }, ],
+    "10/14": [ { time: "11:55", msg: "搖鈴 (高中)" }, ],
+    
 
 const modes = ['chienyun', 'yichian', 'yuwen', 'exam', 'yuyun'];
 modes.forEach(mode => {
