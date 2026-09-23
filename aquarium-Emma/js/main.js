@@ -17,7 +17,6 @@ window.currentMode = 'yichian';
 const examBells = {
     "10/13": [ { time: "14:30", msg: "搖鈴 (高中)" }, ],
     "10/14": [ { time: "11:55", msg: "搖鈴 (高中)" }, ],
-    
 
 const modes = ['chienyun', 'yichian', 'yuwen', 'exam', 'yuyun'];
 modes.forEach(mode => {
